@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Support</title>
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+        
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">Support Center</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
+                    <li class="breadcrumb-item">Support</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <!-- Contact Info -->
+                    <div class="col-md-4">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Contact Information</div>
+                            </div>
+                            <div class="ibox-body">
+                                <div class="mb-4">
+                                    <i class="fa fa-envelope fa-2x text-primary mb-2"></i>
+                                    <h6>Email Support</h6>
+                                    <p class="text-muted">support@agaliawamu.com</p>
+                                </div>
+                                <div class="mb-4">
+                                    <i class="fa fa-phone fa-2x text-success mb-2"></i>
+                                    <h6>Phone Support</h6>
+                                    <p class="text-muted">+256 700 000 000</p>
+                                </div>
+                                <div class="mb-4">
+                                    <i class="fa fa-clock-o fa-2x text-warning mb-2"></i>
+                                    <h6>Working Hours</h6>
+                                    <p class="text-muted">Mon - Fri: 8:00 AM - 5:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Quick Links</div>
+                            </div>
+                            <div class="ibox-body">
+                                <ul class="list-group list-group-full">
+                                    <li class="list-group-item">
+                                        <a href="#"><i class="fa fa-book"></i> Documentation</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#"><i class="fa fa-question-circle"></i> FAQs</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#"><i class="fa fa-video-camera"></i> Video Tutorials</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Support Ticket Form -->
+                    <div class="col-md-8">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Submit a Support Ticket</div>
+                            </div>
+                            <div class="ibox-body">
+                                <form id="supportTicketForm">
+                                    <div class="form-group">
+                                        <label>Subject <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="subject" name="subject" 
+                                               placeholder="Brief description of your issue" required>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Category <span class="text-danger">*</span></label>
+                                                <select class="form-control" id="category" name="category" required>
+                                                    <option value="">Select Category</option>
+                                                    <option value="Technical Issue">Technical Issue</option>
+                                                    <option value="Billing">Billing</option>
+                                                    <option value="Feature Request">Feature Request</option>
+                                                    <option value="Account">Account</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Priority <span class="text-danger">*</span></label>
+                                                <select class="form-control" id="priority" name="priority" required>
+                                                    <option value="Low">Low</option>
+                                                    <option value="Medium" selected>Medium</option>
+                                                    <option value="High">High</option>
+                                                    <option value="Urgent">Urgent</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Message <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="message" name="message" rows="6" 
+                                                  placeholder="Please describe your issue in detail..." required></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" id="submitTicketBtn">
+                                        <i class="fa fa-paper-plane"></i> Submit Ticket
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/app.min.js"></script>
+
+    <script>
+        $('#supportTicketForm').on('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            $('#submitTicketBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Submitting...');
+
+            try {
+                const response = await fetch('/support/ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Errors',
+                        html: result.errors.map(e => `<p>• ${e}</p>`).join('')
+                    });
+                    
+                    $('#submitTicketBtn').prop('disabled', false).html('<i class="fa fa-paper-plane"></i> Submit Ticket');
+                    return;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Ticket Submitted',
+                    text: result.message
+                }).then(() => {
+                    $('#supportTicketForm')[0].reset();
+                    $('#submitTicketBtn').prop('disabled', false).html('<i class="fa fa-paper-plane"></i> Submit Ticket');
+                });
+
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Could not submit ticket. Please try again.'
+                });
+                
+                $('#submitTicketBtn').prop('disabled', false).html('<i class="fa fa-paper-plane"></i> Submit Ticket');
+            }
+        });
+    </script>
+</body>
+</html>

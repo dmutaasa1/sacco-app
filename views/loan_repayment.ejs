@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Loan Repayment</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <style>
+        .payment-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .payment-history {
+            margin-top: 20px;
+        }
+        .history-item {
+            padding: 10px;
+            background: white;
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
+            border-radius: 3px;
+        }
+        .payment-type-label {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .full-payment {
+            background: #28a745;
+            color: white;
+        }
+        .partial-payment {
+            background: #ffc107;
+            color: black;
+        }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+        
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">Loan Repayment</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html"><i class="la la-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">Loans</li>
+                    <li class="breadcrumb-item">Repayment</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Record Payment</div>
+                            </div>
+                            <div class="ibox-body">
+                                <form id="repaymentForm">
+                                    <input type="hidden" id="loan_id">
+                                    <input type="hidden" id="suggested_amount">
+                                    
+                                    <div class="alert alert-info">
+                                        <i class="fa fa-info-circle"></i> 
+                                        You can make full or partial payments. Partial payments will be applied to pending installments in order.
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Payment Amount (UGX) *</label>
+                                        <input type="number" class="form-control" id="payment_amount" required min="1" step="0.01">
+                                        <small class="form-text text-muted">
+                                            Suggested amount: <strong id="suggested_display">-</strong>
+                                            <button type="button" class="btn btn-sm btn-link" id="useSuggestedBtn">Use Suggested Amount</button>
+                                        </small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Payment Date *</label>
+                                        <input type="date" class="form-control" id="payment_date" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Payment Method *</label>
+                                        <select class="form-control" id="payment_method" required>
+                                            <option value="Cash">Cash</option>
+                                            <option value="Bank Transfer">Bank Transfer</option>
+                                            <option value="Mobile Money">Mobile Money</option>
+                                            <option value="Cheque">Cheque</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Reference Number</label>
+                                        <input type="text" class="form-control" id="reference_number" placeholder="Transaction reference">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Notes</label>
+                                        <textarea class="form-control" id="payment_notes" rows="3"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fa fa-check"></i> Record Payment
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" onclick="window.location.href='loans-list.html'">
+                                            <i class="fa fa-times"></i> Cancel
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <!-- Payment History -->
+                                <div class="payment-history">
+                                    <h5>Payment History</h5>
+                                    <div id="paymentHistory">
+                                        <p class="text-muted">Loading payment history...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Loan Details</div>
+                            </div>
+                            <div class="ibox-body">
+                                <div class="payment-info" id="paymentInfo">
+                                    <p class="text-center text-muted">Loading loan information...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Pending Installments</div>
+                            </div>
+                            <div class="ibox-body">
+                                <div id="pendingInstallments">
+                                    <p class="text-center text-muted">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+                <a class="px-4" href="#" target="_blank">Contact Us</a>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="assets/js/app.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const loanId = urlParams.get('loan_id');
+
+        if (!loanId) {
+            alert('No loan ID provided');
+            window.location.href = 'loans-list.html';
+        }
+
+        $('#loan_id').val(loanId);
+        $('#payment_date').val(new Date().toISOString().split('T')[0]);
+
+        let loanData = null;
+
+        // Load loan details
+        // Load loan details - HANDLE BOTH METHODS
+function loadLoanDetails() {
+    $.ajax({
+        url: `/loans/${loanId}/details`,
+        type: 'GET',
+        success: function(response) {
+            if (response.loan) {
+                const loan = response.loan;
+                const interestMethod = loan.interest_method || 'reducing_balance';
+                
+                let html = '';
+                
+                // In loan_repayment.html - Simple Interest Display
+                    if (interestMethod === 'simple_interest') {
+                        const totalRepayment = parseFloat(loan.total_repayment);  // ✅ Now this will be correct
+                        const totalInterest = parseFloat(loan.total_expected_interest);
+                        
+                        // Calculate total paid so far
+                        $.ajax({
+                            url: `/loans/${loanId}/payment-history`,
+                            type: 'GET',
+                            success: function(historyResponse) {
+                                let totalPaid = 0;
+                                historyResponse.history.forEach(h => {
+                                    totalPaid += parseFloat(h.amount);
+                                });
+                                
+                                const remaining = totalRepayment - totalPaid;
+                                
+                                html = `
+                                    <div class="alert alert-info mb-3">
+                                        <i class="fa fa-bolt"></i> <strong>Quick Loan</strong> (Simple Interest)
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Member:</span>
+                                        <strong>${loan.member_name}</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Principal Amount:</span>
+                                        <strong>UGX ${parseFloat(loan.loan_amount).toLocaleString()}</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Total Interest (Fixed):</span>
+                                        <strong style="color: orange;">UGX ${totalInterest.toLocaleString()}</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Total to Repay:</span>
+                                        <strong style="color: blue;">UGX ${totalRepayment.toLocaleString()}</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Total Paid:</span>
+                                        <strong style="color: green;">UGX ${totalPaid.toLocaleString()}</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Amount Remaining:</span>
+                                        <strong style="color: red; font-size: 1.2em;">UGX ${remaining.toLocaleString()}</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Monthly Payment:</span>
+                                        <strong>UGX ${parseFloat(loan.monthly_payment).toLocaleString()}</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Loan Status:</span>
+                                        <strong>${loan.status}</strong>
+                                    </div>
+                                `;
+                                
+                                $('#paymentInfo').html(html);
+                                
+                                // Set suggested amount
+                                $('#suggested_amount').val(remaining);
+                                $('#suggested_display').text('UGX ' + remaining.toLocaleString());
+                            }
+                        });
+                    }
+
+                 else {
+                    // REDUCING BALANCE DISPLAY (existing code)
+                    html = `
+                        <div class="alert alert-info mb-3">
+                            <i class="fa fa-line-chart"></i> <strong>Standard Loan</strong> (Reducing Balance)
+                        </div>
+                        <div class="info-item">
+                            <span>Member:</span>
+                            <strong>${loan.member_name}</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Original Loan Amount:</span>
+                            <strong>UGX ${parseFloat(loan.loan_amount).toLocaleString()}</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Principal Balance:</span>
+                            <strong style="color: blue;">UGX ${parseFloat(loan.balance).toLocaleString()}</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Accumulated Interest:</span>
+                            <strong style="color: orange;">UGX ${parseFloat(loan.accumulated_interest).toLocaleString()}</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Total Owed:</span>
+                            <strong style="color: red; font-size: 1.2em;">UGX ${parseFloat(loan.total_owed).toLocaleString()}</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Interest Rate:</span>
+                            <strong>${loan.interest_rate}% per annum</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Daily Interest:</span>
+                            <strong>~UGX ${(loan.balance * (loan.interest_rate / 100) / 365).toFixed(2)}</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Interest (Last 30 Days):</span>
+                            <strong>UGX ${parseFloat(response.interest_last_30_days || 0).toLocaleString()}</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Loan Status:</span>
+                            <strong>${loan.status}</strong>
+                        </div>
+                    `;
+                    $('#paymentInfo').html(html);
+                    
+                    // Set suggested amount to total owed
+                    $('#suggested_amount').val(loan.total_owed);
+                    $('#suggested_display').text('UGX ' + parseFloat(loan.total_owed).toLocaleString());
+                }
+                
+                loadPendingInstallments();
+                loadPaymentHistory();
+            }
+        },
+        error: function(xhr) {
+            alert('Error loading loan details: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        }
+    });
+}
+
+     
+
+        // Load pending installments
+        // Load pending installments - SHOW EXPECTED BREAKDOWN
+                    function loadPendingInstallments() {
+                        $.ajax({
+                            url: `/loans/${loanId}/statement`,
+                            type: 'GET',
+                            success: function(response) {
+                                console.log('Statement response:', response);
+                                
+                                if (!response.schedule || response.schedule.length === 0) {
+                                    $('#pendingInstallments').html('<p class="text-muted">No installments found.</p>');
+                                    return;
+                                }
+                                
+                                const pendingPayments = response.schedule.filter(s => 
+                                    s.status === 'Pending' || s.status === 'Overdue'
+                                );
+                                
+                                if (pendingPayments.length === 0) {
+                                    $('#pendingInstallments').html('<p class="text-success">All installments paid!</p>');
+                                    return;
+                                }
+                                
+                                let html = '<div style="font-size: 0.85rem;">';
+                                html += '<p class="text-info"><i class="fa fa-info-circle"></i> <strong>Expected breakdown</strong> (reducing balance). Actual interest calculated daily.</p>';
+                                html += '<table class="table table-sm table-bordered">';
+                                html += `<thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Due Date</th>
+                                        <th>Expected Payment</th>
+                                        <th>Paid</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead><tbody>`;
+                                
+                                pendingPayments.forEach(p => {
+                                    const paidAmount = parseFloat(p.paid_amount || 0);
+                                    const expectedPayment = parseFloat(p.expected_payment || 0);
+                                    const expectedPrincipal = parseFloat(p.expected_principal || 0);
+                                    const expectedInterest = parseFloat(p.expected_interest || 0);
+                                    const balance = expectedPayment - paidAmount;
+                                    const statusColor = p.status === 'Overdue' ? 'red' : 'orange';
+                                    
+                                    html += `
+                                        <tr style="color: ${statusColor};">
+                                            <td>${p.payment_number}</td>
+                                            <td>${new Date(p.due_date).toLocaleDateString('en-GB')}</td>
+                                            <td>
+                                                <strong>${expectedPayment.toLocaleString()}</strong>
+                                                <br><small class="text-muted">
+                                                    Principal: ${expectedPrincipal.toLocaleString()}
+                                                    <br>Interest: ${expectedInterest.toLocaleString()} (expected)
+                                                </small>
+                                            </td>
+                                            <td>${paidAmount.toLocaleString()}</td>
+                                            <td><strong>${balance.toLocaleString()}</strong></td>
+                                        </tr>
+                                    `;
+                                });
+                                
+                                html += '</tbody></table></div>';
+                                $('#pendingInstallments').html(html);
+                            },
+                            error: function(xhr) {
+                                console.error('Error loading installments:', xhr);
+                                $('#pendingInstallments').html('<p class="text-danger">Error loading installments</p>');
+                            }
+                        });
+                    }
+        // Load payment history
+        // Load payment history - FIXED VERSION
+            function loadPaymentHistory() {
+                $.ajax({
+                    url: `/loans/${loanId}/payment-history`,
+                    type: 'GET',
+                    success: function(response) {
+                        console.log('Payment history response:', response); // Debug log
+                        
+                        if (!response.history || response.history.length === 0) {
+                            $('#paymentHistory').html('<p class="text-muted">No payment history yet.</p>');
+                            return;
+                        }
+                        
+                        let html = '';
+                        response.history.forEach(h => {
+                            const interestPaid = parseFloat(h.interest_paid || 0);
+                            const principalPaid = parseFloat(h.principal_paid || 0);
+                            const totalAmount = parseFloat(h.amount || 0);
+                            
+                            html += `
+                                <div class="history-item">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>${new Date(h.payment_date).toLocaleDateString('en-GB')}</strong>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <strong style="color: green;">UGX ${totalAmount.toLocaleString()}</strong>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 5px; font-size: 0.9rem; color: #6c757d;">
+                                        ${h.payment_method || 'N/A'} ${h.reference_number ? '| Ref: ' + h.reference_number : ''}
+                                        <br>Principal: UGX ${principalPaid.toLocaleString()} | Interest: UGX ${interestPaid.toLocaleString()}
+                                        ${h.notes ? '<br>' + h.notes : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        $('#paymentHistory').html(html);
+                    },
+                    error: function(xhr) {
+                        console.error('Error loading payment history:', xhr);
+                        $('#paymentHistory').html('<p class="text-danger">Error loading payment history</p>');
+                    }
+                });
+            }
+
+        // Use suggested amount
+              $('#useSuggestedBtn').on('click', function (e) {
+    e.preventDefault();
+
+    const suggested = $('#suggested_amount').val(); // ✅ numeric
+
+    if (suggested && !isNaN(suggested)) {
+        $('#payment_amount').val(suggested);
+    }
+});
+
+
+        // Submit payment
+        // Submit payment - FIXED VERSION
+            $('#repaymentForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    loan_id: parseInt($('#loan_id').val()),
+                    payment_amount: parseFloat($('#payment_amount').val()),
+                    payment_date: $('#payment_date').val(),
+                    payment_method: $('#payment_method').val(),
+                    reference_number: $('#reference_number').val(),
+                    notes: $('#payment_notes').val()
+                };
+
+                // Validate payment amount against total owed (not just balance)
+                if (loanData && loanData.loan) {
+                    const totalOwed = parseFloat(loanData.loan.balance) + parseFloat(loanData.loan.accumulated_interest || 0);
+                    if (formData.payment_amount > totalOwed) {
+                        alert(`Payment amount (UGX ${formData.payment_amount.toLocaleString()}) exceeds total owed (UGX ${totalOwed.toLocaleString()})!`);
+                        return;
+                    }
+                }
+
+                $.ajax({
+    url: '/loans/repayment',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(formData),
+    success: function(response) {
+        console.log('Payment response:', response);
+
+        const d = response.details;
+
+        let html = `
+            <div style="text-align:left">
+                <p><strong>Amount Paid:</strong> UGX ${d.amount_paid.toLocaleString()}</p>
+                <p><strong>Interest Paid:</strong> UGX ${d.interest_paid.toFixed(2)}</p>
+                <p><strong>Principal Paid:</strong> UGX ${d.principal_paid.toFixed(2)}</p>
+                <p><strong>Remaining Balance:</strong> UGX ${d.remaining_balance.toLocaleString()}</p>
+                <p><strong>Accumulated Interest:</strong> UGX ${d.accumulated_interest.toLocaleString()}</p>
+                ${
+                    d.payments_updated && d.payments_updated.length > 0
+                        ? `<p><strong>Installments Updated:</strong> ${d.payments_updated.length}</p>`
+                        : ''
+                }
+                ${
+                    d.status === 'Completed'
+                        ? `<hr><p style="color:green;font-weight:bold;">🎉 Loan fully paid!</p>`
+                        : ''
+                }
+            </div>
+        `;
+
+        Swal.fire({
+    icon: 'success',
+    title: 'Payment Recorded Successfully',
+    html: html,
+    showCancelButton: true,
+    confirmButtonText: 'Go to Loan List',
+    cancelButtonText: 'Stay Here',
+    reverseButtons: true
+}).then((result) => {
+    if (result.isConfirmed) {
+        window.location.href = '/loan_list';
+    } else {
+        // Stay on page → just refresh data
+        location.reload();
+    }
+});
+    },
+    error: function(xhr) {
+        console.error('Payment error:', xhr);
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed',
+            text: xhr.responseJSON?.error || 'Could not record payment'
+        });
+    }
+});
+
+            });
+
+        // Load all data on page load
+        loadLoanDetails();
+    </script>
+</body>
+</html>

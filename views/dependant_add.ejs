@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Savings</title>
+    <!-- GLOBAL MAINLY STYLES-->
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <!-- PLUGINS STYLES-->
+    <link href="/assets/vendors/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/jquery-minicolors/jquery.minicolors.css" rel="stylesheet" />
+    <!-- THEME STYLES-->
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+
+    <!-- THEME STYLES-->
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <!-- PAGE LEVEL STYLES-->
+    
+    <style>
+        .validation-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .member-valid {
+            border-color: #28a745 !important;
+            background-color: #f0fff4;
+        }
+        
+        .member-invalid {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5;
+        }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <!-- START HEADER-->         
+        <%- include('partials/header') %>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+        <%- include('partials/sidebar') %>        
+        <!-- END SIDEBAR-->
+        
+        <div class="content-wrapper">
+            <!-- START PAGE CONTENT-->
+            <div class="page-heading">
+                <h1 class="page-title">Register New Dependant</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/"><i class="la la-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">Register New Dependant</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">                
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <div class="ibox-title">Add Dependant</div>
+                        <div class="ibox-tools">
+                            <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="ibox-body">
+                        <form class="mt-1" id="dependantadd">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="ibox ibox-primary">
+                                        <div class="ibox-head">
+                                            <div class="ibox-title">Personal Details</div>
+                                        </div>
+                                        <div class="ibox-body">
+                                            
+                                            <!-- Member Validation Section -->
+                                            <div class="form-group row">
+                                                <label for="person_id" class="col-sm-2 col-form-label">
+                                                    <b>Member No: <span class="text-danger">*</span></b>
+                                                </label>
+                                                <div class="col-sm-4">
+                                                    <input 
+                                                        type="number" 
+                                                        id="person_id" 
+                                                        name="person_id" 
+                                                        class="form-control" 
+                                                        required
+                                                        placeholder="Enter member number"
+                                                    >
+                                                    <small id="memberFeedback" class="form-text"></small>
+                                                </div>
+                                                
+                                                <label for="full_name" class="col-sm-2 col-form-label">
+                                                    <b>Full Name:</b>
+                                                </label>
+                                                <div class="col-sm-4">
+                                                    <input 
+                                                        type="text" 
+                                                        id="full_name" 
+                                                        class="form-control" 
+                                                        readonly
+                                                        placeholder="Member name will appear here"
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <hr>
+
+                                            <!-- Dependant Details -->
+                                            <div class="form-group row">
+                                                <label for="First_name" class="col-sm-2 col-form-label">
+                                                    <b>First Name: <span class="text-danger">*</span></b>
+                                                </label>
+                                                <div class="col-sm-4">
+                                                    <input 
+                                                        type="text" 
+                                                        id="First_name" 
+                                                        name="First_name" 
+                                                        class="form-control" 
+                                                        required
+                                                    >
+                                                </div>
+                                                
+                                                <label for="Middle_Name" class="col-sm-2 col-form-label">
+                                                    <b>Middle Name:</b>
+                                                </label>
+                                                <div class="col-sm-4">
+                                                    <input 
+                                                        type="text" 
+                                                        id="Middle_Name" 
+                                                        name="Middle_Name" 
+                                                        class="form-control"
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="Last_Name" class="col-sm-2 col-form-label">
+                                                    <b>Last Name: <span class="text-danger">*</span></b>
+                                                </label>
+                                                <div class="col-sm-4">
+                                                    <input 
+                                                        type="text" 
+                                                        id="Last_Name" 
+                                                        name="Last_Name" 
+                                                        class="form-control" 
+                                                        required
+                                                    >
+                                                </div>
+
+                                                <label for="child_date_of_birth" class="col-sm-2 col-form-label">
+                                                    <b>Birth Date: <span class="text-danger">*</span></b>
+                                                </label>
+                                                <div class="col-sm-4">
+                                                    <input 
+                                                        type="date" 
+                                                        id="child_date_of_birth" 
+                                                        name="date_of_birth" 
+                                                        class="form-control" 
+                                                        required
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="Gender" class="col-sm-2 col-form-label">
+                                                    <b>Gender: <span class="text-danger">*</span></b>
+                                                </label>
+                                                <div class="col-sm-4">
+                                                    <select name="Gender" id="Gender" class="form-control" required>
+                                                        <option value="">Select Gender</option>
+                                                        <option value="Male">Male</option>
+                                                        <option value="Female">Female</option>
+                                                    </select>
+                                                </div>
+
+                                                <label for="status" class="col-sm-2 col-form-label">
+                                                    <b>Status: <span class="text-danger">*</span></b>
+                                                </label>
+                                                <div class="col-sm-4">
+                                                    <select name="status" id="status" class="form-control" required>
+                                                        <option value="Active">Active</option>
+                                                        <option value="Disabled">Disabled</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success" id="submitBtn">
+                                    <i class="fa fa-check"></i> Submit Dependant
+                                </button>
+                                <a href="/dependants" class="btn btn-secondary">
+                                    <i class="fa fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- END PAGE CONTENT-->
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+                <a class="px-4" href="#" target="_blank">Contact Us</a>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- CORE PLUGINS-->
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+
+    <!-- PLUGINS -->
+    <script src="/assets/vendors/select2/dist/js/select2.min.js"></script>
+    <script src="/assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="/assets/vendors/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- THEME -->
+    <script src="/assets/js/app.min.js"></script>
+
+    <script>
+        let typingTimer;
+        const typingDelay = 500; // Wait 500ms after user stops typing
+        let memberValidated = false;
+
+        const memberInput = document.getElementById('person_id');
+        const fullNameInput = document.getElementById('full_name');
+        const feedback = document.getElementById('memberFeedback');
+
+        // Validate member on typing
+        memberInput.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            memberValidated = false;
+
+            const memberNo = memberInput.value.trim();
+
+            // Reset if empty or too short
+            if (memberNo.length < 1) {
+                resetMember();
+                return;
+            }
+
+            // Show loading state
+            feedback.innerHTML = '<span class="validation-spinner"></span> Validating...';
+            feedback.className = 'form-text text-info';
+            memberInput.classList.remove('member-valid', 'member-invalid');
+
+            // Wait for user to stop typing
+            typingTimer = setTimeout(() => {
+                validateMember(memberNo);
+            }, typingDelay);
+        });
+
+        // Validate member function
+        function validateMember(memberNo) {
+            fetch(`/api/member/${memberNo}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Member found
+                        fullNameInput.value = data.full_name;
+                        feedback.innerHTML = '<i class="fa fa-check-circle"></i> Member found: ' + data.full_name;
+                        feedback.className = 'form-text text-success';
+                        memberInput.classList.add('member-valid');
+                        memberInput.classList.remove('member-invalid');
+                        memberValidated = true;
+
+                        // Optional: Show member status
+                        if (data.member.status !== 'Active') {
+                            feedback.innerHTML += ' <span class="badge badge-warning">Status: ' + data.member.status + '</span>';
+                        }
+                    } else {
+                        // Member not found
+                        resetMember();
+                        feedback.innerHTML = '<i class="fa fa-times-circle"></i> Member not found';
+                        feedback.className = 'form-text text-danger';
+                        memberInput.classList.add('member-invalid');
+                        memberInput.classList.remove('member-valid');
+                    }
+                })
+                .catch(err => {
+                    console.error('Validation error:', err);
+                    resetMember();
+                    feedback.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Error validating member';
+                    feedback.className = 'form-text text-danger';
+                    memberInput.classList.add('member-invalid');
+                    memberInput.classList.remove('member-valid');
+                });
+        }
+
+        // Reset member validation
+        function resetMember() {
+            fullNameInput.value = '';
+            memberValidated = false;
+        }
+
+        // Form submission
+        document.getElementById('dependantadd').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Check if member is validated
+            if (!memberValidated) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Required',
+                    text: 'Please enter a valid member number first'
+                });
+                memberInput.focus();
+                return;
+            }
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
+
+            try {
+                const response = await fetch('/dependantadd', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Errors',
+                        html: result.errors.map(err => `<p>• ${err}</p>`).join('')
+                    });
+                    
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa fa-check"></i> Submit Dependant';
+                    return;
+                }
+
+                const formattedDate = new Date(result.dependantadd.date_of_birth)
+                    .toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Dependant Added Successfully',
+                    html: `
+                        <div style="text-align: left; padding: 10px;">
+                            <p><b>Member ID:</b> ${result.dependantadd.person_id}</p>
+                            <p><b>First Name:</b> ${result.dependantadd.First_name}</p>
+                            ${result.dependantadd.Middle_Name ? '<p><b>Middle Name:</b> ' + result.dependantadd.Middle_Name + '</p>' : ''}
+                            <p><b>Last Name:</b> ${result.dependantadd.Last_Name}</p>
+                            <p><b>Gender:</b> ${result.dependantadd.Gender}</p>
+                            <p><b>Date of Birth:</b> ${formattedDate}</p>
+                            <p><b>Status:</b> <span class="badge badge-${result.dependantadd.status === 'Active' ? 'success' : 'secondary'}">${result.dependantadd.status}</span></p>
+                        </div>
+                    `,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = '/dependants';
+                });
+
+            } catch (err) {
+                console.error('Submission error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Server Error',
+                    text: 'Could not submit dependant. Please try again.'
+                });
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa fa-check"></i> Submit Dependant';
+            }
+        });
+
+        // Set max date to today for date of birth
+        document.getElementById('child_date_of_birth').max = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Interest History - Loan #<%= loan.id %></title>
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+        
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">Daily Interest History</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
+                    <li class="breadcrumb-item"><a href="/loan_list">Loans</a></li>
+                    <li class="breadcrumb-item">Interest History</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">
+                <!-- Loan Summary -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">
+                                    Loan #<%= loan.id %> - <%= loan.member_name %>
+                                </div>
+                                <div class="ibox-tools">
+                                    <a href="/Loan_statement?loan_id=<%= loan.id %>" class="btn btn-sm btn-info">
+                                        <i class="fa fa-file-text"></i> View Statement
+                                    </a>
+                                    <a href="/loans/<%= loan.id %>/interest-export" class="btn btn-sm btn-success">
+                                        <i class="fa fa-download"></i> Export CSV
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="ibox-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h6 class="text-muted">Loan Amount</h6>
+                                            <h4>UGX <%= parseFloat(loan.loan_amount).toLocaleString('en-UG') %></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h6 class="text-muted">Current Balance</h6>
+                                            <h4 class="text-danger">UGX <%= parseFloat(loan.balance).toLocaleString('en-UG') %></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h6 class="text-muted">Accumulated Interest</h6>
+                                            <h4 class="text-warning">UGX <%= parseFloat(loan.accumulated_interest).toLocaleString('en-UG', {minimumFractionDigits: 2}) %></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h6 class="text-muted">Interest Rate</h6>
+                                            <h4 class="text-primary"><%= parseFloat(loan.interest_rate).toFixed(2) %>% p.a.</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interest History Table -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Daily Interest Calculations</div>
+                            </div>
+                            <div class="ibox-body">
+                                <table id="interestTable" class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Outstanding Balance</th>
+                                            <th>Daily Interest</th>
+                                            <th>Annual Rate</th>
+                                            <th>Daily Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% history.forEach(record => { %>
+                                            <tr>
+                                                <td><%= new Date(record.calculation_date).toLocaleDateString('en-GB') %></td>
+                                                <td>UGX <%= parseFloat(record.outstanding_balance).toLocaleString('en-UG', {minimumFractionDigits: 0}) %></td>
+                                                <td>UGX <%= parseFloat(record.daily_interest_amount).toLocaleString('en-UG', {minimumFractionDigits: 2}) %></td>
+                                                <td><%= parseFloat(record.annual_interest_rate).toFixed(2) %>%</td>
+                                                <td><%= (parseFloat(record.annual_interest_rate) / 365).toFixed(6) %>%</td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="font-weight-bold">
+                                            <td>TOTAL</td>
+                                            <td></td>
+                                            <td id="totalInterest"></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/vendors/DataTables/datatables.min.js"></script>
+    <script src="/assets/js/app.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            const table = $('#interestTable').DataTable({
+                order: [[0, 'desc']],
+                pageLength: 50,
+                lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
+                footerCallback: function(row, data, start, end, display) {
+                    const api = this.api();
+                    
+                    // Calculate total interest
+                    const total = api
+                        .column(2, { page: 'current' })
+                        .data()
+                        .reduce(function(a, b) {
+                            const num = parseFloat(b.replace(/[^0-9.-]+/g, ""));
+                            return a + (isNaN(num) ? 0 : num);
+                        }, 0);
+                    
+                    $('#totalInterest').html('UGX ' + total.toLocaleString('en-UG', {minimumFractionDigits: 2}));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

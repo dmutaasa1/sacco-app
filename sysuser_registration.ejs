@@ -1,0 +1,11 @@
+    const bcrypt = require('bcrypt');
+
+const saltRounds = 10;
+const plainPassword = 'myPassword123';
+
+async function hashPassword() {
+  const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+  console.log(hashedPassword);
+}
+
+hashPassword();

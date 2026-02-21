@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SACCO Management System</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+
+    <style>
+        /* ── Stats cards ── */
+        .stats-container            { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:15px; }
+        .stats-container > div      { flex:1; min-width:150px; }
+        .widget-stat                { height:110px; }
+        .widget-stat .ibox-body     { height:100%; display:flex; flex-direction:column;
+                                      justify-content:space-between; padding:10px; position:relative; }
+        .widget-stat-content        { z-index:2; position:relative; }
+        .widget-stat h2             { font-size:clamp(1.3rem,2vw,1.6rem); margin:0 0 8px; word-break:break-word; }
+        .widget-stat-title          { font-size:clamp(.75rem,1vw,.85rem); font-weight:600;
+                                      text-transform:uppercase; letter-spacing:.5px; line-height:1.3;
+                                      min-height:40px; display:flex; align-items:center; }
+        .widget-stat-icon           { position:absolute; top:0; font-size:3.5rem;
+                                      opacity:.3; z-index:1; }
+        .widget-stat-footer         { font-size:clamp(.7rem,.8vw,.75rem); opacity:.9; margin-top:auto; }
+
+        /* ── Chart wrappers — CRITICAL for Chart.js responsive sizing ── */
+        .chart-wrap-bar             { position:relative; height:260px; width:100%; }
+        .chart-wrap-donut           { position:relative; height:160px; width:100%; }
+        .chart-wrap-pie             { position:relative; height:160px; width:100%; }
+
+        /* ── Liquidity ── */
+        .liq-dot                    { display:inline-block; width:9px; height:9px;
+                                      border-radius:50%; margin-right:4px; vertical-align:middle; }
+        .liq-legend-row             { font-size:11px; margin-bottom:5px; }
+        #liquidity_list .list-group-item { font-size:11px; padding:5px 8px; }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+<div class="page-wrapper">
+    <%- include('partials/header') %>
+    <%- include('partials/sidebar') %>
+
+    <div class="content-wrapper">
+
+        <div class="page-heading">
+            <h1 class="page-title">Dashboard</h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
+                <li class="breadcrumb-item">Home</li>
+            </ol>
+        </div>
+
+        <div class="page-content fade-in-up">
+
+            <!-- ══════════════════════════════════════════════════════════
+                 Stats Cards
+            ══════════════════════════════════════════════════════════ -->
+            <div class="stats-container">
+
+                <div>
+                    <div class="ibox bg-success color-white widget-stat">
+                        <div class="ibox-body">
+                            <i class="ti-wallet widget-stat-icon"></i>
+                            <div class="widget-stat-content">
+                                <h2 class="font-strong">UGX <%= parseFloat(memberSaving||0).toLocaleString('en-UG',{maximumFractionDigits:0}) %></h2>
+                                <div class="widget-stat-title">TOTAL SAVINGS</div>
+                            </div>
+                            <div class="widget-stat-footer">YTD: UGX <%= parseFloat(memberYTDSaving||0).toLocaleString('en-UG',{maximumFractionDigits:0}) %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="ibox bg-info color-white widget-stat">
+                        <div class="ibox-body">
+                            <i class="ti-bar-chart widget-stat-icon"></i>
+                            <div class="widget-stat-content">
+                                <h2 class="font-strong">UGX <%= parseFloat(totalLoans||0).toLocaleString('en-UG',{maximumFractionDigits:0}) %></h2>
+                                <div class="widget-stat-title">TOTAL LOANS DISBURSED</div>
+                            </div>
+                            <div class="widget-stat-footer">Outstanding: UGX <%= parseFloat(outstandingLoans||0).toLocaleString('en-UG',{maximumFractionDigits:0}) %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="ibox bg-warning color-white widget-stat">
+                        <div class="ibox-body">
+                            <i class="fa fa-money widget-stat-icon"></i>
+                            <div class="widget-stat-content">
+                                <h2 class="font-strong">UGX <%= parseFloat(memberIncome||0).toLocaleString('en-UG',{maximumFractionDigits:0}) %></h2>
+                                <div class="widget-stat-title">TOTAL INCOME (YTD)</div>
+                            </div>
+                            <div class="widget-stat-footer">All Time: UGX <%= parseFloat(memberAllIncome||0).toLocaleString('en-UG',{maximumFractionDigits:0}) %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="ibox bg-danger color-white widget-stat">
+                        <div class="ibox-body">
+                            <i class="ti-user widget-stat-icon"></i>
+                            <div class="widget-stat-content">
+                                <h2 class="font-strong"><%= memberCount||0 %></h2>
+                                <div class="widget-stat-title">ACTIVE MEMBERS</div>
+                            </div>
+                            <div class="widget-stat-footer">Joined (YTD): <%= ytd_memberCount||0 %> Members</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 Row 1 — Bar chart + Income doughnut
+            ══════════════════════════════════════════════════════════ -->
+            <div class="row">
+
+                <div class="col-lg-8 col-md-12">
+                    <div class="ibox">
+                        <div class="ibox-body">
+                            <div class="mb-3">
+                                <h3 class="m-0">Financial Statistics</h3>
+                                <small class="text-muted">Monthly savings, income &amp; loans</small>
+                            </div>
+                            <div class="chart-wrap-bar">
+                                <canvas id="bar_chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">Income Analysis</div>
+                        </div>
+                        <div class="ibox-body">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <div class="chart-wrap-donut">
+                                        <canvas id="doughnut_chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-6" style="font-size:12px;">
+                                    <div class="mb-2 text-success"><i class="fa fa-circle-o mr-1"></i>Interest <%= interestPercentage %>%</div>
+                                    <div class="mb-2 text-warning"><i class="fa fa-circle-o mr-1"></i>Penalties <%= penaltyPercentage %>%</div>
+                                    <div class="mb-2 text-info"><i class="fa fa-circle-o mr-1"></i>Fees <%= feePercentage %>%</div>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-divider list-group-full mt-2">
+                                <li class="list-group-item" style="font-size:12px;">Interest Income <span class="float-right text-success">UGX <%= parseFloat(interestIncome||0).toLocaleString() %></span></li>
+                                <li class="list-group-item" style="font-size:12px;">Penalties <span class="float-right text-warning">UGX <%= parseFloat(penaltyIncome||0).toLocaleString() %></span></li>
+                                <li class="list-group-item" style="font-size:12px;">Membership Fees <span class="float-right text-info">UGX <%= parseFloat(feeIncome||0).toLocaleString() %></span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 Row 2 — Liquidity pie + Loan stats + Top borrowers
+            ══════════════════════════════════════════════════════════ -->
+            <div class="row">
+
+                <!-- Liquidity -->
+                <div class="col-lg-4 col-md-12">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">
+                                <i class="fa fa-pie-chart text-primary" style="margin-right:5px;"></i>Fund Liquidity
+                            </div>
+                            <div class="ibox-tools">
+                                <a href="/liquidity_report" class="btn btn-xs btn-primary">
+                                    <i class="fa fa-external-link"></i> Full Report
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-body">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <div class="chart-wrap-pie">
+                                        <canvas id="liquidity_chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-6" id="liquidity_legend">
+                                    <div class="text-muted text-center" style="font-size:12px;">
+                                        <i class="fa fa-spinner fa-spin"></i> Loading…
+                                    </div>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-divider list-group-full mt-2" id="liquidity_list"></ul>
+                            <div class="mt-2 pt-2 border-top" style="font-size:12px;">
+                                <strong>Total Funds:</strong>
+                                <span class="float-right font-weight-bold text-primary" id="liquidity_total">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loan stats -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="ibox">
+                        <div class="ibox-head"><div class="ibox-title">Loan Statistics</div></div>
+                        <div class="ibox-body">
+                            <div class="mb-3">
+                                <h4 class="text-primary mb-0"><%= loanStats.total_active_loans||0 %></h4>
+                                <p class="text-muted mb-0" style="font-size:12px;">Active Loans</p>
+                            </div>
+                            <div class="mb-3">
+                                <h4 class="text-danger mb-0"><%= loanStats.loans_with_overdue||0 %></h4>
+                                <p class="text-muted mb-0" style="font-size:12px;">Loans with Overdue Payments</p>
+                            </div>
+                            <div class="mb-3">
+                                <h4 class="text-success mb-0">UGX <%= parseFloat(loanStats.total_outstanding||0).toLocaleString() %></h4>
+                                <p class="text-muted mb-0" style="font-size:12px;">Total Outstanding Balance</p>
+                            </div>
+                            <a href="/loan_list" class="btn btn-primary btn-block btn-sm">
+                                <i class="fa fa-list"></i> View All Loans
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top borrowers -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="ibox">
+                        <div class="ibox-head"><div class="ibox-title">Top Borrowers</div></div>
+                        <div class="ibox-body">
+                            <ul class="media-list media-list-divider m-0">
+                                <% if (topBorrowers && topBorrowers.length > 0) { %>
+                                    <% topBorrowers.forEach(function(b) { %>
+                                        <li class="media">
+                                            <div class="media-img">
+                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                                                     style="width:38px;height:38px;color:#fff;font-weight:700;font-size:16px;">
+                                                    <%= b.name.charAt(0) %>
+                                                </div>
+                                            </div>
+                                            <div class="media-body">
+                                                <div class="media-heading" style="font-size:12px;">
+                                                    <a href="/members/<%= b.id %>"><%= b.name %></a>
+                                                    <span class="float-right text-muted" style="font-size:11px;"><%= b.loan_count %> loan(s)</span>
+                                                </div>
+                                                <div class="text-success" style="font-size:11px;">
+                                                    UGX <%= parseFloat(b.total_borrowed).toLocaleString() %>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    <% }); %>
+                                <% } else { %>
+                                    <li class="text-center text-muted" style="font-size:12px;">No borrowers yet</li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 Row 3 — Recent Transactions
+            ══════════════════════════════════════════════════════════ -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">Recent Transactions</div>
+                            <div class="ibox-tools">
+                                <a href="/transaction_list" class="btn btn-primary btn-sm">View All</a>
+                            </div>
+                        </div>
+                        <div class="ibox-body">
+                            <table class="table table-striped table-hover" style="font-size:12px;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th><th>Member</th><th>Amount</th><th>Type</th><th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (recentTransactions && recentTransactions.length > 0) { %>
+                                        <% recentTransactions.forEach(function(txn) { %>
+                                            <tr>
+                                                <td><%= txn.id %></td>
+                                                <td><a href="/members/<%= txn.member_id %>"><%= txn.member_name %></a></td>
+                                                <td>
+                                                    <span class="<%= txn.Debit_Credit==='Credit'?'text-success':'text-danger' %>">
+                                                        UGX <%= parseFloat(txn.Amount).toLocaleString() %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-<%= txn.Debit_Credit==='Credit'?'success':'warning' %>">
+                                                        <%= txn.transaction_type %>
+                                                    </span>
+                                                </td>
+                                                <td><%= txn.tran_date %></td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr><td colspan="5" class="text-center text-muted">No transactions found</td></tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /page-content -->
+
+        <footer class="page-footer">
+            <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+            <a class="px-4" href="#" target="_blank">Contact Us</a>
+            <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+        </footer>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+<script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+<script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="./assets/vendors/chart.js/dist/Chart.min.js"></script>
+<script src="assets/js/app.min.js"></script>
+
+<script>
+$(function () {
+    'use strict';
+
+    function ugx(n) {
+        return parseFloat(n).toLocaleString('en-UG', { maximumFractionDigits: 0 });
+    }
+
+    /* ── 1. Bar Chart ──────────────────────────────────────────── */
+    new Chart(document.getElementById('bar_chart'), {
+        type: 'bar',
+        data: {
+            labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+            datasets: [
+                {
+                    label: 'Savings',
+                    backgroundColor: 'rgba(40,167,69,0.8)',
+                    borderColor: 'rgba(40,167,69,1)',
+                    borderWidth: 1,
+                    data: <%- savingsData %>
+                },
+                {
+                    label: 'Income',
+                    backgroundColor: 'rgba(255,193,7,0.8)',
+                    borderColor: 'rgba(255,193,7,1)',
+                    borderWidth: 1,
+                    data: <%- incomeData %>
+                },
+                {
+                    label: 'Loans',
+                    backgroundColor: 'rgba(23,162,184,0.8)',
+                    borderColor: 'rgba(0,191,255,1)',
+                    borderWidth: 1,
+                    data: <%- loansData %>
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: { display: true, position: 'top' },
+            scales: {
+                yAxes: [{ ticks: { beginAtZero: true, callback: function(v){ return 'UGX '+v.toLocaleString(); } } }]
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(item, data) {
+                        return data.datasets[item.datasetIndex].label + ': UGX ' + item.yLabel.toLocaleString();
+                    }
+                }
+            }
+        }
+    });
+
+    /* ── 2. Doughnut Chart ──────────────────────────────────────── */
+    new Chart(document.getElementById('doughnut_chart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Loan Interest','Penalties','Fees'],
+            datasets: [{
+                data: [<%= interestIncome %>, <%= penaltyIncome %>, <%= feeIncome %>],
+                backgroundColor: ['rgba(40,167,69,.8)','rgba(255,193,7,.8)','rgba(23,162,184,.8)'],
+                borderColor:     ['rgba(40,167,69,1)', 'rgba(255,193,7,1)', 'rgba(23,162,184,1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: { display: false },
+            tooltips: {
+                callbacks: {
+                    label: function(item, data) {
+                        return data.labels[item.index] + ': UGX ' +
+                               data.datasets[0].data[item.index].toLocaleString();
+                    }
+                }
+            }
+        }
+    });
+
+    /* ── 3. Liquidity Pie ───────────────────────────────────────── */
+    var LIQ = [
+        'rgba(23,162,184,.85)',
+        'rgba(40,167,69,.85)',
+        'rgba(255,193,7,.85)',
+        'rgba(220,53,69,.85)',
+        'rgba(111,66,193,.85)',
+        'rgba(253,126,20,.85)',
+        'rgba(32,201,151,.85)'
+    ];
+    var liqChart = null;
+
+    fetch('/liquidity/summary')
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            var cats   = data.categories || [];
+            var total  = data.total || 0;
+            var labels = cats.map(function(c){ return c.category; });
+            var values = cats.map(function(c){ return parseFloat(c.total_amount); });
+            var colors = LIQ.slice(0, labels.length);
+
+            if (liqChart) liqChart.destroy();
+
+            liqChart = new Chart(document.getElementById('liquidity_chart'), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: colors.map(function(c){ return c.replace('.85)','1)'); }),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: { display: false },
+                    tooltips: {
+                        callbacks: {
+                            label: function(item, d){
+                                var v   = d.datasets[0].data[item.index];
+                                var pct = total > 0 ? ((v/total)*100).toFixed(1) : 0;
+                                return d.labels[item.index]+': UGX '+ugx(v)+' ('+pct+'%)';
+                            }
+                        }
+                    }
+                }
+            });
+
+            /* Legend */
+            var leg = '';
+            cats.forEach(function(c,i){
+                var pct = total > 0 ? ((parseFloat(c.total_amount)/total)*100).toFixed(1) : 0;
+                leg += '<div class="liq-legend-row">' +
+                       '<span class="liq-dot" style="background:'+LIQ[i]+'"></span>' +
+                       '<strong>'+c.category+'</strong>' +
+                       '<span class="float-right text-muted">'+pct+'%</span></div>';
+            });
+            document.getElementById('liquidity_legend').innerHTML =
+                leg || '<small class="text-muted">No data yet</small>';
+
+            /* List */
+            var lst = '';
+            cats.forEach(function(c,i){
+                lst += '<li class="list-group-item">' +
+                       '<span class="liq-dot" style="background:'+LIQ[i]+'"></span>' +
+                       c.category +
+                       '<span class="float-right text-success font-weight-bold">UGX '+ugx(c.total_amount)+'</span></li>';
+            });
+            document.getElementById('liquidity_list').innerHTML =
+                lst || '<li class="list-group-item text-center text-muted" style="font-size:11px;">'+
+                       'No entries. <a href="/liquidity_report">Add funds</a></li>';
+
+            document.getElementById('liquidity_total').textContent = 'UGX ' + ugx(total);
+        })
+        .catch(function(){
+            document.getElementById('liquidity_legend').innerHTML =
+                '<small class="text-danger"><i class="fa fa-exclamation-circle"></i> Failed to load</small>';
+        });
+
+});
+</script>
+</body>
+</html>

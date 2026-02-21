@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Loans Report</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="./assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <style>
+        .summary-cards {
+            margin-bottom: 30px;
+            
+        }
+        .summary-card {
+            background: white;
+            padding: 5px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .summary-card .value {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .summary-card .label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .summary-card.primary .value { color: #007bff; }
+        .summary-card.success .value { color: #28a745; }
+        .summary-card.warning .value { color: #ffc107; }
+        .summary-card.danger .value { color: #dc3545; }
+        .summary-card.info .value { color: #17a2b8; }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .status-active { background: #28a745; color: white; }
+        .status-pending { background: #ffc107; color: black; }
+        .status-completed { background: #17a2b8; color: white; }
+        .status-defaulted { background: #dc3545; color: white; }
+        
+        .payment-status-completed { color: #28a745; font-weight: bold; }
+        .payment-status-has-overdue { color: #dc3545; font-weight: bold; }
+        .payment-status-active { color: #007bff; font-weight: bold; }
+        .payment-status-up-to-date { color: #17a2b8; font-weight: bold; }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+        
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">Loans Report</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html"><i class="la la-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">Reports</li>
+                    <li class="breadcrumb-item">Loans Report</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="summary-card primary">
+                                <div class="label">Total Loans</div>
+                                <div class="value" id="totalLoans">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="summary-card success">
+                                <div class="label">Active Loans</div>
+                                <div class="value" id="activeLoans">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="summary-card success">
+                                <div class="label">Completed Loans</div>
+                                <div class="value" id="completedLoans">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="summary-card warning">
+                                <div class="label">Loans Overdue</div>
+                                <div class="value" id="loansOverdue">-</div>
+                            </div>
+                        </div>
+                          <div class="col-md-2">
+                            <div class="summary-card danger">
+                                <div class="label">Defaulted Loans</div>
+                                <div class="value" id="defaultedLoans">-</div>
+                            </div>
+                        </div>
+                         <div class="col-md-2">
+                            <div class="summary-card primary">
+                                <div class="label">Quick Loans</div>
+                                <div class="value" id="quickLoans">-</div>
+                            </div>
+                        </div>
+                      
+                      
+                        
+                    </div>
+                    <div class="row" style="margin-top: 15px;">
+
+                          <div class="col-md-3">
+                            <div class="summary-card info">
+                                <div class="label">Total Disbursed</div>
+                                <div class="value" id="totalDisbursed">-</div>
+                            </div>
+                        </div>
+                       
+                      
+                        
+                        <div class="col-md-3">
+                            <div class="summary-card warning">
+                                <div class="label">Total Outstanding</div>
+                                <div class="value" id="totalOutstanding">-</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="summary-card info">
+                                <div class="label">Total Collected</div>
+                                <div class="value" id="totalCollected">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="summary-card info">
+                                <div class="label">Total Interest</div>
+                                <div class="value" id="totalinterest">-</div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <div class="ibox-title">Loans Report</div>
+                        <div class="ibox-tools">
+                            <button class="btn btn-success btn-sm" id="exportBtn">
+                                <i class="fa fa-file-excel-o"></i> Export to CSV
+                            </button>
+                            <button class="btn btn-info btn-sm" onclick="window.print()">
+                                <i class="fa fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="ibox-body">
+                        <div class="row" style="margin-bottom: 15px;">
+                            <div class="col-md-2">
+                                <label>Member ID:</label>
+                                <input type="text" id="memberId" placeholder="Member ID" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-3">
+                                <label>Member Name:</label>
+                                <input type="text" id="memberName" placeholder="Member Name" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-2">
+                                <label>Status:</label>
+                                <select id="loanStatus" class="form-control form-control-sm">
+                                    <option value="">-- All --</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Defaulted">Defaulted</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label>Start Date:</label>
+                                <input type="date" id="startDate" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-2">
+                                <label>End Date:</label>
+                                <input type="date" id="endDate" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-1" style="padding-top: 25px;">
+                                <button id="filterBtn" class="btn btn-primary btn-sm btn-block">Filter</button>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- DataTable -->
+                        <div class="table-responsive">
+                            <table id="loansReportTable" class="table table-striped table-bordered table-hover" style="width:100%; font-size: 0.9rem;">
+                                <thead>
+                                    <tr>
+                                        <th>SN</th>
+                                        <th>Loan ID</th>
+                                        <th>Member</th>
+                                        <th>Phone</th>
+                                        <th>Amount</th>
+                                        <th>Rate</th>
+                                        <th>Term</th>
+                                        <th>Monthly Payment</th>
+                                        <th>Balance</th>
+                                        <th>Paid</th>
+                                        <th>Pending</th>
+                                        <th>Overdue</th>
+                                        <th>Disbursed</th>
+                                        <th>Status</th>
+                                        <th>Payment Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+                <a class="px-4" href="#" target="_blank">Contact Us</a>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="./assets/vendors/DataTables/datatables.min.js"></script>
+    <script src="assets/js/app.min.js"></script>
+
+    <script>
+        // Load summary statistics
+        function loadSummary() {
+            $.ajax({
+                url: '/reports/loans-summary',
+                type: 'GET',
+                success: function(data) {
+                    $('#totalLoans').text(data.total_loans || 0);
+                    $('#activeLoans').text(data.active_loans || 0);
+                    $('#completedLoans').text(data.completed_loans || 0);
+                    $('#quickLoans').text(data.quick_loans || 0);
+                    $('#defaultedLoans').text(data.defaulted_loans || 0);
+                    $('#totalDisbursed').text('UGX ' + (parseFloat(data.total_disbursed || 0)).toLocaleString());
+                    $('#totalOutstanding').text('UGX ' + (parseFloat(data.total_outstanding || 0)).toLocaleString());
+                    $('#totalCollected').text('UGX ' + (parseFloat(data.total_collected || 0)).toLocaleString());
+                    $('#totalinterest').text('UGX ' + (parseFloat(data.Interest_Paid || 0)).toLocaleString());
+                    $('#loansOverdue').text(data.loans_with_overdue || 0);
+                },
+                error: function() {
+                    console.error('Error loading summary');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            // Load summary on page load
+            loadSummary();
+
+            const table = $('#loansReportTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searching: false,
+                ajax: {
+                    url: '/reports/loans-report',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: function (d) {
+                        return JSON.stringify({
+                            ...d,
+                            memberId: $('#memberId').val(),
+                            memberName: $('#memberName').val(),
+                            loanStatus: $('#loanStatus').val(),
+                            startDate: $('#startDate').val(),
+                            endDate: $('#endDate').val()
+                        });
+                    },
+                    error: function(xhr, error, thrown) {
+                        alert('Error: ' + (xhr.responseJSON?.error || 'Could not load data.'));
+                    }
+                },
+                columns: [
+                    { data: 'SN', width: '3%' },
+                    { data: 'loan_id', width: '5%' },
+                    { data: 'member_name', width: '12%' },
+                    { data: 'tel_no', width: '8%' },
+                    { 
+                        data: 'loan_amount',
+                        width: '8%',
+                        render: function (data) {
+                            return 'UGX ' + parseFloat(data).toLocaleString();
+                        }
+                    },
+                    { 
+                        data: 'interest_rate',
+                        width: '4%',
+                        render: function (data) {
+                            return data + '%';
+                        }
+                    },
+                    { 
+                        data: 'loan_term_months',
+                        width: '4%',
+                        render: function (data) {
+                            return data + 'm';
+                        }
+                    },
+                    { 
+                        data: 'monthly_payment',
+                        width: '8%',
+                        render: function (data) {
+                            return 'UGX ' + parseFloat(data).toLocaleString();
+                        }
+                    },
+                    { 
+                        data: 'balance',
+                        width: '8%',
+                        render: function (data) {
+                            const color = data > 0 ? 'red' : 'green';
+                            return `<span style="color: ${color}; font-weight: bold;">UGX ${parseFloat(data).toLocaleString()}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'payments_made',
+                        width: '4%',
+                        render: function (data) {
+                            return `<span style="color: green;">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'payments_pending',
+                        width: '4%',
+                        render: function (data) {
+                            return `<span style="color: orange;">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'payments_overdue',
+                        width: '4%',
+                        render: function (data) {
+                            return `<span style="color: red; font-weight: bold;">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'disbursement_date',
+                        width: '7%',
+                        render: function (data) {
+                            return new Date(data).toLocaleDateString('en-GB');
+                        }
+                    },
+                    { 
+                        data: 'status',
+                        width: '6%',
+                        render: function (data) {
+                            const statusClass = 'status-' + data.toLowerCase();
+                            return `<span class="status-badge ${statusClass}">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'payment_status',
+                        width: '7%',
+                        render: function (data) {
+                            const statusClass = 'payment-status-' + data.toLowerCase().replace(/ /g, '-');
+                            return `<span class="${statusClass}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        width: '6%',
+                        render: function (data, type, row) {
+                            return `
+                                <button class="btn btn-info btn-xs" onclick="viewLoan(${row.loan_id})" title="View Statement">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button class="btn btn-success btn-xs" onclick="makePayment(${row.loan_id})" title="Make Payment" ${row.status !== 'Active' ? 'disabled' : ''}>
+                                    <i class="fa fa-money"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                ],
+                order: [[1, 'desc']]
+            });
+
+            $('#filterBtn').on('click', function () {
+                table.ajax.reload();
+                loadSummary(); // Refresh summary when filtering
+            });
+
+            // Export to CSV
+            $('#exportBtn').on('click', function() {
+                const formData = {
+                    memberId: $('#memberId').val(),
+                    memberName: $('#memberName').val(),
+                    loanStatus: $('#loanStatus').val(),
+                    startDate: $('#startDate').val(),
+                    endDate: $('#endDate').val()
+                };
+
+                // Create a form and submit it
+                const form = $('<form>', {
+                    method: 'POST',
+                    action: '/reports/loans-export'
+                });
+
+                $.each(formData, function(key, value) {
+                    form.append($('<input>', {
+                        type: 'hidden',
+                        name: key,
+                        value: value
+                    }));
+                });
+
+                $('body').append(form);
+                form.submit();
+                form.remove();
+            });
+        });
+
+        function viewLoan(loanId) {
+            window.location.href = '/loan_statement?loan_id=' + loanId;
+        }
+
+        function makePayment(loanId) {
+            window.location.href = '/loan_repayment?loan_id=' + loanId;
+        }
+    </script>
+</body>
+</html>

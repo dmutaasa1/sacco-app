@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Member Transactions</title>
+    <!-- GLOBAL MAINLY STYLES-->
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <!-- PLUGINS STYLES-->
+    <link href="./assets/vendors/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet" />
+    <!-- THEME STYLES-->
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    
+    <style>
+        .validation-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .member-valid {
+            border-color: #28a745 !important;
+            background-color: #f0fff4;
+        }
+        
+        .member-invalid {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5;
+        }
+        
+        /* Member Info Card */
+        .member-info-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .member-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #e0e0e0;
+            margin: 0 auto 15px;
+            display: block;
+        }
+        
+        .member-name {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .member-id {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .member-detail-row {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .member-detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .member-detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .member-detail-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .waiting-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .waiting-state i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        
+        /* Compact Form */
+        .compact-form .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .compact-form label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .compact-form .form-control,
+        .compact-form .form-control-sm {
+            font-size: 14px;
+            height: 38px;
+        }
+        
+        .compact-form select.form-control {
+            height: 38px;
+        }
+        
+        .form-section-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .required-asterisk {
+            color: #dc3545;
+            margin-left: 2px;
+        }
+        
+        /* Fix datepicker input group */
+        .input-group.date {
+            display: flex;
+        }
+        
+        .input-group.date .input-group-addon {
+            display: flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            background-color: #fff;
+            border: 1px solid #ced4da;
+            border-right: 0;
+            border-radius: 0.25rem 0 0 0.25rem;
+        }
+        
+        .input-group.date .form-control {
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .member-info-card {
+                position: relative;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <!-- START HEADER-->         
+        <%- include('partials/header') %>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+        <%- include('partials/sidebar') %>        
+        <!-- END SIDEBAR-->
+        
+        <div class="content-wrapper">
+            <!-- START PAGE CONTENT-->
+            <div class="page-heading">
+                <h1 class="page-title">Financial Transactions</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/"><i class="la la-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">Member Transactions</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <!-- LEFT COLUMN - Member Info -->
+                    <div class="col-md-4">
+                        <div class="member-info-card">
+                            <div id="memberInfoDisplay">
+                                <!-- Waiting State -->
+                                <div class="waiting-state">
+                                    <i class="fa fa-user-circle"></i>
+                                    <p><strong>Enter Member ID</strong></p>
+                                    <p class="text-muted small">Member details will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- RIGHT COLUMN - Transaction Form -->
+                    <div class="col-md-8">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">New Transaction</div>
+                                <div class="ibox-tools">
+                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                                </div>
+                            </div>
+                            
+                            <div class="ibox-body">
+                                <form class="compact-form" id="member_trans">
+                                    
+                                    <!-- Member Search Section -->
+                                    <div class="form-section-title">
+                                        <i class="fa fa-search"></i> Member Search
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>
+                                            Member Number <span class="required-asterisk">*</span>
+                                        </label>
+                                        <input 
+                                            class="form-control" 
+                                            type="number" 
+                                            name="member_id" 
+                                            id="member_id"
+                                            placeholder="Enter member number"
+                                            required
+                                            autofocus
+                                        >
+                                        <small id="memberFeedback" class="form-text"></small>
+                                    </div>
+
+                                    <!-- Transaction Details Section -->
+                                    <div class="form-section-title">
+                                        <i class="fa fa-money"></i> Transaction Details
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    Amount <span class="required-asterisk">*</span>
+                                                </label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">UGX</span>
+                                                    </div>
+                                                    <input 
+                                                        class="form-control" 
+                                                        type="number" 
+                                                        placeholder="0.00" 
+                                                        name="Amount"
+                                                        id="Amount"
+                                                        min="0"
+                                                        step="0.01"
+                                                        required
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    Transaction Date <span class="required-asterisk">*</span>
+                                                </label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon bg-white">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input 
+                                                        class="form-control" 
+                                                        type="text" 
+                                                        name="tran_date"
+                                                        id="tran_date"
+                                                        placeholder="YYYY/MM/DD"
+                                                        required
+                                                        readonly
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    Payment Period <span class="required-asterisk">*</span>
+                                                </label>
+                                                <select class="form-control" name="payment_period" id="payment_period" required>
+                                                    <option value="">Select Year</option>
+                                                    <option value="2020">2020</option>
+                                                    <option value="2021">2021</option>
+                                                    <option value="2022">2022</option>
+                                                    <option value="2023">2023</option>
+                                                    <option value="2024">2024</option>
+                                                    <option value="2025">2025</option>
+                                                    <option value="2026" selected>2026</option>
+                                                    <option value="2027">2027</option>
+                                                    <option value="2028">2028</option>
+                                                    <option value="2029">2029</option>
+                                                    <option value="2030">2030</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    Debit/Credit <span class="required-asterisk">*</span>
+                                                </label>
+                                                <select class="form-control" name="Debit_Credit" id="Debit_Credit" required>
+                                                    <option value="Credit" selected>Credit (+)</option>
+                                                    <option value="Debit">Debit (-)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>
+                                            Transaction Type <span class="required-asterisk">*</span>
+                                        </label>
+                                        <select class="form-control" name="transaction_type" id="transaction_type" required>
+                                            <option value="">Select Type</option>
+                                            <option value="Membership Fee">Membership Fee</option>
+                                            <option value="Saving" selected>Saving</option>
+                                            <option value="Insuarance Cover">Insurance Cover</option>
+                                            <option value="Penalty Fees">Penalty Fees</option>
+                                            <option value="Loan Debit Intrest">Loan Penalty Interest</option>
+                                            <option value="Savings Credit Intrest">Savings Credit Interest</option>
+                                            <option value="welfare Fee">Annual Welfare Fee</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Narration / Description</label>
+                                        <textarea 
+                                            class="form-control" 
+                                            name="Narration"
+                                            id="Narration"
+                                            rows="2"
+                                            placeholder="Optional transaction notes"
+                                        ></textarea>
+                                    </div>
+                                    
+                                    <!-- Form Actions -->
+                                    <div class="form-group" style="margin-top: 25px;">
+                                        <button class="btn btn-success btn-block" type="submit" id="submitBtn">
+                                            <i class="fa fa-check-circle"></i> Submit Transaction
+                                        </button>
+                                        <a href="/transaction_list" class="btn btn-secondary btn-block">
+                                            <i class="fa fa-list"></i> View All Transactions
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END PAGE CONTENT-->
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- CORE PLUGINS-->
+    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="./assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    
+    <!-- PLUGINS -->
+    <script src="./assets/vendors/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- CORE SCRIPTS-->
+    <script src="assets/js/app.min.js"></script>
+
+    <script>
+        let typingTimer;
+        const typingDelay = 500;
+        let memberValidated = false;
+        let memberData = null;
+
+        const memberInput = document.getElementById('member_id');
+        const feedback = document.getElementById('memberFeedback');
+        const memberInfoDisplay = document.getElementById('memberInfoDisplay');
+
+        // Initialize datepicker - FIXED
+        $(document).ready(function () {
+            console.log('Initializing datepicker...');
+            
+            // Method 1: Direct initialization on input
+            $('#tran_date').datepicker({
+                format: 'yyyy/mm/dd',
+                autoclose: true,
+                todayHighlight: true,
+                todayBtn: 'linked',
+                orientation: 'bottom auto'
+            });
+            
+            // Set today's date
+            var today = new Date();
+            $('#tran_date').datepicker('setDate', today);
+            
+            console.log('Datepicker initialized');
+            
+            // Alternative: Click on addon to open datepicker
+            $('.input-group-addon').on('click', function() {
+                $('#tran_date').datepicker('show');
+            });
+        });
+
+        // Validate member on typing
+        memberInput.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            memberValidated = false;
+            memberData = null;
+
+            const memberNo = memberInput.value.trim();
+
+            if (memberNo.length < 1) {
+                resetMember();
+                return;
+            }
+
+            // Show loading state
+            feedback.innerHTML = '<span class="validation-spinner"></span> Validating...';
+            feedback.className = 'form-text text-info';
+            memberInput.classList.remove('member-valid', 'member-invalid');
+            
+            showLoadingState();
+
+            // Wait for user to stop typing
+            typingTimer = setTimeout(() => {
+                validateMember(memberNo);
+            }, typingDelay);
+        });
+
+        // Show loading state
+        function showLoadingState() {
+            memberInfoDisplay.innerHTML = `
+                <div class="waiting-state">
+                    <div class="validation-spinner" style="width: 40px; height: 40px; border-width: 4px; margin: 0 auto 15px;"></div>
+                    <p class="text-muted">Validating member...</p>
+                </div>
+            `;
+        }
+
+        // Validate member function
+        function validateMember(memberNo) {
+            fetch(`/api/member/${memberNo}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Member found
+                        memberData = data.member;
+                        feedback.innerHTML = '<i class="fa fa-check-circle"></i> Member validated';
+                        feedback.className = 'form-text text-success';
+                        memberInput.classList.add('member-valid');
+                        memberInput.classList.remove('member-invalid');
+                        memberValidated = true;
+
+                        // Show member info
+                        displayMemberInfo(data);
+
+                        // Warn if not active
+                        if (data.member.status !== 'Active') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Member Not Active',
+                                text: `This member's status is "${data.member.status}". Transactions may be restricted.`,
+                                confirmButtonText: 'Continue Anyway'
+                            });
+                        }
+                    } else {
+                        // Member not found
+                        resetMember();
+                        feedback.innerHTML = '<i class="fa fa-times-circle"></i> Member not found';
+                        feedback.className = 'form-text text-danger';
+                        memberInput.classList.add('member-invalid');
+                        memberInput.classList.remove('member-valid');
+                        
+                        showNotFoundState(memberNo);
+                    }
+                })
+                .catch(err => {
+                    console.error('Validation error:', err);
+                    resetMember();
+                    feedback.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Error validating';
+                    feedback.className = 'form-text text-danger';
+                    memberInput.classList.add('member-invalid');
+                    memberInput.classList.remove('member-valid');
+                    
+                    showErrorState();
+                });
+        }
+
+        // Display member information
+        function displayMemberInfo(data) {
+            const statusClass = data.member.status === 'Active' ? 'success' : 'warning';
+            const statusBadge = data.member.status === 'Active' 
+                ? '<span class="badge badge-success">Active</span>' 
+                : '<span class="badge badge-warning">' + data.member.status + '</span>';
+
+            memberInfoDisplay.innerHTML = `
+                <img src="/assets/img/admin-avatar.png" alt="Member" class="member-avatar">
+                <div class="member-name">${data.full_name}</div>
+                <div class="member-id">ID: ${data.member.id}</div>
+                
+                <hr style="margin: 15px 0;">
+                
+                <div class="member-detail-row">
+                    <span class="member-detail-label">Status</span>
+                    <span class="member-detail-value">${statusBadge}</span>
+                </div>
+                
+                <div class="member-detail-row">
+                    <span class="member-detail-label">First Name</span>
+                    <span class="member-detail-value">${data.member.first_name}</span>
+                </div>
+                
+                <div class="member-detail-row">
+                    <span class="member-detail-label">Last Name</span>
+                    <span class="member-detail-value">${data.member.last_name}</span>
+                </div>
+                
+                ${data.member.middle_name ? `
+                <div class="member-detail-row">
+                    <span class="member-detail-label">Middle Name</span>
+                    <span class="member-detail-value">${data.member.middle_name}</span>
+                </div>
+                ` : ''}
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="/members/${data.member.id}" target="_blank" class="btn btn-sm btn-primary btn-block">
+                        <i class="fa fa-eye"></i> View Full Profile
+                    </a>
+                </div>
+            `;
+        }
+
+        // Show not found state
+        function showNotFoundState(memberNo) {
+            memberInfoDisplay.innerHTML = `
+                <div class="waiting-state">
+                    <i class="fa fa-user-times" style="color: #dc3545;"></i>
+                    <p><strong>Member Not Found</strong></p>
+                    <p class="text-muted small">ID "${memberNo}" does not exist in the system</p>
+                </div>
+            `;
+        }
+
+        // Show error state
+        function showErrorState() {
+            memberInfoDisplay.innerHTML = `
+                <div class="waiting-state">
+                    <i class="fa fa-exclamation-triangle" style="color: #ffc107;"></i>
+                    <p><strong>Validation Error</strong></p>
+                    <p class="text-muted small">Please try again</p>
+                </div>
+            `;
+        }
+
+        // Reset member validation
+        function resetMember() {
+            memberValidated = false;
+            memberData = null;
+            memberInfoDisplay.innerHTML = `
+                <div class="waiting-state">
+                    <i class="fa fa-user-circle"></i>
+                    <p><strong>Enter Member ID</strong></p>
+                    <p class="text-muted small">Member details will appear here</p>
+                </div>
+            `;
+        }
+
+        // Form submission
+        document.getElementById('member_trans').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Check if member is validated
+            if (!memberValidated) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Required',
+                    text: 'Please enter a valid member number first',
+                    confirmButtonText: 'OK'
+                });
+                memberInput.focus();
+                return;
+            }
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                const response = await fetch('/member_txns', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Errors',
+                        html: result.errors.map(err => `<p>• ${err}</p>`).join('')
+                    });
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa fa-check-circle"></i> Submit Transaction';
+                    return;
+                }
+
+                const formattedAmount = parseFloat(result.transaction.Amount).toLocaleString('en-UG', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+                const amountColor = result.transaction.Debit_Credit.toLowerCase() === 'credit' ? 'green' : 'red';
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Transaction Posted!',
+                    html: `
+                        <div style="text-align: left; padding: 10px;">
+                            <p><strong>Member:</strong> ${memberData.first_name} ${memberData.last_name}</p>
+                            <p><strong>Amount:</strong> <span style="color:${amountColor}; font-weight:bold; font-size: 1.3em;">UGX ${formattedAmount}</span></p>
+                            <p><strong>Type:</strong> ${result.transaction.transaction_type}</p>
+                            <p><strong>Period:</strong> ${result.transaction.payment_period}</p>
+                        </div>
+                    `,
+                    confirmButtonText: 'View Transactions',
+                    showCancelButton: true,
+                    cancelButtonText: 'Add Another'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/transaction_list';
+                    } else {
+                        // Reset form but keep member
+                        document.getElementById('member_trans').reset();
+                        document.getElementById('member_id').value = memberData.id;
+                        
+                        // Reset datepicker to today
+                        var today = new Date();
+                        $('#tran_date').datepicker('setDate', today);
+                        
+                        // Re-enable button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fa fa-check-circle"></i> Submit Transaction';
+                    }
+                });
+
+            } catch (err) {
+                console.error('Submission error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Server Error',
+                    text: 'Could not submit transaction. Please try again.'
+                });
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa fa-check-circle"></i> Submit Transaction';
+            }
+        });
+
+        // Amount formatting
+        document.getElementById('Amount').addEventListener('blur', function() {
+            if (this.value) {
+                this.value = parseFloat(this.value).toFixed(2);
+            }
+        });
+    </script>
+</body>
+</html>

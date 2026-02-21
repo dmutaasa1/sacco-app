@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>My Profile</title>
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+        
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">My Profile</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
+                    <li class="breadcrumb-item">Profile</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <!-- Profile Information -->
+                    <div class="col-lg-4">
+                        <div class="ibox">
+                            <div class="ibox-body text-center">
+                                <div class="m-t-20">
+                                    <img class="img-circle" src="/assets/img/admin-avatar.png" style="width: 120px; height: 120px;" />
+                                </div>
+                                <h5 class="font-strong m-b-10 m-t-10"><%= userDetails.first_name %> <%= userDetails.last_name %></h5>
+                                <div class="m-b-20 text-muted">@<%= userDetails.username %></div>
+                                <div class="m-b-20">
+                                    <span class="badge badge-<%= userDetails.role === 'admin' ? 'danger' : 'info' %>">
+                                        <%= userDetails.role.toUpperCase() %>
+                                    </span>
+                                    <span class="badge badge-<%= userDetails.status === 'active' ? 'success' : 'secondary' %>">
+                                        <%= userDetails.status.toUpperCase() %>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ibox">
+                            <div class="ibox-body">
+                                <h5 class="font-strong mb-4">Account Information</h5>
+                                <ul class="list-group list-group-full">
+                                    <li class="list-group-item">
+                                        <strong>User ID:</strong>
+                                        <span class="float-right"><%= userDetails.id %></span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Member Since:</strong>
+                                        <span class="float-right"><%= userDetails.created_at %></span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Last Login:</strong>
+                                        <span class="float-right"><%= userDetails.last_login || 'Never' %></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Edit Profile & Change Password -->
+                    <div class="col-lg-8">
+                        <!-- Edit Profile -->
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Edit Profile</div>
+                            </div>
+                            <div class="ibox-body">
+                                <form id="updateProfileForm">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>First Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                                       value="<%= userDetails.first_name %>" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Last Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                                       value="<%= userDetails.last_name %>" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Username</label>
+                                        <input type="text" class="form-control" value="<%= userDetails.username %>" disabled>
+                                        <small class="form-text text-muted">Username cannot be changed</small>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" id="updateProfileBtn">
+                                        <i class="fa fa-save"></i> Update Profile
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Change Password -->
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Change Password</div>
+                            </div>
+                            <div class="ibox-body">
+                                <form id="changePasswordForm">
+                                    <div class="form-group">
+                                        <label>Current Password <span class="text-danger">*</span></label>
+                                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>New Password <span class="text-danger">*</span></label>
+                                        <input type="password" class="form-control" id="new_password" name="new_password" 
+                                               required minlength="6">
+                                        <small class="form-text text-muted">Minimum 6 characters</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Confirm New Password <span class="text-danger">*</span></label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-warning" id="changePasswordBtn">
+                                        <i class="fa fa-key"></i> Change Password
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/app.min.js"></script>
+
+    <script>
+        // Update Profile
+        $('#updateProfileForm').on('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            $('#updateProfileBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+
+            try {
+                const response = await fetch('/profile/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Errors',
+                        html: result.errors.map(e => `<p>• ${e}</p>`).join('')
+                    });
+                    
+                    $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
+                    return;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: result.message
+                }).then(() => {
+                    location.reload();
+                });
+
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Could not update profile'
+                });
+                
+                $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
+            }
+        });
+
+        // Change Password
+        $('#changePasswordForm').on('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // Validate passwords match
+            if (data.new_password !== data.confirm_password) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'New passwords do not match'
+                });
+                return;
+            }
+
+            $('#changePasswordBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Changing...');
+
+            try {
+                const response = await fetch('/profile/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        html: result.errors.map(e => `<p>• ${e}</p>`).join('')
+                    });
+                    
+                    $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+                    return;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: result.message
+                }).then(() => {
+                    $('#changePasswordForm')[0].reset();
+                    $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+                });
+
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Could not change password'
+                });
+                
+                $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+            }
+        });
+    </script>
+</body>
+</html>

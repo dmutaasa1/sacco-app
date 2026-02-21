@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Savings Summary Report</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="./assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <style>
+        .table-responsive {
+            font-size: 0.9rem;
+        }
+        .table thead th {
+            font-size: 0.85rem;
+            padding: 8px 5px;
+        }
+        .table tbody td {
+            padding: 8px 5px;
+        }
+        .details-control {
+            cursor: pointer;
+            text-align: center;
+            color: #007bff;
+        }
+        .details-control:before {
+            content: '+';
+            font-size: 18px;
+            font-weight: bold;
+        }
+        tr.shown .details-control:before {
+            content: '-';
+        }
+        .child-row-content {
+            background-color: #f8f9fa;
+            padding: 15px;
+        }
+        .monthly-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .month-item {
+            padding: 8px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .month-name {
+            font-weight: bold;
+            color: #495057;
+            font-size: 0.85rem;
+        }
+        .month-amount {
+            color: #28a745;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+        
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">Savings Summary Report</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html"><i class="la la-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">Savings Summary</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <div class="ibox-title">Member Savings Summary (Click + to see monthly details)</div>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="ibox">
+                        <div class="ibox-body">
+                            <div class="row" style="margin-bottom: 15px;">
+                                <div class="col-md-3">
+                                    <label>Member ID:</label>
+                                    <input type="text" id="memberId" placeholder="Member ID" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Name:</label>
+                                    <input type="text" id="memberName" placeholder="Member Name" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Phone Number:</label>
+                                    <input type="text" id="phoneNumber" placeholder="Phone Number" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-3" style="padding-top: 25px;">
+                                    <button id="filterBtn" class="btn btn-primary btn-sm">Load Report</button>
+                                    <button id="clearBtn" class="btn btn-secondary btn-sm">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- DataTable -->
+                    <div class="table-responsive">
+                        <table id="savingsTable" class="table table-striped table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th></th>                                    
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>B/F</th>
+                                    <th>Deposits YTD</th>
+                                    <th>Withdrawals YTD</th>
+                                    <th>Net YTD</th>
+                                    <th>Net Total</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+                <a class="px-4" href="#" target="_blank">Contact Us</a>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="./assets/vendors/DataTables/datatables.min.js"></script>
+    <script src="assets/js/app.min.js"></script>
+
+    <script>
+        // Function to format currency
+        function formatCurrency(amount) {
+            return 'UGX ' + parseInt(amount, 10).toLocaleString();
+        }
+
+        // Function to format monthly details
+        function formatMonthlyDetails(d) {
+            return `
+                <div class="child-row-content">
+                    <h5 style="margin-bottom: 15px;">Monthly Breakdown for ${d.Name}</h5>
+                    <div class="monthly-details">
+                        <div class="month-item">
+                            <div class="month-name">January</div>
+                            <div class="month-amount">${formatCurrency(d.Jan)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">February</div>
+                            <div class="month-amount">${formatCurrency(d.Feb)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">March</div>
+                            <div class="month-amount">${formatCurrency(d.Mar)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">April</div>
+                            <div class="month-amount">${formatCurrency(d.April)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">May</div>
+                            <div class="month-amount">${formatCurrency(d.May)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">June</div>
+                            <div class="month-amount">${formatCurrency(d.June)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">July</div>
+                            <div class="month-amount">${formatCurrency(d.July)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">August</div>
+                            <div class="month-amount">${formatCurrency(d.Aug)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">September</div>
+                            <div class="month-amount">${formatCurrency(d.Sept)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">October</div>
+                            <div class="month-amount">${formatCurrency(d.Oct)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">November</div>
+                            <div class="month-amount">${formatCurrency(d.Nov)}</div>
+                        </div>
+                        <div class="month-item">
+                            <div class="month-name">December</div>
+                            <div class="month-amount">${formatCurrency(d.Dec)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        $(document).ready(function () {
+            const table = $('#savingsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searching: false,
+                ajax: {
+                    url: '/savings_report/savings-summary',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: function (d) {
+                        return JSON.stringify({
+                            ...d,
+                            memberId: $('#memberId').val(),
+                            memberName: $('#memberName').val(),
+                            phoneNumber: $('#phoneNumber').val()
+                        });
+                    },
+                    error: function(xhr, error, thrown) {
+                        alert('Error: ' + (xhr.responseJSON?.error || 'Could not load data.'));
+                    }
+                },
+                columns: [
+                    {
+                        className: 'details-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: '',
+                        width: '3%'
+                    },                    
+                    { data: 'id', width: '6%' },
+                    { data: 'Name', width: '20%' },
+                    { data: 'Tel_No', width: '12%' },
+                    { 
+                        data: 'BF',
+                        width: '12%',
+                        render: function (data) {
+                            return formatCurrency(data);
+                        }
+                    },
+                    { 
+                        data: 'Total_Deposits_YTD',
+                        width: '12%',
+                        render: function (data) {
+                            return `<span style="color: green; font-weight: bold;">${formatCurrency(data)}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'Total_Withdrawals_YTD',
+                        width: '12%',
+                        render: function (data) {
+                            return `<span style="color: red; font-weight: bold;">${formatCurrency(data)}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'Net_Savings_YTD',
+                        width: '12%',
+                        render: function (data) {
+                            const color = data >= 0 ? 'green' : 'red';
+                            return `<strong style="color: ${color};">${formatCurrency(data)}</strong>`;
+                        }
+                    },
+                    { 
+                        data: 'Net_Total',
+                        width: '13%',
+                        render: function (data) {
+                            const color = data >= 0 ? 'green' : 'red';
+                            return `<strong style="color: ${color};">${formatCurrency(data)}</strong>`;
+                        }
+                    }
+                ],
+                order: [[1, 'asc']]
+            });
+
+            // Add event listener for opening and closing details
+            $('#savingsTable tbody').on('click', 'td.details-control', function () {
+                const tr = $(this).closest('tr');
+                const row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    row.child(formatMonthlyDetails(row.data())).show();
+                    tr.addClass('shown');
+                }
+            });
+
+            // Reload table when filter button clicked
+            $('#filterBtn').on('click', function () {
+                table.ajax.reload();
+            });
+
+            // Clear filters
+            $('#clearBtn').on('click', function () {
+                $('#memberId').val('');
+                $('#memberName').val('');
+                $('#phoneNumber').val('');
+                table.ajax.reload();
+            });
+        });
+    </script>
+</body>
+</html>

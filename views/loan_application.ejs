@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Application</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <style>
+        .calculator-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .calc-result {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .calc-result:last-child {
+            border-bottom: none;
+        }
+        .calc-result.highlight {
+            background: #fff3cd;
+            padding: 10px 8px;
+            border-radius: 4px;
+            border-bottom: none;
+            margin-top: 4px;
+        }
+        .method-comparison {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid #ffc107;
+        }
+        .fee-badge {
+            display: inline-block;
+            background: #dc3545;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 3px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">Loan Application</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
+                    <li class="breadcrumb-item">Loans</li>
+                    <li class="breadcrumb-item">Application</li>
+                </ol>
+            </div>
+
+            <div class="page-content fade-in-up">
+                <div class="row">
+
+                    <!-- ── Form ── -->
+                    <div class="col-md-8">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Loan Application Form</div>
+                            </div>
+                            <div class="ibox-body">
+                                <form id="loanForm">
+
+                                    <!-- Member ID -->
+                                    <div class="form-group">
+                                        <label>Member ID *</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="member_id" required>
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-primary" id="verifyMemberBtn">
+                                                    <i class="fa fa-search"></i> Verify
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="memberInfo" class="mt-2"></div>
+                                    </div>
+
+                                    <!-- Loan Amount -->
+                                    <div class="form-group">
+                                        <label>Loan Amount (UGX) *</label>
+                                        <input type="number" class="form-control" id="loan_amount" required min="1000" step="1000">
+                                    </div>
+
+                                    <!-- Interest Method -->
+                                    <div class="form-group">
+                                        <label>Interest Method *</label>
+                                        <select class="form-control" id="interest_method" required>
+                                            <option value="simple_interest">Simple Interest (Quick Loan)</option>
+                                            <option value="reducing_balance">Reducing Balance (Standard Loan)</option>
+                                        </select>
+                                        <small class="form-text text-muted" id="methodDescription">
+                                            Simple Interest: Fixed interest calculated upfront. Equal monthly payments.
+                                        </small>
+                                    </div>
+
+                                    <!-- Interest Rate -->
+                                    <div class="form-group">
+                                        <label>Interest Rate (% per annum) *</label>
+                                        <input type="number" class="form-control" id="interest_rate" required min="0.1" step="0.1" value="10">
+                                    </div>
+
+                                    <!-- Loan Term -->
+                                    <div class="form-group">
+                                        <label>Loan Term (Months) *</label>
+                                        <input type="number" class="form-control" id="loan_term_months" required min="1" max="60" value="12">
+                                    </div>
+
+                                    <!-- Processing Fee -->
+                                    <div class="form-group">
+                                        <label>
+                                            Processing Fee
+                                            <span class="fee-badge">DEDUCTED FROM LOAN</span>
+                                        </label>
+                                        <select class="form-control" id="processing_fee_pct">
+                                            <option value="0">0% — No fee</option>
+                                            <option value="1">1%</option>
+                                            <option value="1.5">1.5%</option>
+                                            <option value="2" selected>2%</option>
+                                            <option value="2.5">2.5%</option>
+                                            <option value="3">3%</option>
+                                            <option value="4">4%</option>
+                                            <option value="5">5%</option>
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            Fee is deducted from the disbursed amount. Member receives loan minus fee.
+                                        </small>
+                                        <!-- Live fee display -->
+                                        <div id="feeDisplay" class="mt-2" style="display:none;">
+                                            <div class="alert alert-warning py-2 mb-0" style="font-size:13px;">
+                                                <i class="fa fa-info-circle"></i>
+                                                Fee: <strong id="feeAmount">—</strong> &nbsp;|&nbsp;
+                                                Member receives: <strong id="netDisbursement">—</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Disbursement Date -->
+                                    <div class="form-group">
+                                        <label>Disbursement Date *</label>
+                                        <input type="date" class="form-control" id="disbursement_date" required>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success" id="submitBtn">
+                                            <i class="fa fa-check"></i> Create &amp; Disburse Loan
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/loan_list'">
+                                            <i class="fa fa-times"></i> Cancel
+                                        </button>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Calculator ── -->
+                    <div class="col-md-4">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Loan Calculator</div>
+                            </div>
+                            <div class="ibox-body">
+                                <div class="calculator-box">
+                                    <div id="calculatorResults">
+                                        <p class="text-muted text-center">
+                                            <i class="fa fa-calculator"></i><br>
+                                            Enter loan details to see calculations
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="method-comparison" id="comparisonBox" style="display:none;">
+                                    <h6 class="text-warning">
+                                        <i class="fa fa-info-circle"></i> Method Comparison
+                                    </h6>
+                                    <div id="comparisonDetails"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+                <a class="px-4" href="#" target="_blank">Contact Us</a>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="assets/js/app.min.js"></script>
+
+    <script>
+        // Set today as default disbursement date
+        $('#disbursement_date').val(new Date().toISOString().split('T')[0]);
+
+        let verifiedMember = null;
+
+        /* ── Helpers ─────────────────────────────────────────── */
+        function fmt(n, d) {
+            d = (d === undefined) ? 2 : d;
+            return parseFloat(n || 0).toLocaleString(undefined, {
+                minimumFractionDigits: d, maximumFractionDigits: d
+            });
+        }
+
+        function getInputs() {
+            return {
+                principal : parseFloat($('#loan_amount').val())        || 0,
+                rate      : parseFloat($('#interest_rate').val())       || 0,
+                months    : parseInt($('#loan_term_months').val())      || 0,
+                method    : $('#interest_method').val(),
+                feePct    : parseFloat($('#processing_fee_pct').val())  || 0
+            };
+        }
+
+        /* ── Update fee display banner ───────────────────────── */
+        function updateFeeDisplay() {
+            var v = getInputs();
+            if (v.principal > 0 && v.feePct > 0) {
+                var fee = v.principal * (v.feePct / 100);
+                var net = v.principal - fee;
+                $('#feeAmount').text('UGX ' + fmt(fee, 0));
+                $('#netDisbursement').text('UGX ' + fmt(net, 0));
+                $('#feeDisplay').show();
+            } else {
+                $('#feeDisplay').hide();
+            }
+        }
+
+        /* ── Method description ──────────────────────────────── */
+        $('#interest_method').on('change', function () {
+            if ($(this).val() === 'simple_interest') {
+                $('#methodDescription').text('Simple Interest: Fixed interest calculated upfront. Equal monthly payments. Best for short-term quick loans.');
+            } else {
+                $('#methodDescription').text('Reducing Balance: Interest calculated on outstanding balance. Saves interest with early payment. Best for long-term loans.');
+            }
+            calculateLoan();
+        });
+
+        /* ── Verify member ───────────────────────────────────── */
+        $('#verifyMemberBtn').on('click', function () {
+            var memberId = $('#member_id').val();
+            if (!memberId) {
+                $('#memberInfo').html('<div class="alert alert-warning">Please enter a member ID</div>');
+                return;
+            }
+            $.ajax({
+                url: '/members_id/' + memberId,
+                type: 'GET',
+                success: function (member) {
+                    verifiedMember = member;
+                    $('#memberInfo').html(
+                        '<div class="alert alert-success">' +
+                        '<i class="fa fa-check-circle"></i> ' +
+                        '<strong>' + member.First_name + ' ' + member.Last_name + '</strong>' +
+                        '<br>Status: ' + member.status +
+                        '<br>Phone: ' + (member.tel_no || 'N/A') +
+                        '</div>'
+                    );
+                },
+                error: function (xhr) {
+                    verifiedMember = null;
+                    $('#memberInfo').html(
+                        '<div class="alert alert-danger">' +
+                        '<i class="fa fa-times-circle"></i> ' +
+                        (xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Member not found or not active') +
+                        '</div>'
+                    );
+                }
+            });
+        });
+
+        /* ── Main calculator ─────────────────────────────────── */
+        function calculateLoan() {
+            var v = getInputs();
+
+            // Update fee banner on every recalc
+            updateFeeDisplay();
+
+            if (!v.principal || v.principal <= 0 || !v.rate || v.rate < 0 || !v.months || v.months <= 0) {
+                $('#calculatorResults').html(
+                    '<p class="text-muted text-center"><i class="fa fa-calculator"></i><br>Enter valid loan details to see calculations</p>'
+                );
+                $('#comparisonBox').hide();
+                return;
+            }
+
+            var fee    = v.principal * (v.feePct / 100);
+            var net    = v.principal - fee;
+            var html   = '';
+
+            if (v.method === 'simple_interest') {
+                var totalInterest  = (v.principal * (v.rate / 100) * v.months) / 12;
+                var totalRepayment = v.principal + totalInterest;
+                var monthly        = totalRepayment / v.months;
+
+                html += '<h6 class="text-success mb-3"><i class="fa fa-bolt"></i> Quick Loan (Simple Interest)</h6>';
+                html += '<div class="calc-result"><span>Loan Amount:</span><strong>UGX ' + fmt(v.principal, 0) + '</strong></div>';
+
+                if (v.feePct > 0) {
+                    html += '<div class="calc-result"><span>Processing Fee (' + v.feePct + '%):</span><strong class="text-danger">− UGX ' + fmt(fee, 0) + '</strong></div>';
+                    html += '<div class="calc-result highlight"><span>Amount Received:</span><strong class="text-warning">UGX ' + fmt(net, 0) + '</strong></div>';
+                }
+
+                html += '<div class="calc-result"><span>Monthly Payment:</span><strong>UGX ' + fmt(monthly) + '</strong></div>';
+                html += '<div class="calc-result"><span>Total Interest:</span><strong>UGX ' + fmt(totalInterest) + '</strong></div>';
+                html += '<div class="calc-result"><span>Total Repayment:</span><strong>UGX ' + fmt(totalRepayment) + '</strong></div>';
+                html += '<div class="alert alert-info mt-3 mb-0" style="font-size:.85rem;">';
+                html += '<i class="fa fa-info-circle"></i> <strong>Fixed payments:</strong> Same amount each month. Interest calculated once at start.</div>';
+
+            } else {
+                var mRate   = (v.rate / 100) / 12;
+                var monthly = v.principal * (mRate * Math.pow(1 + mRate, v.months)) / (Math.pow(1 + mRate, v.months) - 1);
+                var totalRepayment = monthly * v.months;
+                var totalInterest  = totalRepayment - v.principal;
+
+                html += '<h6 class="text-primary mb-3"><i class="fa fa-line-chart"></i> Standard Loan (Reducing Balance)</h6>';
+                html += '<div class="calc-result"><span>Loan Amount:</span><strong>UGX ' + fmt(v.principal, 0) + '</strong></div>';
+
+                if (v.feePct > 0) {
+                    html += '<div class="calc-result"><span>Processing Fee (' + v.feePct + '%):</span><strong class="text-danger">− UGX ' + fmt(fee, 0) + '</strong></div>';
+                    html += '<div class="calc-result highlight"><span>Amount Received:</span><strong class="text-warning">UGX ' + fmt(net, 0) + '</strong></div>';
+                }
+
+                html += '<div class="calc-result"><span>Monthly Payment:</span><strong>UGX ' + fmt(monthly) + '</strong></div>';
+                html += '<div class="calc-result"><span>Total Interest (if on time):</span><strong>UGX ' + fmt(totalInterest) + '</strong></div>';
+                html += '<div class="calc-result"><span>Total Repayment:</span><strong>UGX ' + fmt(totalRepayment) + '</strong></div>';
+                html += '<div class="alert alert-info mt-3 mb-0" style="font-size:.85rem;">';
+                html += '<i class="fa fa-info-circle"></i> <strong>Flexible interest:</strong> Pay less if you pay early. Calculated daily on remaining balance.</div>';
+            }
+
+            $('#calculatorResults').html(html);
+            showComparison(v.principal, v.rate, v.months, fee);
+        }
+
+        /* ── Comparison table ────────────────────────────────── */
+        function showComparison(principal, annualRate, months, fee) {
+            fee = fee || 0;
+            var simpleInterest   = (principal * (annualRate / 100) * months) / 12;
+            var mRate            = (annualRate / 100) / 12;
+            var reducingPayment  = principal * (mRate * Math.pow(1 + mRate, months)) / (Math.pow(1 + mRate, months) - 1);
+            var reducingInterest = (reducingPayment * months) - principal;
+            var difference       = simpleInterest - reducingInterest;
+            var percentDiff      = difference / simpleInterest * 100;
+
+            var html = '<table class="table table-sm table-bordered mb-0">';
+            html += '<tr><th></th><th>Simple</th><th>Reducing</th></tr>';
+            html += '<tr><td><small>Interest</small></td>';
+            html += '<td><small>UGX ' + fmt(simpleInterest, 0) + '</small></td>';
+            html += '<td><small>UGX ' + fmt(reducingInterest, 0) + '</small></td></tr>';
+            if (fee > 0) {
+                html += '<tr><td><small>Fee deducted</small></td>';
+                html += '<td colspan="2" class="text-center text-danger"><small>− UGX ' + fmt(fee, 0) + '</small></td></tr>';
+            }
+            html += '</table>';
+
+            if (difference > 0) {
+                html += '<p class="mb-0 mt-2" style="font-size:.8rem;">';
+                html += '<strong>Reducing Balance saves ~UGX ' + fmt(Math.abs(difference), 0) + '</strong> ';
+                html += '(' + Math.abs(percentDiff).toFixed(1) + '%) in interest if paid on time.';
+                html += '</p>';
+            }
+
+            $('#comparisonDetails').html(html);
+            $('#comparisonBox').show();
+        }
+
+        /* ── Recalculate on any change ───────────────────────── */
+        $('#loan_amount, #interest_rate, #loan_term_months, #interest_method, #processing_fee_pct')
+            .on('input change', function () { calculateLoan(); });
+
+        /* ── Submit ──────────────────────────────────────────── */
+        $('#loanForm').on('submit', function (e) {
+            e.preventDefault();
+
+            if (!verifiedMember) {
+                Swal.fire({ icon: 'warning', title: 'Member Not Verified',
+                    text: 'Please verify the member before creating the loan' });
+                return;
+            }
+
+            var v = getInputs();
+            var fee = v.principal * (v.feePct / 100);
+            var net = v.principal - fee;
+
+            var formData = {
+                member_id           : parseInt($('#member_id').val()),
+                loan_amount         : v.principal,
+                interest_rate       : v.rate,
+                loan_term_months    : v.months,
+                disbursement_date   : $('#disbursement_date').val(),
+                interest_method     : v.method,
+                processing_fee_pct  : v.feePct,
+                processing_fee_amount: fee
+            };
+
+            // Confirm before submit if there's a fee
+            var confirmMsg = v.feePct > 0
+                ? 'A processing fee of ' + v.feePct + '% (UGX ' + fmt(fee, 0) + ') will be deducted. Member receives UGX ' + fmt(net, 0) + '.'
+                : 'Disburse UGX ' + fmt(v.principal, 0) + ' to ' + verifiedMember.First_name + ' ' + verifiedMember.Last_name + '?';
+
+            Swal.fire({
+                title: 'Confirm Loan Disbursement',
+                html: confirmMsg,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Disburse',
+                cancelButtonText: 'Cancel'
+            }).then(function (result) {
+                if (!result.isConfirmed) return;
+
+                $('#submitBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+
+                Swal.fire({ title: 'Processing Loan', text: 'Please wait…',
+                    allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+
+                $.ajax({
+                    url: '/loans/create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function (response) {
+                        var details = response.details || {};
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Loan Created Successfully',
+                            html:
+                                '<div style="text-align:left;font-size:14px;">' +
+                                '<b>Loan ID:</b> ' + response.loan_id + '<br>' +
+                                '<b>Member:</b> ' + response.member_name + '<br>' +
+                                '<b>Method:</b> ' + (details.interest_method === 'simple_interest'
+                                    ? 'Quick Loan (Simple Interest)' : 'Standard Loan (Reducing Balance)') + '<br>' +
+                                '<b>Loan Amount:</b> UGX ' + Number(details.loan_amount || 0).toLocaleString() + '<br>' +
+                                (details.processing_fee_amount > 0
+                                    ? '<b>Processing Fee (' + details.processing_fee_pct + '%):</b> <span class="text-danger">− UGX ' +
+                                      Number(details.processing_fee_amount || 0).toLocaleString() + '</span><br>' +
+                                      '<b>Amount Disbursed:</b> UGX ' + Number(details.net_disbursement || 0).toLocaleString() + '<br>'
+                                    : '') +
+                                '<b>Monthly Payment:</b> UGX ' + Number(details.monthly_payment || 0).toLocaleString() + '<br>' +
+                                '<b>Total Interest:</b> UGX ' + Number(details.total_interest || 0).toLocaleString() + '<br>' +
+                                '<hr><small>' + (details.note || '') + '</small>' +
+                                '</div>',
+                            confirmButtonText: 'Go to Loans List'
+                        }).then(function () {
+                            window.location.href = '/loan_list';
+                        });
+                    },
+                    error: function (xhr) {
+                        Swal.fire({ icon: 'error', title: 'Loan Creation Failed',
+                            text: xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Something went wrong. Please try again.' });
+                        $('#submitBtn').prop('disabled', false).html('<i class="fa fa-check"></i> Create &amp; Disburse Loan');
+                    }
+                });
+            });
+        });
+
+        // Initial render
+        calculateLoan();
+    </script>
+</body>
+</html>

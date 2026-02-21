@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Members &amp;Profile</title>
+    <!-- GLOBAL MAINLY STYLES-->
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <!-- PLUGINS STYLES-->
+    <!-- THEME STYLES-->
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+
+    <link href="/assets/css/image.css" rel="stylesheet" />
+    <!-- PAGE LEVEL STYLES-->
+</head>
+
+
+
+<body class="fixed-navbar sidebar-mini">
+    <div class="page-wrapper">
+      <!-- START HEADER-->
+        <%- include('partials/header') %>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+       <%- include('partials/sidebar') %>
+        <!-- END SIDEBAR-->
+        <div class="content-wrapper">
+            <!-- START PAGE CONTENT-->
+            <div class="page-heading">
+                <h1 class="page-title">Members Profile</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html"><i class="la la-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">Detailed Member Profile</li>
+                </ol>
+            </div>
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <div class="col-lg-3 col-md-4">
+                        <div class="ibox">
+                            <div class="ibox-body text-center">
+                                <div class="m-t-20">
+                    <img class="img-circle small-profile-pic" src="data:image/jpeg;base64,<%= photoBase64 %>" />
+                                </div>
+                                <h5 class="font-strong m-b-10 m-t-10"><%= member.First_name %> <%= member.Last_Name %></h5>
+                                <div class="m-b-20 text-muted"><%= member.member_id %></div>
+                                <div class="profile-social m-b-20">
+                                    
+                                </div>
+                                <div>
+                                           <button class="btn btn-rounded m-b-5 
+                                           <%= member.Status === 'Active' ? 'btn-success' : 'btn-danger' %>">
+                                            Member Status :<%= member.Status %>
+                                           </button>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ibox">
+    <div class="ibox-body">
+        <div class="row text-center m-b-10">
+            
+            <div class="col-6">
+                <div class="font-30 profile-stat-count font-strong text-success">
+                    <%= parseFloat(member.total_savings_credit || 0).toLocaleString('en-UG', {maximumFractionDigits: 0}) %>
+                </div>
+                <div class="text-muted font-13">Savings</div>
+            </div>
+            <div class="col-6">
+                <div class="font-30 profile-stat-count font-strong text-danger">
+                    <%= parseFloat(member.total_loan || 0).toLocaleString('en-UG', {maximumFractionDigits: 0}) %>
+                </div>
+                <div class="text-muted font-13">Loans</div>
+            </div>
+        </div>
+        
+        <% if (member.comments) { %>
+            <div class="text-center mt-3">
+                <hr>
+                <p class="text-muted mb-2">
+                    <i class="fa fa-quote-left"></i> 
+                    <%= member.comments %> 
+                    <i class="fa fa-quote-right"></i>
+                </p>
+            </div>
+        <% } else { %>
+            <div class="text-center mt-3">
+                <hr>
+                <p class="badge badge-success font-14 p-2"><%= member.comments%></p>
+            </div>
+        <% } %>
+    </div>
+</div>
+                    </div>
+                    <div class="col-lg-9 col-md-8">
+                        <div class="ibox">
+                            <div class="ibox-body">
+                                <ul class="nav nav-tabs tabs-line">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" href="#tab-1" data-toggle="tab"><i class="ti-bar-chart"></i> Overview</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#tab-2" data-toggle="tab"><i class="ti-settings"></i> Bio Data</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#tab-3" data-toggle="tab"><i class="ti-announcement"></i> Dependants</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane fade show active" id="tab-1">
+                                        <div class="row">
+                                            <div class="col-md-6" style="border-right: 1px solid #eee;">
+                                                <h5 class="text-info m-b-20 m-t-10"><i class="fa fa-bar-chart"></i> Yearly Statistics</h5>
+                                                <div class="h2 m-0">Ugx <%= member.total_savings_credit%><sup>.00</sup></div>
+                                                <div><small>Savings Year to Date</small></div>
+                                                <div class="m-t-20 m-b-20">
+                                                    <div class="h4 m-0"><%= finance.year_total_loan_repayment%> / <%= finance.year_total_loan_receieved%></div>
+                                                    <div class="d-flex justify-content-between"><small>Loan Repayment Progress</small>
+                                                <span class="text-success font-12"><i class="fa fa-level-up"></i> <%= finance.year_percentage_loan_repayment%>%</span>
+                                                    </div>
+                                                    <div class="progress m-t-5">
+                                                        <div class="progress-bar progress-bar-success" role="progressbar" style="width:<%= finance.year_percentage_loan_repayment%>%; height:5px;" aria-valuenow=<%= finance.year_percentage_loan_repayment%> aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="m-b-20">
+                                                    <div class="h4 m-0"><%= finance.total_Insuarance_cover%>/60000</div>
+                                                    <div class="d-flex justify-content-between"><small>Insurance contribution</small>
+                                                        <span class="text-warning font-12"><i class="fa fa-level-up"></i> <%= finance.year_percentage_insurance_payment%>%</span>
+                                                    </div>
+                                                    <div class="progress m-t-5">
+                                                        <div class="progress-bar progress-bar-warning" role="progressbar" style="width:<%= finance.year_percentage_insurance_payment%>%; height:5px;" aria-valuenow="<%= finance.year_percentage_insurance_payment%>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="m-b-20">
+                                                    <div class="h4 m-0"><%= finance.total_welfare_fee%>/240000</div>
+                                                    <div class="d-flex justify-content-between"><small>Total welfare contribution</small>
+                                                        <span class="text-info font-12"><i class="fa fa-level-up"></i> <%= finance.year_percentage_welfare_fee%>%</span>
+                                                    </div>
+                                                    <div class="progress m-t-5">
+                                                        <div class="progress-bar progress-bar-info" role="progressbar" style="width:<%= finance.year_percentage_welfare_fee%>%; height:5px;" aria-valuenow="<%= finance.year_percentage_welfare_fee%>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                              
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5 class="text-info m-b-20 m-t-10"><i class="fa fa-user-plus"></i> Latest Activities</h5>
+                                                <ul class="media-list media-list-divider m-0">
+                                                    <% activities.forEach(activity => { %>
+                                                    <li class="media" >
+                                                        <a class="media-img" href="javascript:;">
+                                                       <i class="fa fa-bell-o rel"><span class="notify-signal"></span></i>                                                            
+                                                        </a>
+                                                        <div class="media-body">
+                                                            <div class="media-heading"><%= activity.transaction_type %><small class="float-right text-muted"><%= activity.created_at %></small></div>
+                                                            <div class="font-13"><%= activity.description %></div>
+                                                        </div>
+                                                    </li>                                                 
+                                                  
+                                                 <% }) %>
+                                                    
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <h4 class="text-info m-b-20 m-t-20"><i class="fa fa-shopping-basket"></i> Latest Transactions</h4>
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Trans_ID</th>
+                                                    <th width="91px">Transaction_Date</th>            
+                                                    <th>Reason</th>
+                                                    <th>Debit/Credit</th>
+                                                    <th>Amount
+                                                    </th>
+                                                    <th>Payment_Period</th>
+                                                    <th>Narration</th>
+                                                    
+                                                </tr>
+                                            </thead>
+                                            <tbody>                                       
+                                                
+
+                                    <% trans.forEach(trans => { %>
+                                   <tr>
+                                    <td><%= trans.id %></td>
+                                    <td><%= trans.tran_date %></td>
+                                    <td><%= trans.transaction_type%></td>
+                                  <td><span class="badge <%= trans.Debit_Credit === 'Credit' ? 'badge-success' : 'badge-danger' %>">
+                                   <%= trans.Debit_Credit %></td>
+                                    <td><span class="badge badge-warning"><%= trans.Amount %></span></td>
+                                    <td><%= trans.Payment_Period%></td>
+                                    <td><%= trans.description %></td>
+                                </tr>
+                               <% }) %>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                        <div class="tab-pane fade" id="tab-2">
+                            <div class="row">
+                            <div class="col-md-6">
+                              <div class="ibox ibox-primary">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Personal Details</div>
+                                <div class="ibox-tools">
+                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item">option 1</a>
+                                        <a class="dropdown-item">option 2</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ibox-body">
+
+                          <div class="clf" style="margin-bottom:5px;font-size: 80%;">
+                                    <dl class="row pull-left">
+                                        <dt class="col-sm-3">First Name:</dt><dd class="col-sm-3" ><%= member.First_Name %></dd>
+                                        <dt class="col-sm-3">Middle Name:</dt><dd class="col-sm-3" ><%= member.Middle_Name %></dd>
+                                        <dt class="col-sm-3">Last Name:</dt><dd class="col-sm-3" ><%= member.Last_Name %></dd>
+                                        <dt class="col-sm-3">Birth Date:</dt><dd class="col-sm-3"><%= member.Date_of_Birth %></dd>
+                                        <dt class="col-sm-3">Gender:</dt><dd class="col-sm-3" ><%= member.sex %></dd>
+                                        <dt class="col-sm-3">Mobile No:</dt><dd class="col-sm-3" ><%= member.tel_no %></dd>
+                                        <dt class="col-sm-3">Marital Staus:</dt><dd class="col-sm-3" ><%= member.marital_status %></dd>
+                                        <dt class="col-sm-3">Employement Status:</dt><dd class="col-sm-3" ><%= member.occupation %></dd>
+                                        <dt class="col-sm-3">National ID:</dt><dd class="col-sm-3" ><%= member.national_id %></dd>
+                                        <dt class="col-sm-3">Date Joined:</dt><dd class="col-sm-3" ><%= member.date_joined %></dd>
+                                        <dt class="col-sm-3">Village:</dt><dd class="col-sm-3" ><%= member.village_lc1 %></dd>
+                                        <dt class="col-sm-3">Parish:</dt><dd class="col-sm-3" ><%= member.parish %></dd>
+                                        <dt class="col-sm-3">Subcounty:</dt><dd class="col-sm-3" ><%= member.sub_county %></dd>
+                                        <dt class="col-sm-3">Place of Birth:</dt><dd class="col-sm-3" ><%= member.place_of_birth %></dd>
+                                    </dl>
+                                </div>
+                          </div>
+                        </div>
+
+                    </div>
+                     <div class="col-md-6">
+                              <div class="ibox ibox-primary">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Next of Kin Details</div>
+                                <div class="ibox-tools">
+                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item">option 1</a>
+                                        <a class="dropdown-item">option 2</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ibox-body">
+                              <div class="clf" style="margin-bottom:5px;font-size: 80%;">
+                                    <dl class="row pull-left">
+                                        <dt class="col-sm-3">First Name:</dt><dd class="col-sm-3" ><%= member.next_of_kin_First_name %></dd>
+                                        <dt class="col-sm-3">Last Name:</dt><dd class="col-sm-3" ><%= member.next_of_kin_Last_name %></dd>
+                                        <dt class="col-sm-3">Address:</dt><dd class="col-sm-3" ><%= member.next_of_kin_address %></dd>
+                                        <dt class="col-sm-3">Mobile No:</dt><dd class="col-sm-3" ><%= member.next_of_kin_tel %></dd>                                        
+                                    </dl>
+                                </div>
+                             </div>
+                        </div>
+
+                    </div>
+                </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                              <div class="ibox ibox-primary">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Fathers Details</div>
+                                <div class="ibox-tools">
+                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item">option 1</a>
+                                        <a class="dropdown-item">option 2</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ibox-body">
+
+                          <div class="clf" style="margin-bottom:5px;font-size: 80%;">
+                                    <dl class="row pull-left" ">
+                                         <dt class="col-sm-3">First Name:</dt><dd class="col-sm-3" ><%= member.Father_First_name %></dd> 
+                                        <dt class="col-sm-3">Last Name:</dt><dd class="col-sm-3" ><%= member.Father_Last_name %></dd>
+                                        <dt class="col-sm-3">Mobile No:</dt><dd class="col-sm-3"><%= member.father_tel %></dd>
+                                        <dt class="col-sm-3">Status:</dt><dd class="col-sm-3" ><%= member.father_status %></dd>
+                                        <dt class="col-sm-3">Village:</dt><dd class="col-sm-3" ><%= member.father_village %></dd>
+                                        <dt class="col-sm-3">Parish:</dt><dd class="col-sm-3" ><%= member.father_parish %></dd>
+                                        <dt class="col-sm-3">Subcounty:</dt><dd class="col-sm-3" ><%= member.father_subcounty %></dd>
+                                        <dt class="col-sm-3">Distric:</dt><dd class="col-sm-3" ><%= member.father_district %></dd>
+                                    </dl>
+                                </div>
+                          </div>
+                        </div>
+
+                    </div>
+                     <div class="col-md-6">
+                              <div class="ibox ibox-primary">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Mothers Details</div>
+                                <div class="ibox-tools">
+                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item">option 1</a>
+                                        <a class="dropdown-item">option 2</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ibox-body">
+                                <div class="clf" style="margin-bottom:5px;font-size: 80%;">
+                                    <dl class="row pull-left" ">
+                                    <dt class="col-sm-3">First Name:</dt><dd class="col-sm-3" ><%= member.mother_First_name %></dd> 
+                                        <dt class="col-sm-3">Last Name:</dt><dd class="col-sm-3" ><%= member.mother_Last_name %></dd>
+                                        <dt class="col-sm-3">Mobile No:</dt><dd class="col-sm-3"><%= member.mother_tel %></dd>
+                                        <dt class="col-sm-3">Status:</dt><dd class="col-sm-3" ><%= member.mother_status %></dd>
+                                        <dt class="col-sm-3">Village:</dt><dd class="col-sm-3" ><%= member.mother_village %></dd>
+                                        <dt class="col-sm-3">Parish:</dt><dd class="col-sm-3" ><%= member.mother_parish %></dd>
+                                        <dt class="col-sm-3">Subcounty:</dt><dd class="col-sm-3" ><%= member.mother_subcounty %></dd>
+                                        <dt class="col-sm-3">Distric:</dt><dd class="col-sm-3" ><%= member.mother_district %></dd>
+                                     </dl>
+                                </div>
+                             </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+                          <div class="tab-pane fade" id="tab-3">
+                                        <h5 class="text-info m-b-20 m-t-20"><i class="fa fa-bullhorn"></i> Dependants List</h5>
+                                        <ul class="media-list media-list-divider m-0">
+                                            <% dependants.forEach(dependants => { %>
+                                                    <li class="media" >
+                                                        <a class="media-img" href="javascript:;">
+                                                       <i class="fa fa-bell-o rel"><span class="notify-signal"></span></i>                                                            
+                                                        </a>
+                                                        <div class="media-body">
+                                                            <div class="media-heading"><%= dependants.First_name %><small class="float-right text-muted"><%= dependants.child_date_of_birth %></small></div>
+                                                            <div class="font-13"><%= dependants.Last_Name %></div>
+                                                        </div>
+                                                    </li>                                                 
+                                                  
+                                                 <% }) %>
+                                           
+                                          
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    .profile-social a {
+                        font-size: 16px;
+                        margin: 0 10px;
+                        color: #999;
+                    }
+
+                    .profile-social a:hover {
+                        color: #485b6f;
+                    }
+
+                    .profile-stat-count {
+                        font-size: 22px
+                    }
+                </style>
+               
+            </div>
+            <!-- END PAGE CONTENT-->
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+                
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+    <!-- BEGIN THEME CONFIG PANEL-->
+    <div class="theme-config">
+        <div class="theme-config-toggle"><i class="fa fa-cog theme-config-show"></i><i class="ti-close theme-config-close"></i></div>
+        <div class="theme-config-box">
+            <div class="text-center font-18 m-b-20">SETTINGS</div>
+            <div class="font-strong">LAYOUT OPTIONS</div>
+            <div class="check-list m-b-20 m-t-10">
+                <label class="ui-checkbox ui-checkbox-gray">
+                    <input id="_fixedNavbar" type="checkbox" checked>
+                    <span class="input-span"></span>Fixed navbar</label>
+                <label class="ui-checkbox ui-checkbox-gray">
+                    <input id="_fixedlayout" type="checkbox">
+                    <span class="input-span"></span>Fixed layout</label>
+                <label class="ui-checkbox ui-checkbox-gray">
+                    <input class="js-sidebar-toggler" type="checkbox">
+                    <span class="input-span"></span>Collapse sidebar</label>
+            </div>
+            <div class="font-strong">LAYOUT STYLE</div>
+            <div class="m-t-10">
+                <label class="ui-radio ui-radio-gray m-r-10">
+                    <input type="radio" name="layout-style" value="" checked="">
+                    <span class="input-span"></span>Fluid</label>
+                <label class="ui-radio ui-radio-gray">
+                    <input type="radio" name="layout-style" value="1">
+                    <span class="input-span"></span>Boxed</label>
+            </div>
+            <div class="m-t-10 m-b-10 font-strong">THEME COLORS</div>
+            <div class="d-flex m-b-20">
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Default">
+                    <label>
+                        <input type="radio" name="setting-theme" value="default" checked="">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-white"></div>
+                        <div class="color-small bg-ebony"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue">
+                    <label>
+                        <input type="radio" name="setting-theme" value="blue">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-blue"></div>
+                        <div class="color-small bg-ebony"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green">
+                    <label>
+                        <input type="radio" name="setting-theme" value="green">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-green"></div>
+                        <div class="color-small bg-ebony"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple">
+                    <label>
+                        <input type="radio" name="setting-theme" value="purple">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-purple"></div>
+                        <div class="color-small bg-ebony"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange">
+                    <label>
+                        <input type="radio" name="setting-theme" value="orange">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-orange"></div>
+                        <div class="color-small bg-ebony"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink">
+                    <label>
+                        <input type="radio" name="setting-theme" value="pink">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-pink"></div>
+                        <div class="color-small bg-ebony"></div>
+                    </label>
+                </div>
+            </div>
+            <div class="d-flex">
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="White">
+                    <label>
+                        <input type="radio" name="setting-theme" value="white">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color"></div>
+                        <div class="color-small bg-silver-100"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue light">
+                    <label>
+                        <input type="radio" name="setting-theme" value="blue-light">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-blue"></div>
+                        <div class="color-small bg-silver-100"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green light">
+                    <label>
+                        <input type="radio" name="setting-theme" value="green-light">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-green"></div>
+                        <div class="color-small bg-silver-100"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple light">
+                    <label>
+                        <input type="radio" name="setting-theme" value="purple-light">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-purple"></div>
+                        <div class="color-small bg-silver-100"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange light">
+                    <label>
+                        <input type="radio" name="setting-theme" value="orange-light">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-orange"></div>
+                        <div class="color-small bg-silver-100"></div>
+                    </label>
+                </div>
+                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink light">
+                    <label>
+                        <input type="radio" name="setting-theme" value="pink-light">
+                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
+                        <div class="color bg-pink"></div>
+                        <div class="color-small bg-silver-100"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END THEME CONFIG PANEL-->
+    <!-- BEGIN PAGA BACKDROPS-->
+    <div class="sidenav-backdrop backdrop"></div>
+    <div class="preloader-backdrop">
+        <div class="page-preloader">Loading</div>
+    </div>
+    <!-- END PAGA BACKDROPS-->
+    <!-- CORE PLUGINS-->
+    <script src="/assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js" type="text/javascript"></script>
+    <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <!-- PAGE LEVEL PLUGINS-->
+    <script src="/assets/vendors/chart.js/dist/Chart.min.js" type="text/javascript"></script>
+    <!-- CORE SCRIPTS-->
+    <script src="/assets/js/app.min.js" type="text/javascript"></script>
+    <!-- PAGE LEVEL SCRIPTS-->
+    <script src="/assets/js/scripts/profile-demo.js" type="text/javascript"></script>
+</body>
+
+</html>

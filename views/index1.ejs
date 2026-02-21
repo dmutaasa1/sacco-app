@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Dashboard - SACCO Management System</title>
+    <!-- GLOBAL MAINLY STYLES-->
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <!-- PLUGINS STYLES-->
+    <link href="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css" rel="stylesheet" />
+    <!-- THEME STYLES-->
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+</head>
+
+                <style>
+.stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.stats-container > div {
+    flex: 1;
+    min-width: 150px;
+}
+
+.widget-stat {
+    height: 110px;
+}
+
+.widget-stat .ibox-body {
+    height: 100%;
+    display: flex;
+
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    position: relative;
+}
+
+.widget-stat-content {
+    z-index: 2;
+    position: relative;
+}
+
+.widget-stat h2 {
+    font-size: clamp(1.3rem, 2vw, 1.6rem);
+    margin: 0 0 8px 0;
+    word-break: break-word;
+}
+
+.widget-stat-title {
+    font-size: clamp(0.75rem, 1vw, 0.85rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.widget-stat-icon {
+    position: absolute;
+    
+    top: 0px;
+    font-size: 3.5rem;
+    opacity: 0.3;
+    z-index: 1;
+    margin-bottom: 10px;
+}
+
+.widget-stat-footer {
+    font-size: clamp(0.9rem, 0.8vw, 0.75rem);
+    opacity: 0.9;
+    margin-top: auto;
+}
+</style>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <!-- START HEADER-->
+        <%- include('partials/header') %>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+        <%- include('partials/sidebar') %>
+        <!-- END SIDEBAR-->
+        
+        <div class="content-wrapper">
+            <!-- START PAGE CONTENT-->
+            <div class="page-content fade-in-up">
+                
+                <!-- Stats Cards -->
+
+
+<div class="stats-container">
+    <!-- Total Savings Card -->
+    <div>
+        <div class="ibox bg-success color-white widget-stat">
+            <div class="ibox-body">
+                <i class="ti-wallet widget-stat-icon"></i>
+                <div class="widget-stat-content">
+                    <h2 class="font-strong">
+                        UGX <%= parseFloat(memberSaving || 0).toLocaleString('en-UG', {maximumFractionDigits: 0}) %>
+                    </h2>
+                    <div class="widget-stat-title">TOTAL SAVINGS</div>
+                </div>
+                <div class="widget-stat-footer">
+                    YTD: UGX <%= parseFloat(memberYTDSaving || 0).toLocaleString('en-UG', {maximumFractionDigits: 0}) %>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Loans Card -->
+    <div>
+        <div class="ibox bg-info color-white widget-stat">
+            <div class="ibox-body">
+                <i class="ti-bar-chart widget-stat-icon"></i>
+                <div class="widget-stat-content">
+                    <h2 class="font-strong">
+                        UGX <%= parseFloat(totalLoans || 0).toLocaleString('en-UG', {maximumFractionDigits: 0}) %>
+                    </h2>
+                    <div class="widget-stat-title">TOTAL LOANS DISBURSED</div>
+                </div>
+                <div class="widget-stat-footer">
+                    Outstanding: UGX <%= parseFloat(outstandingLoans || 0).toLocaleString('en-UG', {maximumFractionDigits: 0}) %>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Income Card -->
+    <div>
+        <div class="ibox bg-warning color-white widget-stat">
+            <div class="ibox-body">
+                <i class="fa fa-money widget-stat-icon"></i>
+                <div class="widget-stat-content">
+                    <h2 class="font-strong">
+                        UGX <%= parseFloat(memberIncome || 0).toLocaleString('en-UG', {maximumFractionDigits: 0}) %>
+                    </h2>
+                    <div class="widget-stat-title">TOTAL INCOME (YTD)</div>
+                </div>
+                <div class="widget-stat-footer">
+                    All Time: UGX <%= parseFloat(memberAllIncome || 0).toLocaleString('en-UG', {maximumFractionDigits: 0}) %>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Members Card -->
+    <div>
+        <div class="ibox bg-danger color-white widget-stat">
+            <div class="ibox-body">
+                <i class="ti-user widget-stat-icon"></i>
+                <div class="widget-stat-content">
+                    <h2 class="font-strong"><%= memberCount || 0 %></h2>
+                    <div class="widget-stat-title">ACTIVE MEMBERS</div>
+                </div>
+                <div class="widget-stat-footer">
+                    Joined (YTD): <%= ytd_memberCount || 0 %> Members
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <!-- Charts Row -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="ibox">
+                            <div class="ibox-body">
+                                <div class="flexbox mb-4">
+                                    <div>
+                                        <h3 class="m-0">Financial Statistics</h3>
+                                        <div>Monthly savings and income analytics</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <canvas id="bar_chart" style="height:260px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liquidity Row -->
+
+    <div class="col-lg-4">
+        <div class="ibox">
+            <div class="ibox-head">
+                <div class="ibox-title">
+                    <i class="fa fa-pie-chart text-primary mr-1"></i>
+                    Fund Liquidity
+                </div>
+                <div class="ibox-tools">
+                    <a href="/liquidity_report" class="btn btn-xs btn-primary">
+                        <i class="fa fa-external-link"></i> Full Report
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <canvas id="liquidity_chart" style="height:160px;"></canvas>
+                    </div>
+                    <div class="col-md-6" id="liquidity_legend">
+                        <div class="text-center text-muted" style="font-size:12px;">
+                            <i class="fa fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                </div>
+                <ul class="list-group list-group-divider list-group-full mt-2" id="liquidity_list">
+                </ul>
+                <div class="mt-2 pt-2 border-top">
+                    <strong style="font-size:12px;">Total Funds:</strong>
+                    <span class="float-right font-weight-bold text-primary" id="liquidity_total">—</span>
+                </div>
+            </div>
+        </div>
+    
+
+    <!-- Optionally keep your existing Loan Stats in col-lg-8 here, or leave it as-is -->
+
+                    
+                    <div class="col-lg-4">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Income Analysis</div>
+                            </div>
+                            <div class="ibox-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <canvas id="doughnut_chart" style="height:160px;"></canvas>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="m-b-20 text-success">
+                                            <i class="fa fa-circle-o m-r-10"></i>
+                                            Loan Interest <%= interestPercentage %>%
+                                        </div>
+                                        <div class="m-b-20 text-warning">
+                                            <i class="fa fa-circle-o m-r-10"></i>
+                                            Penalties <%= penaltyPercentage %>%
+                                        </div>
+                                        <div class="m-b-20 text-info">
+                                            <i class="fa fa-circle-o m-r-10"></i>
+                                            Fees <%= feePercentage %>%
+                                        </div>
+                                    </div>
+                                </div>
+                                <ul class="list-group list-group-divider list-group-full mt-3">
+                                    <li class="list-group-item">
+                                        Interest Income
+                                        <span class="float-right text-success">
+                                            UGX <%= parseFloat(interestIncome).toLocaleString() %>
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        Penalties
+                                        <span class="float-right text-warning">
+                                            UGX <%= parseFloat(penaltyIncome).toLocaleString() %>
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        Membership Fees
+                                        <span class="float-right text-info">
+                                            UGX <%= parseFloat(feeIncome).toLocaleString() %>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Loans and Top Borrowers -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Recent Transactions</div>
+                                <div class="ibox-tools">
+                                    <a href="/transaction_list" class="btn btn-primary btn-sm">View All</a>
+                                </div>
+                            </div>
+                            <div class="ibox-body">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Transaction ID</th>
+                                            <th>Member</th>
+                                            <th>Amount</th>
+                                            <th>Type</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (recentTransactions && recentTransactions.length > 0) { %>
+                                            <% recentTransactions.forEach(function(txn) { %>
+                                                <tr>
+                                                    <td><%= txn.id %></td>
+                                                    <td>
+                                                        <a href="/members/<%= txn.member_id %>">
+                                                            <%= txn.member_name %>
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <span class="<%= txn.Debit_Credit === 'Credit' ? 'text-success' : 'text-danger' %>">
+                                                            UGX <%= parseFloat(txn.Amount).toLocaleString() %>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge badge-<%= txn.Debit_Credit === 'Credit' ? 'success' : 'warning' %>">
+                                                            <%= txn.transaction_type %>
+                                                        </span>
+                                                    </td>
+                                                    <td><%= txn.tran_date %></td>
+                                                </tr>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="5" class="text-center">No transactions found</td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Loan Statistics</div>
+                            </div>
+                            <div class="ibox-body">
+                                <div class="mb-4">
+                                    <h4 class="text-primary"><%= loanStats.total_active_loans || 0 %></h4>
+                                    <p class="text-muted">Active Loans</p>
+                                </div>
+                                <div class="mb-4">
+                                    <h4 class="text-danger"><%= loanStats.loans_with_overdue || 0 %></h4>
+                                    <p class="text-muted">Loans with Overdue Payments</p>
+                                </div>
+                                <div class="mb-4">
+                                    <h4 class="text-success">
+                                        UGX <%= parseFloat(loanStats.total_outstanding || 0).toLocaleString() %>
+                                    </h4>
+                                    <p class="text-muted">Total Outstanding Balance</p>
+                                </div>
+                                <a href="/loan_list" class="btn btn-primary btn-block">
+                                    <i class="fa fa-list"></i> View All Loans
+                                </a>
+                            </div>
+                        </div>
+
+
+                        
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Top Borrowers</div>
+                            </div>
+                            <div class="ibox-body">
+                                <ul class="media-list media-list-divider m-0">
+                                    <% if (topBorrowers && topBorrowers.length > 0) { %>
+                                        <% topBorrowers.forEach(function(borrower) { %>
+                                            <li class="media">
+                                                <div class="media-img">
+                                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                                         style="width:40px; height:40px; color:white;">
+                                                        <%= borrower.name.charAt(0) %>
+                                                    </div>
+                                                </div>
+                                                <div class="media-body">
+                                                    <div class="media-heading">
+                                                        <a href="/members/<%= borrower.id %>"><%= borrower.name %></a>
+                                                        <span class="font-16 float-right">
+                                                            <%= borrower.loan_count %> loan(s)
+                                                        </span>
+                                                    </div>
+                                                    <div class="font-13 text-success">
+                                                        UGX <%= parseFloat(borrower.total_borrowed).toLocaleString() %>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <li class="text-center text-muted">No borrowers yet</li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END PAGE CONTENT-->
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+                <a class="px-4" href="#" target="_blank">Contact Us</a>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- CORE PLUGINS-->
+    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    
+    <!-- PAGE LEVEL PLUGINS-->
+    <script src="./assets/vendors/chart.js/dist/Chart.min.js"></script>
+    
+    <!-- CORE SCRIPTS-->
+    <script src="assets/js/app.min.js"></script>
+    
+    <!-- CHART SCRIPTS -->
+    <script>
+        $(function() {
+            'use strict';
+
+            // Bar Chart - Monthly Savings vs Income
+            var barChartData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Savings',
+                    backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 1,
+                    data: <%- savingsData %>
+                }, {
+                    label: 'Income',
+                    backgroundColor: 'rgba(255, 193, 7, 0.8)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 1,
+                    data: <%- incomeData %>
+                }, {
+                    label: 'Loans',
+                    backgroundColor: 'rgba(23, 162, 184, 0.8)',
+                    borderColor: 'rgba(0,191,255)',
+                    borderWidth: 1,
+                    data: <%- loansData %>
+                }]
+            };
+
+            var ctx = document.getElementById('bar_chart').getContext('2d');
+            var barChart = new Chart(ctx, {
+                type: 'bar',
+                data: barChartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                callback: function(value) {
+                                    return 'UGX ' + value.toLocaleString();
+                                }
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += 'UGX ' + tooltipItem.yLabel.toLocaleString();
+                                return label;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Doughnut Chart - Income Breakdown
+            var doughnutData = {
+                labels: ['Loan Interest', 'Penalties', 'Fees'],
+                datasets: [{
+                    data: [
+                        <%= interestIncome %>,
+                        <%= penaltyIncome %>,
+                        <%= feeIncome %>
+                    ],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(23, 162, 184, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(23, 162, 184, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            var ctx2 = document.getElementById('doughnut_chart').getContext('2d');
+            var doughnutChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: doughnutData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                var label = data.labels[tooltipItem.index] || '';
+                                var value = data.datasets[0].data[tooltipItem.index];
+                                return label + ': UGX ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+// ── Liquidity Pie Chart ──────────────────────────────────
+var liquidityChart = null;
+var liquidityColors = [
+    'rgba(23,162,184,0.85)',    // Bank - teal
+    'rgba(40,167,69,0.85)',     // Unit Trust - green
+    'rgba(255,193,7,0.85)',     // Mobile Money - yellow
+    'rgba(220,53,69,0.85)',     // Cash - red
+    'rgba(111,66,193,0.85)',    // Other - purple
+    'rgba(253,126,20,0.85)',    // extra
+    'rgba(32,201,151,0.85)'     // extra
+];
+var liquidityBorders = liquidityColors.map(c => c.replace('0.85','1'));
+
+function loadLiquidityChart() {
+    fetch('/liquidity/summary')
+        .then(r => r.json())
+        .then(data => {
+            const cats   = data.categories || [];
+            const total  = data.total || 0;
+            const labels = cats.map(c => c.category);
+            const values = cats.map(c => parseFloat(c.total_amount));
+
+            // Destroy old chart if exists
+            if (liquidityChart) liquidityChart.destroy();
+
+            var ctx3 = document.getElementById('liquidity_chart').getContext('2d');
+            liquidityChart = new Chart(ctx3, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: liquidityColors.slice(0, labels.length),
+                        borderColor: liquidityBorders.slice(0, labels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: { display: false },
+                    tooltips: {
+                        callbacks: {
+                            label: function(item, data) {
+                                var val = data.datasets[0].data[item.index];
+                                var pct = total > 0 ? ((val/total)*100).toFixed(1) : 0;
+                                return data.labels[item.index] + ': UGX ' +
+                                    val.toLocaleString('en-UG', {maximumFractionDigits:0}) +
+                                    ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Legend
+            var legendHtml = '';
+            cats.forEach(function(c, i) {
+                var pct = total > 0 ? ((parseFloat(c.total_amount)/total)*100).toFixed(1) : 0;
+                legendHtml += `
+                    <div class="mb-1" style="font-size:11px;">
+                        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;
+                            background:${liquidityColors[i]};margin-right:4px;"></span>
+                        <strong>${c.category}</strong>
+                        <span class="float-right text-muted">${pct}%</span>
+                    </div>`;
+            });
+            document.getElementById('liquidity_legend').innerHTML = legendHtml;
+
+            // List
+            var listHtml = '';
+            cats.forEach(function(c, i) {
+                listHtml += `
+                    <li class="list-group-item" style="font-size:11px;padding:5px 8px;">
+                        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;
+                            background:${liquidityColors[i]};margin-right:5px;"></span>
+                        ${c.category}
+                        <span class="float-right text-success font-weight-bold">
+                            UGX ${parseFloat(c.total_amount).toLocaleString('en-UG',{maximumFractionDigits:0})}
+                        </span>
+                    </li>`;
+            });
+            document.getElementById('liquidity_list').innerHTML =
+                listHtml || '<li class="list-group-item text-center text-muted" style="font-size:11px;">No data. <a href="/liquidity_report">Add funds</a></li>';
+
+            document.getElementById('liquidity_total').textContent =
+                'UGX ' + total.toLocaleString('en-UG', {maximumFractionDigits:0});
+        })
+        .catch(function() {
+            document.getElementById('liquidity_legend').innerHTML =
+                '<small class="text-danger">Failed to load</small>';
+        });
+}
+
+loadLiquidityChart();
+    </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Single-page CRUD (Node.js + Fetch)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial; max-width:900px; margin:28px auto; padding:0 12px; color:#111; }
+    h1 { margin-bottom:6px; }
+    form { display:flex; gap:10px; align-items:flex-start; margin-bottom:16px; }
+    input[type="text"], textarea { padding:8px; font-size:14px; border:1px solid #ddd; border-radius:6px; width:100%; }
+    textarea { resize:vertical; min-height:40px; max-height:120px; }
+    button { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
+    .btn-primary { background:#2563eb; color:white; }
+    .btn-danger { background:#ef4444; color:white; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid #eee; vertical-align:top; }
+    .small { font-size:12px; color:#555; }
+    .controls { display:flex; gap:8px; }
+  </style>
+</head>
+<body>
+  <h1>Items — Insert / Update / View / Delete (single page)</h1>
+
+  <form id="itemForm" onsubmit="return false;">
+    <input id="title" type="text" placeholder="Title (required)" />
+    <input id="description" type="text" placeholder="Description (optional)" />
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <button id="saveBtn" class="btn-primary">Add</button>
+      <button id="cancelEdit" style="display:none;">Cancel</button>
+    </div>
+  </form>
+
+  <div id="status" class="small"></div>
+
+  <table id="itemsTable" aria-live="polite">
+    <thead>
+      <tr><th>Title</th><th>Description</th><th class="small">Created / Updated</th><th>Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const api = '/api/items';
+    const form = document.getElementById('itemForm');
+    const titleInput = document.getElementById('title');
+    const descInput = document.getElementById('description');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const status = document.getElementById('status');
+    const tbody = document.querySelector('#itemsTable tbody');
+
+    let editingId = null;
+
+    // Utility for status messages
+    function showStatus(msg, isError=false) {
+      status.textContent = msg;
+      status.style.color = isError ? '#b91c1c' : '#064e3b';
+      setTimeout(()=> { if (status.textContent === msg) status.textContent = '' }, 3000);
+    }
+
+    // Fetch and render all items
+    async function loadItems() {
+      try {
+        const res = await fetch(api);
+        const items = await res.json();
+        renderItems(items);
+      } catch (err) {
+        showStatus('Failed to load items', true);
+        console.error(err);
+      }
+    }
+
+    // Render list
+    function renderItems(items) {
+      tbody.innerHTML = '';
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="small">No items yet.</td></tr>`;
+        return;
+      }
+      items.slice().reverse().forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(item.title)}</strong></td>
+          <td>${escapeHtml(item.description || '')}</td>
+          <td class="small">${item.updatedAt ? 'Updated: '+new Date(item.updatedAt).toLocaleString() : 'Created: '+new Date(item.createdAt).toLocaleString()}</td>
+          <td>
+            <div class="controls">
+              <button data-id="${item.id}" class="editBtn">Edit</button>
+              <button data-id="${item.id}" class="delBtn btn-danger">Delete</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // attach handlers
+      document.querySelectorAll('.editBtn').forEach(b => b.onclick = e => startEdit(Number(e.currentTarget.dataset.id)));
+      document.querySelectorAll('.delBtn').forEach(b => b.onclick = e => deleteItem(Number(e.currentTarget.dataset.id)));
+    }
+
+    // Escape simple HTML to prevent injection
+    function escapeHtml(s) {
+      return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+
+    // Create item
+    async function createItem(payload) {
+      const res = await fetch(api, { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify(payload) });
+      if (!res.ok) throw await res.json();
+      return res.json();
+    }
+
+    // Update item
+    async function updateItem(id, payload) {
+      const res = await fetch(`${api}/${id}`, { method: 'PUT', headers: {'content-type':'application/json'}, body: JSON.stringify(payload) });
+      if (!res.ok) throw await res.json();
+      return res.json();
+    }
+
+    // Delete
+    async function deleteItem(id) {
+      if (!confirm('Delete this item?')) return;
+      try {
+        const res = await fetch(`${api}/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw await res.json();
+        showStatus('Deleted');
+        await loadItems();
+      } catch (err) {
+        showStatus(err.error || 'Delete failed', true);
+      }
+    }
+
+    // Start editing
+    async function startEdit(id) {
+      // find item by id from currently loaded table (could fetch single endpoint if implemented)
+      const res = await fetch(api);
+      const items = await res.json();
+      const item = items.find(i => i.id === id);
+      if (!item) { showStatus('Item not found', true); return; }
+      editingId = id;
+      titleInput.value = item.title;
+      descInput.value = item.description || '';
+      saveBtn.textContent = 'Update';
+      cancelEdit.style.display = '';
+      titleInput.focus();
+    }
+
+    // Cancel edit
+    cancelEdit.onclick = () => {
+      editingId = null;
+      titleInput.value = '';
+      descInput.value = '';
+      saveBtn.textContent = 'Add';
+      cancelEdit.style.display = 'none';
+    };
+
+    // Form submit handler
+    saveBtn.onclick = async () => {
+      const title = titleInput.value.trim();
+      const description = descInput.value.trim();
+      if (!title) { showStatus('Title required', true); return; }
+
+      try {
+        if (editingId) {
+          await updateItem(editingId, { title, description });
+          showStatus('Updated');
+          editingId = null;
+          saveBtn.textContent = 'Add';
+          cancelEdit.style.display = 'none';
+        } else {
+          await createItem({ title, description });
+          showStatus('Created');
+        }
+        titleInput.value = '';
+        descInput.value = '';
+        await loadItems();
+      } catch (err) {
+        showStatus(err.error || 'Save failed', true);
+        console.error(err);
+      }
+    };
+
+    // initial load
+    loadItems();
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Settings</title>
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+        
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">Settings</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
+                    <li class="breadcrumb-item">Settings</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Account Settings</div>
+                            </div>
+                            <div class="ibox-body">
+                                <div class="alert alert-info">
+                                    <i class="fa fa-info-circle"></i>
+                                    <strong>Account Information</strong>
+                                    <p class="mb-0">Username: <strong><%= userSettings.username %></strong> | 
+                                    Role: <strong><%= userSettings.role %></strong> | 
+                                    Status: <strong><%= userSettings.status %></strong></p>
+                                </div>
+
+                                <h5 class="mt-4 mb-3">Quick Actions</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <i class="fa fa-user fa-3x text-primary mb-3"></i>
+                                                <h6>Edit Profile</h6>
+                                                <p class="text-muted">Update your personal information</p>
+                                                <a href="/profile" class="btn btn-primary btn-sm">Go to Profile</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <i class="fa fa-key fa-3x text-warning mb-3"></i>
+                                                <h6>Change Password</h6>
+                                                <p class="text-muted">Update your login password</p>
+                                                <a href="/profile" class="btn btn-warning btn-sm">Change Password</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <i class="fa fa-support fa-3x text-success mb-3"></i>
+                                                <h6>Get Support</h6>
+                                                <p class="text-muted">Contact support team</p>
+                                                <a href="/support" class="btn btn-success btn-sm">Contact Support</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <% if (userSettings.role === 'admin') { %>
+                                <h5 class="mt-4 mb-3">Admin Settings</h5>
+                                <div class="list-group">
+                                    <a href="/users" class="list-group-item list-group-item-action">
+                                        <i class="fa fa-users"></i> Manage Users
+                                    </a>
+                                    <a href="/members" class="list-group-item list-group-item-action">
+                                        <i class="fa fa-user"></i> Manage Members
+                                    </a>
+                                    <a href="/loan_list" class="list-group-item list-group-item-action">
+                                        <i class="fa fa-money"></i> Manage Loans
+                                    </a>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/js/app.min.js"></script>
+</body>
+</html>

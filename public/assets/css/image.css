@@ -1,0 +1,32 @@
+.small-profile-pic {
+  width: 120px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 60%; 
+}
+.personal-details {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 90%;
+    }
+    .personal-details .pair {
+        display: flex;
+        margin-right: 30px; /* space between pairs */
+        min-width: 45%; /* two per row */
+        white-space: nowrap; /* stop breaking label/value */
+    }
+    .personal-details dt {
+        font-weight: bold;
+        margin: 0 4px 0 0;
+    }
+    .personal-details dd {
+        margin: 0;
+    }
+  /* Show dropdown menu on hover */
+.hover-dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0; /* aligns neatly with button */
+}
+
+  
+

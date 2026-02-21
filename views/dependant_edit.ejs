@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Edit Dependant</title>
+    <!-- GLOBAL MAINLY STYLES-->
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <!-- PLUGINS STYLES-->
+    <link href="/assets/vendors/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet" />
+    <!-- THEME STYLES-->
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+
+    <style>
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- START HEADER-->         
+        <%- include('partials/header') %>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+        <%- include('partials/sidebar') %>        
+        <!-- END SIDEBAR-->
+        
+        <div class="content-wrapper">
+            <!-- START PAGE CONTENT-->
+            <div class="page-heading">
+                <h1 class="page-title">Edit Dependant Profile</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/"><i class="la la-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item"><a href="/dependants">Dependants</a></li>
+                    <li class="breadcrumb-item">Edit Profile</li>
+                </ol>
+            </div>
+            
+            <div class="page-content fade-in-up">                
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <div class="ibox-title">
+                            Editing: <%= dependant.First_Name %> <%= dependant.Last_Name %>
+                            <small class="ml-2">(Dependant ID: <%= dependant.id %>)</small>
+                        </div>
+                        <div class="ibox-tools">
+                            <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="ibox-body">
+                        <form id="editDependantForm">
+                            <!-- Status Selection -->
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label><b>Dependant Status:</b></label>
+                                    <select name="status" class="form-control form-control-sm" style="width: 200px; display: inline-block;">
+                                        <option value="Active" <%= dependant.Status === 'Active' ? 'selected' : '' %>>Active</option>
+                                        <option value="Disabled" <%= dependant.Status === 'Disabled' ? 'selected' : '' %>>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="ibox ibox-primary">
+                                        <div class="ibox-head">
+                                            <div class="ibox-title">Personal Details</div>
+                                            <div class="ibox-tools">
+                                                <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="ibox-body">
+                                            <div style="margin-bottom:5px;font-size: 80%;">
+                                                
+                                                <div class="form-group row">
+                                                    <label for="First_name" class="col-sm-3"><b>First Name:</b></label>
+                                                    <input type="text" id="First_Name" name="First_Name" 
+                                                           class="form-control form-control-sm rounded col-sm-3" 
+                                                           value="<%= dependant.First_Name %>" required>
+
+                                                    <label for="Middle_Name" class="col-sm-3"><b>Middle Name:</b></label>
+                                                    <input type="text" id="Middle_Name" name="Middle_Name" 
+                                                           class="form-control form-control-sm rounded col-sm-3" 
+                                                           value="<%= dependant.Middle_Name || '' %>">
+                                                </div>
+                                                
+                                                <div class="form-group row">
+                                                    <label for="Last_Name" class="col-sm-3"><b>Last Name:</b></label>
+                                                    <input type="text" id="Last_Name" name="Last_Name" 
+                                                           class="form-control form-control-sm rounded col-sm-3" 
+                                                           value="<%= dependant.Last_Name %>" required>
+
+                                                    <label for="child_date_of_birth" class="col-sm-3"><b>Birth Date:</b></label>
+                                                    <input type="date" id="child_date_of_birth" name="child_date_of_birth" 
+                                                           class="form-control form-control-sm rounded col-sm-3" 
+                                                           value="<%= dependant.child_date_of_birth %>" required>
+                                                </div>
+                                                
+                                                <div class="form-group row">
+                                                    <label for="sex" class="col-sm-3"><b>Gender:</b></label>
+                                                    <select name="sex" class="form-control form-control-sm rounded col-sm-3" required>
+                                                        <option value="">Select Gender</option>
+                                                        <option value="Male" <%= dependant.Gender === 'Male' ? 'selected' : '' %>>Male</option>
+                                                        <option value="Female" <%= dependant.Gender === 'Female' ? 'selected' : '' %>>Female</option>
+                                                    </select>
+
+                                                    <label for="person_id" class="col-sm-3"><b>Member No:</b></label>
+                                                    <input type="number" id="person_id" name="person_id" 
+                                                           class="form-control form-control-sm rounded col-sm-3" 
+                                                           value="<%= dependant.person_id %>" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-group mt-3">
+                                <button type="submit" class="btn btn-info" id="submitBtn">
+                                    <i class="fa fa-save"></i> Update Dependant
+                                </button>
+                                <a href="/dependants" class="btn btn-secondary">
+                                    <i class="fa fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- CORE PLUGINS-->
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="/assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/app.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Form Submission
+            $('#editDependantForm').on('submit', async function(e) {
+                e.preventDefault();
+
+                // Show loading overlay
+                $('#loadingOverlay').addClass('active');
+                $('#submitBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/dependants/<%= dependant.id %>/edit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    // Hide loading overlay
+                    $('#loadingOverlay').removeClass('active');
+
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: result.message,
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/dependants';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Update Failed',
+                            text: result.error || 'An error occurred while updating'
+                        });
+                        $('#submitBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Dependant');
+                    }
+                } catch (error) {
+                    $('#loadingOverlay').removeClass('active');
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An unexpected error occurred'
+                    });
+                    $('#submitBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Dependant');
+                }
+            });
+
+            // Initialize datepicker for birth date
+            $('#child_date_of_birth').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                endDate: new Date()
+            });
+        });
+    </script>
+</body>
+</html>
