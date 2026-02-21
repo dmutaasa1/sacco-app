@@ -27,8 +27,8 @@ const sessionStore = new MySQLStore({
   password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQLDATABASE,  
   clearExpired: true,
-  checkExpirationInterval: 900000, // 15 minutes
-  expiration: 86400000, // 1 day
+  checkExpirationInterval: 300000, 
+  expiration: 300000, 
 });
 
 app.use(session({
@@ -48,22 +48,11 @@ app.use(session({
 
 app.set('trust proxy', 1);
 
-// Session debug logger - remove after confirming it works
-app.use((req, res, next) => {
-  console.log('---');
-  console.log('URL:', req.url);
-  console.log('Session ID:', req.sessionID);
-  console.log('Session user:', req.session?.user?.username || 'NOT LOGGED IN');
-  console.log('Secure:', req.secure);
-  console.log('Protocol:', req.protocol);
-  next();
-});
-``
+
+
 // MySQL connection pool
 
-console.log('DB_HOST:', process.env.DB_HOST);
-console.log('DB_USER:', process.env.DB_USER);
-console.log('DB_NAME:', process.env.DB_NAME);
+
 
 const dbConfig = mysql.createPool({
   host: process.env.MYSQLHOST ,
