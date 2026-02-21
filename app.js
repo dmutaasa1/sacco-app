@@ -8,6 +8,7 @@ const cron = require('node-cron');
 const crypto = require('crypto');
 
 const app = express();
+app.set('trust proxy', 1); 
 
 // Middleware Configuration
 app.set('view engine', 'ejs');
@@ -39,9 +40,25 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production', // true on Railway (HTTPS)
     httpOnly: true,
+    sameSite: 'lax',
     maxAge: 86400000 // 1 day
   }
 }));
+
+
+app.set('trust proxy', 1);
+
+// Session debug logger - remove after confirming it works
+app.use((req, res, next) => {
+  console.log('---');
+  console.log('URL:', req.url);
+  console.log('Session ID:', req.sessionID);
+  console.log('Session user:', req.session?.user?.username || 'NOT LOGGED IN');
+  console.log('Secure:', req.secure);
+  console.log('Protocol:', req.protocol);
+  next();
+});
+```
 // MySQL connection pool
 
 console.log('DB_HOST:', process.env.DB_HOST);
