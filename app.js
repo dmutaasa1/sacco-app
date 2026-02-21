@@ -17,17 +17,31 @@ app.use(express.static('public'));
 app.use(express.static('partials'));
 
 // Session configuration
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+
+const sessionStore = new MySQLStore({
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,  
+  clearExpired: true,
+  checkExpirationInterval: 900000, // 15 minutes
+  expiration: 86400000, // 1 day
+});
+
 app.use(session({
-  secret: 'kasongo_ye_ye_mubali_nanga',
+  key: 'session_cookie_name',
+  secret: process.env.SESSION_SECRET,
+  store: sessionStore,
   resave: false,
   saveUninitialized: false,
-  cookie: { 
-    maxAge: 60000 * 60, // 1 hour
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // true on Railway (HTTPS)
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production'
+    maxAge: 86400000 // 1 day
   }
 }));
-
 // MySQL connection pool
 
 console.log('DB_HOST:', process.env.DB_HOST);
