@@ -1,6 +1,14 @@
-
-
 {
+  "name": "sacco-app",
+  "version": "1.0.0",
+  "description": "SACCO management app",
+  "main": "app.js",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
@@ -12,8 +20,4 @@
     "mysql2": "^3.14.3",
     "node-cron": "^4.2.1"
   }
-}
-
-"scripts": {
-  "start": "node app.js"
 }
