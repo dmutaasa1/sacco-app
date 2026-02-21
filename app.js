@@ -58,7 +58,7 @@ app.use((req, res, next) => {
   console.log('Protocol:', req.protocol);
   next();
 });
-```
+``
 // MySQL connection pool
 
 console.log('DB_HOST:', process.env.DB_HOST);
@@ -736,6 +736,7 @@ app.get('/login', (req, res) => {
 });
 
 // POST: Handle login
+// POST: Handle login
 app.post('/login', asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   const db = dbConfig;
@@ -753,10 +754,8 @@ app.post('/login', asyncHandler(async (req, res) => {
     return res.status(401).json({ error: 'Incorrect password' });
   }
 
-  // Update last login
   await db.execute("UPDATE users SET last_login = NOW() WHERE id = ?", [user.id]);
 
-  // Save user in session
   req.session.user = {
     id: user.id,
     username: user.username,
@@ -764,10 +763,16 @@ app.post('/login', asyncHandler(async (req, res) => {
     last_name: user.last_name,
     role: user.role
   };
-  
-  res.redirect('/');
-}));
 
+  // ✅ Wait for session to be saved before redirecting
+  req.session.save((err) => {
+    if (err) {
+      console.error('Session save error:', err);
+      return res.status(500).json({ error: 'Session error' });
+    }
+    res.redirect('/');
+  });
+}));
 // GET: Logout
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
