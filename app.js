@@ -38,7 +38,7 @@ const dbConfig = mysql.createPool({
   host: process.env.MYSQLHOST ,
   user: process.env.MYSQLUSER ,
   password: process.env.MYSQLPASSWORD ,
-  database: process.env.DB_NAME ,
+  database: process.env.MYSQLDATABASE ,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
