@@ -17,7 +17,7 @@ app.use(express.static('public'));
 app.use(express.static('partials'));
 
 // Session configuration
-const session = require('express-session');
+
 const MySQLStore = require('express-mysql-session')(session);
 
 const sessionStore = new MySQLStore({
