@@ -1,278 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>St_Kizito Agali Awamu &amp;Members</title>
-    <!-- GLOBAL MAINLY STYLES-->
-    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <!-- PLUGINS STYLES-->
-    <link href="./assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
-    <!-- THEME STYLES-->
-    <link href="assets/css/main.min.css" rel="stylesheet" />
-    <link href="assets/css/image.css" rel="stylesheet" />
-    <!-- PAGE LEVEL STYLES-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>St Kizito - Members</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet">
+    <link href="./assets/vendors/DataTables/datatables.min.css" rel="stylesheet">
+    <link href="assets/css/main.min.css" rel="stylesheet">
+    <style>
+        /* ── Mobile-first compact overrides ── */
+        .page-heading { padding: 10px 15px 5px; }
+        .page-heading h1 { font-size: 1.1rem; margin-bottom: 2px; }
+        .breadcrumb { padding: 2px 0; margin-bottom: 0; font-size: 0.78rem; background: none; }
+        .page-content { padding: 8px 10px; }
+        .ibox { margin-bottom: 0; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+        .ibox-head { padding: 8px 12px; }
+        .ibox-title { font-size: 0.85rem; font-weight: 600; }
+        .ibox-body { padding: 8px; overflow-x: auto; }
+
+        /* Compact table */
+        #members-table { font-size: 0.8rem; }
+        #members-table th,
+        #members-table td { padding: 5px 7px; white-space: nowrap; vertical-align: middle; }
+        #members-table thead th { background: #f8f9fa; font-size: 0.75rem; text-transform: uppercase; letter-spacing: .4px; }
+
+        /* Status badge */
+        .badge-status { font-size: 0.7rem; padding: 2px 7px; border-radius: 20px; }
+        .badge-active   { background: #e6f4ea; color: #1e7e34; }
+        .badge-disabled { background: #fce8e6; color: #c62828; }
+
+        /* Action buttons */
+        .btn-action { font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; }
+        .btn-view { background: #e3f2fd; color: #1565c0; border: none; }
+        .btn-edit { background: #fff8e1; color: #f57f17; border: none; }
+        .btn-view:hover { background: #bbdefb; color: #0d47a1; }
+        .btn-edit:hover { background: #ffecb3; color: #e65100; }
+
+        /* DataTables toolbar compact */
+        .dataTables_wrapper .dataTables_filter input { font-size: 0.8rem; padding: 3px 8px; height: 30px; }
+        .dataTables_wrapper .dataTables_length select { font-size: 0.8rem; padding: 2px 4px; height: 30px; }
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_length { margin-bottom: 6px; }
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate { font-size: 0.78rem; margin-top: 6px; }
+        .dataTables_wrapper .paginate_button { padding: 2px 7px !important; font-size: 0.78rem !important; }
+
+        /* Mobile card layout (hidden on desktop) */
+        .member-cards { display: none; }
+        .member-card {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            font-size: 0.82rem;
+        }
+        .member-card .member-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+        .member-card .member-meta { color: #6c757d; font-size: 0.75rem; margin-bottom: 6px; }
+        .member-card .member-actions { display: flex; gap: 6px; }
+
+        /* Top bar: search + add button */
+        .members-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .members-topbar .search-box {
+            flex: 1;
+            min-width: 160px;
+            max-width: 300px;
+            position: relative;
+        }
+        .members-topbar .search-box input {
+            width: 100%;
+            padding: 5px 10px 5px 30px;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .members-topbar .search-box .fa {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 0.75rem;
+        }
+        .btn-add-member {
+            font-size: 0.8rem;
+            padding: 5px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            /* Hide desktop table, show cards */
+            .table-wrapper { display: none !important; }
+            .member-cards { display: block; }
+            .page-heading h1 { font-size: 1rem; }
+            .ibox-body { padding: 6px; }
+        }
+
+        @media (min-width: 769px) {
+            /* On desktop, hide card controls (search handled by DataTables) */
+            .mobile-search { display: none; }
+        }
+    </style>
 </head>
 
 <body class="fixed-navbar">
-    <div class="page-wrapper">
-        <!-- START HEADER-->
-        <%- include('partials/header') %>
-        <!-- END HEADER-->
-        <!-- START SIDEBAR-->
-       <%- include('partials/sidebar') %>
-        <!-- END SIDEBAR-->
-        <div class="content-wrapper">
-            <!-- START PAGE CONTENT-->
-            <div class="page-heading">
-                <h1 class="page-title">Sacco Members</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="index.html"><i class="la la-home font-20"></i></a>
-                    </li>
-                    <li class="breadcrumb-item">Sacco Members</li>
-                </ol>
-            </div>
-            <div class="page-content fade-in-up">
-                <div class="ibox">
-                    <div class="ibox-head">
-                        <div class="ibox-title">Data Table</div>
+<div class="page-wrapper">
+    <%- include('partials/header') %>
+    <%- include('partials/sidebar') %>
+
+    <div class="content-wrapper">
+        <div class="page-heading">
+            <h1 class="page-title"><i class="fa fa-users mr-1"></i> Sacco Members</h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="la la-home"></i></a></li>
+                <li class="breadcrumb-item active">Members</li>
+            </ol>
+        </div>
+
+        <div class="page-content fade-in-up">
+            <div class="ibox">
+                <div class="ibox-head d-flex align-items-center justify-content-between" style="padding:8px 12px;">
+                    <div class="ibox-title">Members List
+                        <span class="badge badge-secondary ml-1" style="font-size:0.72rem;"><%= users.length %></span>
                     </div>
-                    <div class="ibox-body">
-                        <table class="table table-striped table-bordered table-hover" id="example-table" cellspacing="0" width="100%">
+                    <a href="/member_add" class="btn btn-primary btn-sm btn-add-member">
+                        <i class="fa fa-plus"></i> Add Member
+                    </a>
+                </div>
+
+                <div class="ibox-body">
+
+                    <!-- ── MOBILE: search + cards ── -->
+                    <div class="member-cards">
+                        <div class="members-topbar mobile-search">
+                            <div class="search-box">
+                                <i class="fa fa-search"></i>
+                                <input type="text" id="card-search" placeholder="Search members…">
+                            </div>
+                        </div>
+
+                        <div id="card-list">
+                        <% users.forEach(member => { %>
+                            <div class="member-card" data-name="<%= (member.First_Name + ' ' + member.Middle_Name + ' ' + member.Last_Name).toLowerCase() %>" data-phone="<%= member.tel_no %>">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="member-name">#<%= member.id %> — <%= member.First_Name %> <%= member.Middle_Name %> <%= member.Last_Name %></div>
+                                        <div class="member-meta">
+                                            <i class="fa fa-phone"></i> <%= member.tel_no %>
+                                            &nbsp;|&nbsp;
+                                            <i class="fa fa-venus-mars"></i> <%= member.sex %>
+                                            &nbsp;|&nbsp;
+                                            <i class="fa fa-map-marker"></i> <%= member.village_lc1 %>
+                                        </div>
+                                    </div>
+                                    <span class="badge-status <%= member.Status && member.Status.toUpperCase() === 'ACTIVE' ? 'badge-active' : 'badge-disabled' %>">
+                                        <%= member.Status %>
+                                    </span>
+                                </div>
+                                <div class="member-actions mt-1">
+                                    <a href="/members/<%= member.id %>" class="btn btn-action btn-view"><i class="fa fa-eye"></i> View</a>
+                                    <a href="/members/<%= member.id %>/edit" class="btn btn-action btn-edit"><i class="fa fa-pencil"></i> Edit</a>
+                                </div>
+                            </div>
+                        <% }) %>
+                        </div>
+
+                        <div id="no-results" style="display:none; text-align:center; padding:20px; color:#adb5bd; font-size:0.85rem;">
+                            No members found.
+                        </div>
+                    </div>
+
+                    <!-- ── DESKTOP: DataTable ── -->
+                    <div class="table-wrapper">
+                        <table class="table table-striped table-bordered table-hover table-sm" id="members-table" width="100%">
                             <thead>
                                 <tr>
-                                    <th>Member_no</th>
-                                    <th>First_Name</th>
-                                    <th>Middle Name</th>
-                                    <th>Last Name</th>
-                                    <th>Phone Number</th>
-                                    <th>Gender</th>                                    
-                                    <th>Address</th>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Gender</th>
+                                    <th>Village</th>
                                     <th>Status</th>
                                     <th>Action</th>
-                                    
-                                    
                                 </tr>
                             </thead>
                             <tfoot>
                                 <tr>
-                                    <th>Member_no</th>
-                                    <th>First_Name</th>
-                                    <th>Middle Name</th>
-                                    <th>Last Name</th>
-                                    <th>Phone Number</th>
-                                    <th>Gender</th>                                    
-                                    <th>Address</th>                                    
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Gender</th>
+                                    <th>Village</th>
                                     <th>Status</th>
                                     <th>Action</th>
-                                    
                                 </tr>
                             </tfoot>
                             <tbody>
-                                <% users.forEach(member => { %>
-                                   <tr>
+                            <% users.forEach(member => { %>
+                                <tr>
                                     <td><%= member.id %></td>
-                                    <td><%= member.First_Name  %></td>
-                                    <td><%= member.Middle_Name %></td>
-                                    <td><%= member.Last_Name %></td>
+                                    <td><%= member.First_Name %> <%= member.Middle_Name %> <%= member.Last_Name %></td>
                                     <td><%= member.tel_no %></td>
-                                    <td><%= member.sex %></td>                                    
-                                    <td><%= member.village_lc1 %></td>                                    
-                                    <td><%= member.Status %></td>                                    
+                                    <td><%= member.sex %></td>
+                                    <td><%= member.village_lc1 %></td>
                                     <td>
-                                        <div class="dropdown hover-dropdown">
-                                            <button class="btn btn-primary dropdown-toggle dropdown-toggle" type="button" id="dropdownMenu<%= member.id %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <i class="fa fa-angle-down"></i>
-                                                </button>
-                                            <div class="dropdown-menu" aria-labelledby="dropdownMenu<%= member.id %>">
-                                            <a class="dropdown-item" href="/members/<%= member.id %>">View</a>
-                                            <a class="dropdown-item" href="/members/<%= member.id %>/edit">Edit</a>
-                                            
-                                            </div>
-                                        </div>
+                                        <span class="badge-status <%= member.Status && member.Status.toUpperCase() === 'ACTIVE' ? 'badge-active' : 'badge-disabled' %>">
+                                            <%= member.Status %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/members/<%= member.id %>" class="btn btn-action btn-view mr-1"><i class="fa fa-eye"></i> View</a>
+                                        <a href="/members/<%= member.id %>/edit" class="btn btn-action btn-edit"><i class="fa fa-pencil"></i> Edit</a>
                                     </td>
                                 </tr>
-                               <% }) %>
+                            <% }) %>
                             </tbody>
                         </table>
                     </div>
-                </div>
-               
-            </div>
-            <!-- END PAGE CONTENT-->
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-                <a class="px-4" href="http://themeforest.net/item/adminca-responsive-bootstrap-4-3-angular-4-admin-dashboard-template/20912589" target="_blank">Contact Us</a>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
-        </div>
-    </div>
-    <!-- BEGIN THEME CONFIG PANEL-->
-    <div class="theme-config">
-        <div class="theme-config-toggle"><i class="fa fa-cog theme-config-show"></i><i class="ti-close theme-config-close"></i></div>
-        <div class="theme-config-box">
-            <div class="text-center font-18 m-b-20">SETTINGS</div>
-            <div class="font-strong">LAYOUT OPTIONS</div>
-            <div class="check-list m-b-20 m-t-10">
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedNavbar" type="checkbox" checked>
-                    <span class="input-span"></span>Fixed navbar</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedlayout" type="checkbox">
-                    <span class="input-span"></span>Fixed layout</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input class="js-sidebar-toggler" type="checkbox">
-                    <span class="input-span"></span>Collapse sidebar</label>
-            </div>
-            <div class="font-strong">LAYOUT STYLE</div>
-            <div class="m-t-10">
-                <label class="ui-radio ui-radio-gray m-r-10">
-                    <input type="radio" name="layout-style" value="" checked="">
-                    <span class="input-span"></span>Fluid</label>
-                <label class="ui-radio ui-radio-gray">
-                    <input type="radio" name="layout-style" value="1">
-                    <span class="input-span"></span>Boxed</label>
-            </div>
-            <div class="m-t-10 m-b-10 font-strong">THEME COLORS</div>
-            <div class="d-flex m-b-20">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Default">
-                    <label>
-                        <input type="radio" name="setting-theme" value="default" checked="">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-white"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-            </div>
-            <div class="d-flex">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="White">
-                    <label>
-                        <input type="radio" name="setting-theme" value="white">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- END THEME CONFIG PANEL-->
-    <!-- BEGIN PAGA BACKDROPS-->
-    <div class="sidenav-backdrop backdrop"></div>
-    <div class="preloader-backdrop">
-        <div class="page-preloader">Loading</div>
-    </div>
-    <!-- END PAGA BACKDROPS-->
-    <!-- CORE PLUGINS-->
-    <script src="./assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL PLUGINS-->
-    <script src="./assets/vendors/DataTables/datatables.min.js" type="text/javascript"></script>
-    <!-- CORE SCRIPTS-->
-    <script src="assets/js/app.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL SCRIPTS-->
-    <script type="text/javascript">
-        $(function() {
-            $('#example-table').DataTable({
-                pageLength: 15,
-                //"ajax": './assets/demo/data/table_data.json',
-                /*"columns": [
-                    { "data": "name" },
-                    { "data": "office" },
-                    { "data": "extn" },
-                    { "data": "start_date" },
-                    { "data": "salary" }
-                ]*/
-            });
-        })
-    </script>
-</body>
 
+                </div>
+            </div>
+        </div>
+
+        <footer class="page-footer" style="padding:8px 15px; font-size:0.78rem;">
+            <div>2025 © <b>Fincas</b> — All rights reserved.</div>
+            <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+        </footer>
+    </div>
+</div>
+
+<!-- Backdrops -->
+<div class="sidenav-backdrop backdrop"></div>
+<div class="preloader-backdrop"><div class="page-preloader">Loading</div></div>
+
+<!-- Scripts -->
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+<script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+<script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="./assets/vendors/DataTables/datatables.min.js"></script>
+<script src="assets/js/app.min.js"></script>
+<script>
+$(function () {
+    // Desktop DataTable
+    $('#members-table').DataTable({
+        pageLength: 25,
+        order: [[0, 'desc']],
+        columnDefs: [{ targets: [3, 4], visible: $(window).width() > 992 }],
+        language: {
+            search: '',
+            searchPlaceholder: 'Search…',
+            lengthMenu: 'Show _MENU_',
+            info: '_START_–_END_ of _TOTAL_',
+            paginate: { previous: '‹', next: '›' }
+        }
+    });
+
+    // Mobile card search
+    $('#card-search').on('input', function () {
+        const q = $(this).val().toLowerCase();
+        let visible = 0;
+        $('#card-list .member-card').each(function () {
+            const match = $(this).data('name').includes(q) || $(this).data('phone').includes(q);
+            $(this).toggle(match);
+            if (match) visible++;
+        });
+        $('#no-results').toggle(visible === 0);
+    });
+});
+</script>
+</body>
 </html>
