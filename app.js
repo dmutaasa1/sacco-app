@@ -980,7 +980,7 @@ SELECT
 const pageRoutes = [
   'transaction',
   'membership_fee',
-  'Welfare',
+  'welfare',
   'Insurance_cover',
   'savings_report',
   'member_add',
