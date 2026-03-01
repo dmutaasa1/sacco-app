@@ -1,537 +1,97 @@
-<style>
-/* ══════════════════════════════════════════
-   HEADER — Modern Redesign
-══════════════════════════════════════════ */
-.header {
-    height: 56px;
-    background: #ffffff;
-    border-bottom: 1px solid #e8ecf0;
-    display: flex;
-    align-items: center;
-    padding: 0;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 999;
-    box-shadow: 0 1px 12px rgba(26,31,46,.06);
-    font-family: 'DM Sans', sans-serif;
-}
-
-/* ── BRAND ── */
-.page-brand {
-    width: 240px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    background: #0f1623;
-    border-right: 1px solid rgba(255,255,255,.04);
-    flex-shrink: 0;
-}
-
-.page-brand .link {
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.brand-logo-mark {
-    width: 32px; height: 32px;
-    border-radius: 9px;
-    background: linear-gradient(135deg, #00b894, #0984e3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -.5px;
-    flex-shrink: 0;
-}
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1;
-}
-
-.brand-name {
-    font-size: .9rem;
-    font-weight: 700;
-    color: #f0f4ff;
-    letter-spacing: -.2px;
-}
-
-.brand-sub {
-    font-size: .62rem;
-    font-weight: 500;
-    color: #00b894;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    margin-top: 2px;
-}
-
-/* ── TOOLBAR WRAPPER ── */
-.header-toolbar {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    height: 100%;
-}
-
-/* ── LEFT: TOGGLE + SEARCH ── */
-.toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.hdr-icon-btn {
-    width: 34px; height: 34px;
-    border-radius: 9px;
-    border: none;
-    background: transparent;
-    display: flex; align-items: center; justify-content: center;
-    color: #718096;
-    font-size: .9rem;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-    text-decoration: none;
-    flex-shrink: 0;
-}
-.hdr-icon-btn:hover {
-    background: #f4f6fa;
-    color: #1a1f2e;
-    text-decoration: none;
-}
-
-.hdr-search {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-.hdr-search__icon {
-    position: absolute;
-    left: 10px;
-    color: #a0aec0;
-    font-size: .8rem;
-    pointer-events: none;
-}
-.hdr-search input {
-    height: 34px;
-    border: 1px solid #e8ecf0;
-    border-radius: 9px;
-    padding: 0 12px 0 32px;
-    font-size: .78rem;
-    font-family: 'DM Sans', sans-serif;
-    color: #1a1f2e;
-    background: #f8fafc;
-    outline: none;
-    width: 220px;
-    transition: border-color .15s, box-shadow .15s, width .2s;
-}
-.hdr-search input:focus {
-    border-color: #00b894;
-    box-shadow: 0 0 0 3px rgba(0,184,148,.1);
-    background: #fff;
-    width: 260px;
-}
-.hdr-search input::placeholder { color: #a0aec0; }
-
-@media (max-width: 640px) {
-    .hdr-search { display: none; }
-}
-
-/* ── RIGHT ACTIONS ── */
-.toolbar-right {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-/* Notification / message buttons */
-.hdr-action {
-    position: relative;
-}
-
-.hdr-action__btn {
-    width: 34px; height: 34px;
-    border-radius: 9px;
-    border: none;
-    background: transparent;
-    display: flex; align-items: center; justify-content: center;
-    color: #718096;
-    font-size: .9rem;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-    text-decoration: none;
-    position: relative;
-}
-.hdr-action__btn:hover {
-    background: #f4f6fa;
-    color: #1a1f2e;
-    text-decoration: none;
-}
-
-.hdr-badge {
-    position: absolute;
-    top: 3px; right: 3px;
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    background: #00b894;
-    color: #fff;
-    font-size: .55rem;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    border: 2px solid #fff;
-    line-height: 1;
-}
-.hdr-badge--red   { background: #d63031; }
-.hdr-badge--amber { background: #e17055; }
-
-/* Dot indicator */
-.hdr-dot {
-    position: absolute;
-    top: 6px; right: 6px;
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #00b894;
-    border: 2px solid #fff;
-}
-
-/* ── DROPDOWN ── */
-.hdr-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 280px;
-    background: #fff;
-    border: 1px solid #e8ecf0;
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(26,31,46,.12);
-    z-index: 9999;
-    overflow: hidden;
-    display: none;
-}
-.hdr-dropdown.open { display: block; }
-
-.hdr-dropdown__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px 10px;
-    border-bottom: 1px solid #e8ecf0;
-}
-.hdr-dropdown__head span { font-size: .8rem; font-weight: 600; color: #1a1f2e; }
-.hdr-dropdown__head a  { font-size: .72rem; color: #00b894; text-decoration: none; font-weight: 500; }
-.hdr-dropdown__head a:hover { text-decoration: underline; }
-
-.hdr-dropdown__list { max-height: 240px; overflow-y: auto; }
-
-.hdr-notif-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px 14px;
-    border-bottom: 1px solid #f4f6fa;
-    cursor: pointer;
-    transition: background .12s;
-    text-decoration: none;
-}
-.hdr-notif-item:hover { background: #f8fafc; text-decoration: none; }
-.hdr-notif-item:last-child { border-bottom: none; }
-
-.hdr-notif-icon {
-    width: 32px; height: 32px;
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .75rem;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-.hdr-notif-icon--green  { background: rgba(0,184,148,.12);  color: #00b894; }
-.hdr-notif-icon--blue   { background: rgba(9,132,227,.10);  color: #0984e3; }
-.hdr-notif-icon--amber  { background: rgba(225,112,85,.10); color: #e17055; }
-
-.hdr-notif-text {
-    flex: 1;
-    min-width: 0;
-}
-.hdr-notif-text strong { font-size: .78rem; font-weight: 600; color: #1a1f2e; display: block; margin-bottom: 2px; }
-.hdr-notif-text span   { font-size: .72rem; color: #718096; display: block; }
-.hdr-notif-time        { font-size: .65rem; color: #a0aec0; white-space: nowrap; margin-top: 2px; }
-
-.hdr-dropdown__empty {
-    padding: 20px 14px;
-    text-align: center;
-    font-size: .78rem;
-    color: #a0aec0;
-}
-
-/* ── DIVIDER ── */
-.hdr-divider {
-    width: 1px; height: 22px;
-    background: #e8ecf0;
-    margin: 0 6px;
-    flex-shrink: 0;
-}
-
-/* ── USER MENU ── */
-.hdr-user {
-    position: relative;
-}
-
-.hdr-user__btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 8px 5px 5px;
-    border-radius: 10px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    transition: background .15s;
-    text-decoration: none;
-}
-.hdr-user__btn:hover { background: #f4f6fa; }
-
-.hdr-user__avatar {
-    width: 30px; height: 30px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #00b894, #0984e3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    color: #fff;
-    flex-shrink: 0;
-    letter-spacing: -.3px;
-}
-
-.hdr-user__name {
-    font-size: .78rem;
-    font-weight: 600;
-    color: #1a1f2e;
-    max-width: 100px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.hdr-user__chevron {
-    font-size: .6rem;
-    color: #a0aec0;
-    transition: transform .15s;
-}
-.hdr-user__btn.open .hdr-user__chevron { transform: rotate(180deg); }
-
-@media (max-width: 480px) {
-    .hdr-user__name { display: none; }
-    .hdr-user__chevron { display: none; }
-}
-
-.hdr-user-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 200px;
-    background: #fff;
-    border: 1px solid #e8ecf0;
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(26,31,46,.12);
-    z-index: 9999;
-    overflow: hidden;
-    display: none;
-    padding: 6px;
-}
-.hdr-user-menu.open { display: block; }
-
-.hdr-user-menu__info {
-    padding: 8px 10px 10px;
-    border-bottom: 1px solid #f0f4f8;
-    margin-bottom: 4px;
-}
-.hdr-user-menu__info .name  { font-size: .8rem; font-weight: 700; color: #1a1f2e; }
-.hdr-user-menu__info .role  { font-size: .68rem; color: #00b894; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; margin-top: 1px; }
-
-.hdr-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    font-size: .78rem;
-    font-weight: 500;
-    color: #4a5568;
-    text-decoration: none;
-    transition: background .12s, color .12s;
-    cursor: pointer;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-}
-.hdr-menu-item i {
-    width: 22px;
-    text-align: center;
-    font-size: .8rem;
-    color: #a0aec0;
-    flex-shrink: 0;
-}
-.hdr-menu-item:hover {
-    background: #f4f6fa;
-    color: #1a1f2e;
-    text-decoration: none;
-}
-.hdr-menu-item:hover i { color: #1a1f2e; }
-
-.hdr-menu-divider {
-    height: 1px;
-    background: #f0f4f8;
-    margin: 4px 0;
-}
-
-.hdr-menu-item--danger { color: #d63031; }
-.hdr-menu-item--danger i { color: #d63031; }
-.hdr-menu-item--danger:hover { background: rgba(214,48,49,.07); color: #d63031; }
-.hdr-menu-item--danger:hover i { color: #d63031; }
-</style>
-
 <header class="header">
-
-    <!-- Brand -->
     <div class="page-brand">
         <a class="link" href="/">
-            <div class="brand-logo-mark">AW</div>
-            <div class="brand-text">
-                <span class="brand-name">Agali</span>
-                <span class="brand-sub">Awamu</span>
-            </div>
+            <span class="brand">Agali
+                <span class="brand-tip"> Awamu</span>
+            </span>
+            <span class="brand-mini">AW</span>
         </a>
     </div>
-
-    <!-- Toolbar -->
-    <div class="header-toolbar">
-
-        <!-- LEFT: toggle + search -->
-        <div class="toolbar-left">
-            <a class="hdr-icon-btn js-sidebar-toggler sidebar-toggler" href="javascript:;" title="Toggle menu">
-                <i class="ti-menu"></i>
-            </a>
-            <div class="hdr-search">
-                <i class="hdr-search__icon ti-search"></i>
-                <input type="text" placeholder="Search…" autocomplete="off" />
-            </div>
-        </div>
-
-        <!-- RIGHT: notifications + user -->
-        <div class="toolbar-right">
-
-            <!-- Notifications -->
-            <div class="hdr-action" id="notifAction">
-                <button class="hdr-action__btn" id="notifBtn" title="Notifications">
-                    <i class="fa fa-bell-o"></i>
-                    <span class="hdr-dot"></span>
-                </button>
-                <div class="hdr-dropdown" id="notifDropdown">
-                    <div class="hdr-dropdown__head">
-                        <span>Notifications</span>
-                        <a href="javascript:;">Mark all read</a>
+    <div class="flexbox flex-1">
+        <!-- START TOP-LEFT TOOLBAR-->
+        <ul class="nav navbar-toolbar">
+            <li>
+                <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
+            </li>
+            <li>
+                <form class="navbar-search" action="javascript:;">
+                    <div class="rel">
+                        <span class="search-icon"><i class="ti-search"></i></span>
+                        <input class="form-control" placeholder="Search here...">
                     </div>
-                    <div class="hdr-dropdown__list">
-                        <a class="hdr-notif-item" href="javascript:;">
-                            <div class="hdr-notif-icon hdr-notif-icon--green"><i class="fa fa-check"></i></div>
-                            <div class="hdr-notif-text">
-                                <strong>Interest calculated</strong>
-                                <span>Daily interest run completed</span>
-                            </div>
-                            <div class="hdr-notif-time">2m ago</div>
-                        </a>
-                        <a class="hdr-notif-item" href="javascript:;">
-                            <div class="hdr-notif-icon hdr-notif-icon--amber"><i class="fa fa-exclamation"></i></div>
-                            <div class="hdr-notif-text">
-                                <strong>Overdue payments</strong>
-                                <span>3 loans have overdue instalments</span>
-                            </div>
-                            <div class="hdr-notif-time">1h ago</div>
-                        </a>
-                        <a class="hdr-notif-item" href="javascript:;">
-                            <div class="hdr-notif-icon hdr-notif-icon--blue"><i class="fa fa-user-plus"></i></div>
-                            <div class="hdr-notif-text">
-                                <strong>New member registered</strong>
-                                <span>A new member was added</span>
-                            </div>
-                            <div class="hdr-notif-time">3h ago</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hdr-divider"></div>
-
-            <!-- User menu -->
-            <div class="hdr-user" id="userAction">
-                <button class="hdr-user__btn" id="userBtn">
-                    <div class="hdr-user__avatar">
-                        <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
-                    </div>
-                    <span class="hdr-user__name"><%= user.username %></span>
-                    <i class="fa fa-angle-down hdr-user__chevron"></i>
-                </button>
-                <div class="hdr-user-menu" id="userMenu">
-                    <div class="hdr-user-menu__info">
-                        <div class="name"><%= user.first_name %> <%= user.last_name %></div>
-                        <div class="role"><%= user.role %></div>
-                    </div>
-                    <a class="hdr-menu-item" href="/profile">
-                        <i class="fa fa-user-o"></i> My Profile
-                    </a>
-                    <a class="hdr-menu-item" href="/settings">
-                        <i class="fa fa-cog"></i> Settings
-                    </a>
-                    <a class="hdr-menu-item" href="/support">
-                        <i class="fa fa-life-ring"></i> Support
-                    </a>
-                    <div class="hdr-menu-divider"></div>
-                    <a class="hdr-menu-item hdr-menu-item--danger" href="/logout">
-                        <i class="fa fa-sign-out"></i> Sign Out
-                    </a>
-                </div>
-            </div>
-
-        </div>
+                </form>
+            </li>
+        </ul>
+        <!-- END TOP-LEFT TOOLBAR-->
+        <!-- START TOP-RIGHT TOOLBAR-->
+        <ul class="nav navbar-toolbar">
+            <li class="dropdown dropdown-inbox">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="fa fa-envelope-o"></i>
+                    <span class="badge badge-primary envelope-badge">9</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right dropdown-menu-media">
+                    <li class="dropdown-menu-header">
+                        <div>
+                            <span><strong>9 New</strong> Messages</span>
+                            <a class="pull-right" href="mailbox.html">view all</a>
+                        </div>
+                    </li>
+                    <li class="list-group list-group-divider scroller" data-height="240px" data-color="#71808f">
+                        <div>
+                            <a class="list-group-item">
+                                <div class="media">
+                                    <div class="media-img">
+                                        <img src="./assets/img/users/u1.jpg" />
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="font-strong"> </div>Jeanne Gonzalez<small class="text-muted float-right">Just now</small>
+                                        <div class="font-13">Your proposal interested me.</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown dropdown-notification">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell-o rel"><span class="notify-signal"></span></i></a>
+                <ul class="dropdown-menu dropdown-menu-right dropdown-menu-media">
+                    <li class="dropdown-menu-header">
+                        <div>
+                            <span><strong>5 New</strong> Notifications</span>
+                            <a class="pull-right" href="javascript:;">view all</a>
+                        </div>
+                    </li>
+                    <li class="list-group list-group-divider scroller" data-height="240px" data-color="#71808f">
+                        <div>
+                            <a class="list-group-item">
+                                <div class="media">
+                                    <div class="media-img">
+                                        <span class="badge badge-success badge-big"><i class="fa fa-check"></i></span>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="font-13">4 task compiled</div><small class="text-muted">22 mins</small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown dropdown-user">
+                <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
+                    <img src="./assets/img/admin-avatar.png" />
+                    <span></span><%= user.username %><i class="fa fa-angle-down m-l-5"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
+                    <a class="dropdown-item" href="/settings"><i class="fa fa-cog"></i>Settings</a>
+                    <a class="dropdown-item" href="/support"><i class="fa fa-support"></i>Support</a>
+                    <li class="dropdown-divider"></li>
+                    <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
+                </ul>
+            </li>
+        </ul>
+        <!-- END TOP-RIGHT TOOLBAR-->
     </div>
 </header>
-
-<script>
-(function () {
-    // Generic dropdown toggle
-    function setupDropdown(btnId, dropId, toggleClass) {
-        var btn  = document.getElementById(btnId);
-        var drop = document.getElementById(dropId);
-        if (!btn || !drop) return;
-
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            var isOpen = drop.classList.contains('open');
-            closeAll();
-            if (!isOpen) {
-                drop.classList.add('open');
-                if (toggleClass) btn.classList.add('open');
-            }
-        });
-    }
-
-    function closeAll() {
-        document.querySelectorAll('.hdr-dropdown, .hdr-user-menu').forEach(function(el) {
-            el.classList.remove('open');
-        });
-        document.querySelectorAll('.hdr-user__btn').forEach(function(el) {
-            el.classList.remove('open');
-        });
-    }
-
-    document.addEventListener('click', closeAll);
-
-    setupDropdown('notifBtn',  'notifDropdown');
-    setupDropdown('userBtn',   'userMenu', true);
-}());
-</script>
