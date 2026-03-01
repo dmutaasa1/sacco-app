@@ -27,7 +27,7 @@ const sessionStore = new MySQLStore({
   password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQLDATABASE,  
   clearExpired: true,
-  checkExpirationInterval: 300000, 
+  checkExpirationInterval: 3000, 
   expiration: 300000, 
 });
 
@@ -41,7 +41,7 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production', // true on Railway (HTTPS)
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 86400000 // 1 day
+    maxAge: 900000 // 1 day
   }
 }));
 

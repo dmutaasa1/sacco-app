@@ -1,153 +1,390 @@
- <nav class="page-sidebar" id="sidebar">
-            <div id="sidebar-collapse">
-                <div class="admin-block d-flex">
-                    <div>
-                        <img src="./assets/img/admin-avatar.png" width="45px" />
-                    </div>
-                    <div class="admin-info">
-                        <div class="font-strong"><%= user.first_name %> <%= user.last_name %></div><small><%= user.role %></small></div>
-                </div>
-                <ul class="side-menu metismenu">
-                    <li class ="<%= currentPage === 'home' ? 'active' : '' %>">
-                         <a href="/"><i class="sidebar-item-icon fa fa-th-large "></i>
-                            <span class="nav-label">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="heading">BIO DATA</li>
-                    <li class ="<%= currentPage === 'member_add' ? 'active' : '' %>">
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-bookmark"></i>
-                            <span class="nav-label">Registration</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'member_add' ? 'active' : '' %>" href="/member_add">Add Member</a>
-                            </li>
-                            <li>
-                              <a class ="<%= currentPage === 'member_add' ? 'active' : '' %>" href="/dependant_add">Add Dependants</a>
-                            </li>
-                        
-                        </ul>
-                    </li>
-                  
-                    <li class ="<%= currentPage === 'members' ? 'active' : '' %>">
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-table"></i>
-                            <span class="nav-label">User Lists</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            
-                             
-                            <li>
-                                <a class ="<%= currentPage === 'members' ? 'active' : '' %>" href="/members">Members List</a>
-                            </li>
-                            <li>
-                                <a class ="<%= currentPage === 'Dependants' ? 'active' : '' %>" href="/Dependants">Dependants List</a>
-                            </li>
-                        </ul>
-                    </li>
-                  
-                  
-                    
-                    <li class="heading">FINANCIALS</li>
-                    <li class ="<%= currentPage === 'transaction' ? 'active' : '' %>">
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-envelope"></i>
-                            <span class="nav-label ">Transactions</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'transaction' ? 'active' : '' %>" href="/transaction">Member Transaction</a>
-                            </li>
-                            <li>
-                                <a  class ="<%= currentPage === 'internal_transaction' ? 'active' : '' %>"  href="/internal_transaction">Internal Transaction</a>
-                            </li>
-                            <li>
-                            <a class ="<%= currentPage === 'transaction_list' ? 'active' : '' %>"  href="/transaction_list">Member Transactions</a>
-                            </li>
+<style>
+/* ══════════════════════════════════════════
+   SIDEBAR — Modern Redesign
+══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-                             <li>
-                            <a class ="<%= currentPage === 'internal_transaction_listing' ? 'active' : '' %>"  href="/internal_transaction_listing">Internal Transactions</a>
-                            </li>
+.page-sidebar {
+    width: 240px;
+    background: #0f1623;
+    min-height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    border-right: 1px solid rgba(255,255,255,.04);
+}
 
-                            
-                        </ul>
-                    </li>
-                      <li class ="<%= currentPage === 'loan_application' ? 'active' : '' %>">
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-envelope"></i>
-                            <span class="nav-label ">Loans</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'loan_application' ? 'active' : '' %>" href="/loan_application">Loan Application</a>
-                            </li>
-                            <li>
-                                <a  class ="<%= currentPage === 'loan_list' ? 'active' : '' %>"  href="/loan_list">Loan List</a>
-                            </li>
-                           
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="calendar.html"><i class="sidebar-item-icon fa fa-calendar"></i>
-                            <span class="nav-label">Reports</span><i class="fa fa-angle-left arrow"></i></a>
+#sidebar-collapse {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.1) transparent;
+}
+#sidebar-collapse::-webkit-scrollbar { width: 4px; }
+#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
 
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'membership_fee' ? 'active' : '' %>" href="/membership_fee">Membership Fee</a>
-                            </li>
-                            <li>
-                                <a  class ="<%= currentPage === 'Welfare' ? 'active' : '' %>"  href="/Welfare">Welfare Fee</a>
-                            </li>
-                            <li>
-                            <a class ="<%= currentPage === 'Insurance_cover' ? 'active' : '' %>"  href="/Insurance_cover">Insuarance Cover</a>
-                            </li>
-                             <li>
-                            <a class ="<%= currentPage === 'savings_report' ? 'active' : '' %>"  href="/savings_report">Savings</a>
-                            </li>
-                            <li>
-                            <a class ="<%= currentPage === 'loans_report' ? 'active' : '' %>"  href="/loans_report">Loans</a>
-                            </li>
-                             <li>
-                            <a class ="<%= currentPage === 'liquidity_report' ? 'active' : '' %>"  href="/liquidity_report">Liquidity_report</a>
-                            </li>
-                        </ul>
-                    </li>
+/* ── PROFILE BLOCK ── */
+.sb-profile {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    margin-bottom: 8px;
+}
 
-                     <li>
-                        <a href="calendar.html"><i class="sidebar-item-icon fa fa-calendar"></i>
-                            <span class="nav-label">User Management</span><i class="fa fa-angle-left arrow"></i></a>
+.sb-profile__avatar {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00b894, #0984e3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    letter-spacing: -.5px;
+}
 
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'users' ? 'active' : '' %>" href="/users">User List</a>
-                            </li>
-                            
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-file-text"></i>
-                            <span class="nav-label">Pages</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="invoice.html">Invoice</a>
-                            </li>
-                            <li>
-                                <a href="profile.html">Profile</a>
-                            </li>
-                            <li>
-                                <a href="login.html">Login</a>
-                            </li>
-                            <li>
-                                <a href="register.html">Register</a>
-                            </li>
-                            <li>
-                                <a href="lockscreen.html">Lockscreen</a>
-                            </li>
-                            <li>
-                                <a href="forgot_password.html">Forgot password</a>
-                            </li>
-                            <li>
-                                <a href="error_404.html">404 error</a>
-                            </li>
-                            <li>
-                                <a href="error_500.html">500 error</a>
-                            </li>
-                        </ul>
-                    </li>
-                   
-                </ul>
+.sb-profile__name {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #f0f4ff;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sb-profile__role {
+    font-size: .67rem;
+    font-weight: 500;
+    color: #00b894;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-top: 1px;
+}
+
+/* ── NAV ── */
+.side-menu {
+    list-style: none;
+    padding: 0 10px 20px;
+    margin: 0;
+    flex: 1;
+}
+
+/* Section headings */
+.side-menu .heading {
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.25);
+    padding: 16px 8px 6px;
+    pointer-events: none;
+}
+
+/* Top-level items */
+.side-menu > li > a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 9px;
+    color: rgba(255,255,255,.6);
+    font-size: .8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background .18s, color .18s;
+    position: relative;
+    margin-bottom: 1px;
+    white-space: nowrap;
+}
+
+.side-menu > li > a:hover,
+.side-menu > li.active > a {
+    background: rgba(255,255,255,.07);
+    color: #fff;
+    text-decoration: none;
+}
+
+.side-menu > li.active > a {
+    background: rgba(0,184,148,.14);
+    color: #00b894;
+}
+
+/* Active indicator bar */
+.side-menu > li.active > a::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: #00b894;
+    margin-left: -10px;
+}
+
+/* Icons */
+.sidebar-item-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: rgba(255,255,255,.06);
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: .8rem;
+    flex-shrink: 0;
+    transition: background .18s;
+}
+.side-menu > li > a:hover .sidebar-item-icon,
+.side-menu > li.active > a .sidebar-item-icon {
+    background: rgba(0,184,148,.18);
+    color: #00b894;
+}
+
+/* Arrow chevron */
+.side-menu .arrow {
+    margin-left: auto;
+    font-size: .65rem;
+    color: rgba(255,255,255,.25);
+    transition: transform .2s;
+    flex-shrink: 0;
+}
+.side-menu > li > a[aria-expanded="true"] .arrow {
+    transform: rotate(-90deg);
+    color: rgba(255,255,255,.5);
+}
+
+/* ── SUBMENU ── */
+.side-menu .nav-2-level {
+    list-style: none;
+    padding: 3px 0 5px 20px;
+    margin: 0;
+    overflow: hidden;
+}
+
+.side-menu .nav-2-level li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    color: rgba(255,255,255,.45);
+    font-size: .77rem;
+    font-weight: 400;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+    position: relative;
+}
+
+.side-menu .nav-2-level li a::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    flex-shrink: 0;
+    transition: background .15s;
+}
+
+.side-menu .nav-2-level li a:hover,
+.side-menu .nav-2-level li a.active {
+    color: #fff;
+    background: rgba(255,255,255,.05);
+    text-decoration: none;
+}
+.side-menu .nav-2-level li a:hover::before,
+.side-menu .nav-2-level li a.active::before {
+    background: #00b894;
+}
+
+/* ── BOTTOM ACTIONS ── */
+.sb-bottom {
+    padding: 12px 10px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sb-bottom__link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    color: rgba(255,255,255,.45);
+    font-size: .78rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+}
+.sb-bottom__link i {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: rgba(255,255,255,.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem;
+    flex-shrink: 0;
+}
+.sb-bottom__link:hover {
+    background: rgba(255,255,255,.06);
+    color: #fff;
+    text-decoration: none;
+}
+.sb-bottom__link--danger:hover {
+    background: rgba(214,48,49,.12);
+    color: #ff7675;
+}
+.sb-bottom__link--danger:hover i {
+    background: rgba(214,48,49,.15);
+    color: #ff7675;
+}
+
+/* ── METISMENU OVERRIDE (collapse animation) ── */
+.side-menu .nav-2-level.collapse { display: none; }
+.side-menu .nav-2-level.collapse.in,
+.side-menu .nav-2-level.collapsing { display: block; }
+</style>
+
+<nav class="page-sidebar" id="sidebar">
+    <div id="sidebar-collapse">
+
+        <!-- Profile -->
+        <div class="sb-profile">
+            <div class="sb-profile__avatar">
+                <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
             </div>
-        </nav>
+            <div>
+                <div class="sb-profile__name"><%= user.first_name %> <%= user.last_name %></div>
+                <div class="sb-profile__role"><%= user.role %></div>
+            </div>
+        </div>
+
+        <!-- Nav -->
+        <ul class="side-menu metismenu">
+
+            <!-- Dashboard -->
+            <li class="<%= currentPage === 'home' ? 'active' : '' %>">
+                <a href="/">
+                    <i class="sidebar-item-icon fa fa-th-large"></i>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+            </li>
+
+            <!-- ── BIO DATA ── -->
+            <li class="heading">Bio Data</li>
+
+            <li class="<%= ['member_add','dependant_add'].includes(currentPage) ? 'active' : '' %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-users"></i>
+                    <span class="nav-label">Registration</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= currentPage === 'member_add' ? 'active' : '' %>" href="/member_add">Add Member</a></li>
+                    <li><a class="<%= currentPage === 'dependant_add' ? 'active' : '' %>" href="/dependant_add">Add Dependant</a></li>
+                </ul>
+            </li>
+
+            <li class="<%= ['members','dependants'].includes(currentPage) ? 'active' : '' %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-list-ul"></i>
+                    <span class="nav-label">Member Lists</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= currentPage === 'members' ? 'active' : '' %>" href="/members">Members</a></li>
+                    <li><a class="<%= currentPage === 'dependants' ? 'active' : '' %>" href="/dependants">Dependants</a></li>
+                </ul>
+            </li>
+
+            <!-- ── FINANCIALS ── -->
+            <li class="heading">Financials</li>
+
+            <li class="<%= ['transaction','internal_transaction','transaction_list','internal_transaction_listing'].includes(currentPage) ? 'active' : '' %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-exchange"></i>
+                    <span class="nav-label">Transactions</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= currentPage === 'transaction' ? 'active' : '' %>" href="/transaction">Member Transaction</a></li>
+                    <li><a class="<%= currentPage === 'internal_transaction' ? 'active' : '' %>" href="/internal_transaction">Internal Transaction</a></li>
+                    <li><a class="<%= currentPage === 'transaction_list' ? 'active' : '' %>" href="/transaction_list">Member Txn List</a></li>
+                    <li><a class="<%= currentPage === 'internal_transaction_listing' ? 'active' : '' %>" href="/internal_transaction_listing">Internal Txn List</a></li>
+                </ul>
+            </li>
+
+            <li class="<%= ['loan_application','loan_list','loan_repayment','Loan_statement'].includes(currentPage) ? 'active' : '' %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-credit-card"></i>
+                    <span class="nav-label">Loans</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= currentPage === 'loan_application' ? 'active' : '' %>" href="/loan_application">Loan Application</a></li>
+                    <li><a class="<%= currentPage === 'loan_list' ? 'active' : '' %>" href="/loan_list">Loan List</a></li>
+                    <li><a class="<%= currentPage === 'loan_repayment' ? 'active' : '' %>" href="/loan_repayment">Repayment</a></li>
+                </ul>
+            </li>
+
+            <!-- ── REPORTS ── -->
+            <li class="heading">Reports</li>
+
+            <li class="<%= ['membership_fee','Welfare','Insurance_cover','savings_report','loans_report','liquidity_report'].includes(currentPage) ? 'active' : '' %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-bar-chart"></i>
+                    <span class="nav-label">Reports</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= currentPage === 'membership_fee' ? 'active' : '' %>" href="/membership_fee">Membership Fee</a></li>
+                    <li><a class="<%= currentPage === 'Welfare' ? 'active' : '' %>" href="/Welfare">Welfare Fee</a></li>
+                    <li><a class="<%= currentPage === 'Insurance_cover' ? 'active' : '' %>" href="/Insurance_cover">Insurance Cover</a></li>
+                    <li><a class="<%= currentPage === 'savings_report' ? 'active' : '' %>" href="/savings_report">Savings</a></li>
+                    <li><a class="<%= currentPage === 'loans_report' ? 'active' : '' %>" href="/loans_report">Loans</a></li>
+                    <li><a class="<%= currentPage === 'liquidity_report' ? 'active' : '' %>" href="/liquidity_report">Liquidity</a></li>
+                    <li><a class="<%= currentPage === 'financial_statements' ? 'active' : '' %>" href="/financial_statements">Financial Statements</a></li>
+                </ul>
+            </li>
+
+            <!-- ── ADMIN ── -->
+            <li class="heading">Admin</li>
+
+            <li class="<%= currentPage === 'users' ? 'active' : '' %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-shield"></i>
+                    <span class="nav-label">User Management</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= currentPage === 'users' ? 'active' : '' %>" href="/users">User List</a></li>
+                </ul>
+            </li>
+
+        </ul>
+
+        <!-- Bottom actions -->
+        <div class="sb-bottom">
+            <a href="/profile" class="sb-bottom__link">
+                <i class="fa fa-user-circle-o"></i>
+                My Profile
+            </a>
+            <a href="/settings" class="sb-bottom__link">
+                <i class="fa fa-cog"></i>
+                Settings
+            </a>
+            <a href="/logout" class="sb-bottom__link sb-bottom__link--danger">
+                <i class="fa fa-sign-out"></i>
+                Sign Out
+            </a>
+        </div>
+
+    </div>
+</nav>
