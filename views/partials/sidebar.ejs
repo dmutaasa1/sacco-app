@@ -259,11 +259,6 @@
 </style>
 
 <%
-/*
-  Helper: returns 'active' if currentPage is in the provided array.
-  Usage:  <%- isActive(['home']) %>
-  Defined here so every include gets it fresh.
-*/
 function isActive(pages) {
     return pages.includes(currentPage) ? 'active' : '';
 }
