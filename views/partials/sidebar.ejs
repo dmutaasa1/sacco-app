@@ -1,25 +1,30 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* ══════════════════════════════════════════════════════
-   SIDEBAR  — all rules use !important to override
-   main.min.css theme defaults
-   Must match header:  width 240px | bg #0f1623 | h 56px
-══════════════════════════════════════════════════════ */
+/*
+ * AdminCast theme native values (from main.min.css):
+ *   .page-sidebar  width: 220px
+ *   .header        height: 60px
+ *   .page-brand    width: 220px
+ *
+ * We match those exactly so no gap or misalignment occurs.
+ * Override our header.ejs to also use 220px / 60px.
+ */
 
-/* Force the outer nav to match header brand block exactly */
+/* ── Outer nav ── */
 .page-sidebar,
+nav.page-sidebar,
 #sidebar {
     width: 220px !important;
     min-width: 220px !important;
     max-width: 220px !important;
     background: #0f1623 !important;
-    border-right: 1px solid rgba(255,255,255,.04) !important;
+    border-right: 1px solid rgba(255,255,255,.05) !important;
     position: fixed !important;
-    top: 56px !important;       /* flush under 56px header, zero gap */
+    top: 60px !important;
     left: 0 !important;
     bottom: 0 !important;
-    height: calc(100vh - 56px) !important;
+    height: calc(100vh - 60px) !important;
     z-index: 998 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -28,9 +33,10 @@
     margin: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
+    border-radius: 0 !important;
 }
 
-/* Inner scroll container */
+/* ── Scroll container ── */
 #sidebar-collapse {
     display: flex !important;
     flex-direction: column !important;
@@ -42,16 +48,17 @@
     scrollbar-color: rgba(255,255,255,.12) transparent;
     height: 100% !important;
 }
-#sidebar-collapse::-webkit-scrollbar       { width: 3px; }
-#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+#sidebar-collapse::-webkit-scrollbar       { width: 3px !important; }
+#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14) !important; border-radius: 4px !important; }
 
-/* ── NAV list ── */
+/* ── Nav list (flex: 1 pushes bottom dock down) ── */
 .side-menu {
     list-style: none !important;
-    padding: 6px 8px 8px !important;
+    padding: 4px 7px 8px !important;
     margin: 0 !important;
     flex: 1 !important;
     background: transparent !important;
+    border: none !important;
 }
 
 /* Section headings */
@@ -61,25 +68,28 @@
     letter-spacing: 1.2px !important;
     text-transform: uppercase !important;
     color: rgba(255,255,255,.22) !important;
-    padding: 13px 8px 4px !important;
+    padding: 13px 7px 4px !important;
+    margin: 0 !important;
     pointer-events: none !important;
     user-select: none !important;
     background: transparent !important;
     border: none !important;
+    line-height: normal !important;
+    display: block !important;
 }
 
 /* Top-level links */
 .side-menu > li > a {
     display: flex !important;
     align-items: center !important;
-    gap: 9px !important;
-    padding: 8px 9px !important;
-    border-radius: 8px !important;
+    gap: 8px !important;
+    padding: 8px 8px !important;
+    border-radius: 7px !important;
     color: rgba(255,255,255,.55) !important;
-    font-size: .78rem !important;
+    font-size: .77rem !important;
     font-weight: 500 !important;
     text-decoration: none !important;
-    transition: background .14s, color .14s !important;
+    transition: background .13s, color .13s !important;
     position: relative !important;
     margin-bottom: 1px !important;
     white-space: nowrap !important;
@@ -87,40 +97,45 @@
     background: transparent !important;
     border: none !important;
     height: auto !important;
-    line-height: normal !important;
+    line-height: 1.3 !important;
+    width: 100% !important;
 }
 .side-menu > li > a:hover {
     background: rgba(255,255,255,.07) !important;
     color: rgba(255,255,255,.9) !important;
     text-decoration: none !important;
 }
-
-/* Active parent */
 .side-menu > li.active > a {
     background: rgba(0,184,148,.13) !important;
     color: #00b894 !important;
 }
+/* Active left bar */
 .side-menu > li.active > a::after {
     content: '' !important;
     position: absolute !important;
-    left: 0 !important; top: 18% !important; bottom: 18% !important;
+    left: 0 !important;
+    top: 15% !important;
+    bottom: 15% !important;
     width: 3px !important;
     border-radius: 0 3px 3px 0 !important;
     background: #00b894 !important;
+    display: block !important;
 }
 
-/* Icon pills */
+/* Icon pill */
 .sidebar-item-icon {
-    width: 26px !important; height: 26px !important;
-    border-radius: 7px !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 6px !important;
     background: rgba(255,255,255,.06) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: .76rem !important;
+    font-size: .73rem !important;
     flex-shrink: 0 !important;
-    transition: background .14s, color .14s !important;
-    color: rgba(255,255,255,.55) !important;
+    transition: background .13s, color .13s !important;
+    color: rgba(255,255,255,.5) !important;
+    line-height: 1 !important;
 }
 .side-menu > li > a:hover .sidebar-item-icon {
     background: rgba(255,255,255,.1) !important;
@@ -131,13 +146,14 @@
     color: #00b894 !important;
 }
 
-/* Chevron arrow */
+/* Chevron */
 .side-menu .arrow {
     margin-left: auto !important;
-    font-size: .58rem !important;
+    font-size: .55rem !important;
     color: rgba(255,255,255,.2) !important;
-    transition: transform .18s, color .14s !important;
+    transition: transform .18s, color .13s !important;
     flex-shrink: 0 !important;
+    display: inline-block !important;
 }
 .side-menu > li > a[aria-expanded="true"] .arrow {
     transform: rotate(-90deg) !important;
@@ -150,30 +166,32 @@
 /* Submenu */
 .side-menu .nav-2-level {
     list-style: none !important;
-    padding: 2px 0 4px 13px !important;
+    padding: 1px 0 3px 11px !important;
     margin: 0 !important;
     background: transparent !important;
 }
 .side-menu .nav-2-level li a {
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
-    padding: 6px 9px !important;
-    border-radius: 7px !important;
-    color: rgba(255,255,255,.38) !important;
-    font-size: .73rem !important;
+    gap: 7px !important;
+    padding: 5px 8px !important;
+    border-radius: 6px !important;
+    color: rgba(255,255,255,.37) !important;
+    font-size: .72rem !important;
     font-weight: 400 !important;
     text-decoration: none !important;
     transition: background .12s, color .12s !important;
     background: transparent !important;
-    border: none !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    width: 100% !important;
+    border: none !important;
 }
 .side-menu .nav-2-level li a::before {
     content: '' !important;
-    width: 4px !important; height: 4px !important;
+    width: 4px !important;
+    height: 4px !important;
     border-radius: 50% !important;
     background: rgba(255,255,255,.15) !important;
     flex-shrink: 0 !important;
@@ -181,8 +199,9 @@
     display: inline-block !important;
 }
 .side-menu .nav-2-level li a:hover {
-    color: rgba(255,255,255,.85) !important;
-    background: rgba(255,255,255,.05) !important;
+    color: rgba(255,255,255,.82) !important;
+    background: rgba(255,255,255,.04) !important;
+    text-decoration: none !important;
 }
 .side-menu .nav-2-level li a:hover::before {
     background: rgba(255,255,255,.45) !important;
@@ -197,52 +216,61 @@
     transform: scale(1.4) !important;
 }
 
-/* Metismenu collapse */
-.side-menu .nav-2-level.collapse         { display: none !important; }
-.side-menu .nav-2-level.collapse.in,
-.side-menu .nav-2-level.collapsing       { display: block !important; }
+/* ── Metismenu / Bootstrap collapse ──
+   Do NOT use !important here — let Bootstrap JS own show/hide.
+   We only style the open (.in) and animating (.collapsing) states. */
+.side-menu .nav-2-level           { display: none; }
+.side-menu .nav-2-level.in        { display: block; }
+.side-menu .nav-2-level.collapsing {
+    display: block;
+    overflow: hidden;
+}
+/* When metismenu sets aria-expanded="true" the .in class is added by Bootstrap */
 
-/* Bottom dock */
+/* ── Bottom dock ── */
 .sb-bottom {
-    padding: 8px !important;
+    padding: 7px !important;
     border-top: 1px solid rgba(255,255,255,.06) !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 1px !important;
     flex-shrink: 0 !important;
     background: #0f1623 !important;
+    margin: 0 !important;
 }
 .sb-bottom__link {
     display: flex !important;
     align-items: center !important;
-    gap: 9px !important;
-    padding: 7px 9px !important;
-    border-radius: 8px !important;
+    gap: 8px !important;
+    padding: 7px 8px !important;
+    border-radius: 7px !important;
     color: rgba(255,255,255,.38) !important;
-    font-size: .74rem !important;
+    font-size: .73rem !important;
     font-weight: 500 !important;
     text-decoration: none !important;
     transition: background .12s, color .12s !important;
     background: transparent !important;
 }
 .sb-bottom__link .sb-ico {
-    width: 24px !important; height: 24px !important;
-    border-radius: 6px !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 5px !important;
     background: rgba(255,255,255,.05) !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
-    font-size: .7rem !important; flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: .68rem !important;
+    flex-shrink: 0 !important;
 }
 .sb-bottom__link:hover {
     background: rgba(255,255,255,.06) !important;
-    color: rgba(255,255,255,.85) !important;
+    color: rgba(255,255,255,.82) !important;
 }
-.sb-bottom__link--danger { color: rgba(220,80,80,.75) !important; }
+.sb-bottom__link--danger { color: rgba(220,80,80,.7) !important; }
 .sb-bottom__link--danger:hover {
     background: rgba(214,48,49,.1) !important;
     color: #ff7675 !important;
 }
-
-/* Zero-height spacer */
 .sb-top-pad { height: 0 !important; flex-shrink: 0 !important; }
 </style>
 
@@ -386,3 +414,44 @@ function isActive(pages) {
 
     </div>
 </nav>
+
+<script>
+(function () {
+    /* Run after jQuery + metismenu + Bootstrap are loaded */
+    function initSidebar() {
+        if (typeof $ === 'undefined' || !$.fn.metisMenu) {
+            /* Scripts not ready yet — retry in 50ms */
+            return setTimeout(initSidebar, 50);
+        }
+
+        /* 1. Init metismenu on the nav list */
+        $('#sidebar .side-menu').metisMenu({
+            toggle: true          /* collapse siblings when opening one */
+        });
+
+        /* 2. Auto-expand any parent that has an active child */
+        $('#sidebar .side-menu li.active').each(function () {
+            var $sub = $(this).children('.nav-2-level');
+            if ($sub.length) {
+                /* Add Bootstrap .in class and set aria-expanded */
+                $sub.addClass('in').css('height', '');
+                $(this).children('a').attr('aria-expanded', 'true');
+            }
+        });
+
+        /* 3. Also expand parent if a deep child link has class "active" */
+        $('#sidebar .nav-2-level a.active').each(function () {
+            var $sub = $(this).closest('.nav-2-level');
+            $sub.addClass('in').css('height', '');
+            $sub.closest('li').children('a').attr('aria-expanded', 'true');
+        });
+    }
+
+    /* Start init — works whether this script runs before or after jQuery */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebar);
+    } else {
+        initSidebar();
+    }
+}());
+</script>
