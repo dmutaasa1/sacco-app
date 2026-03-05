@@ -1,96 +1,73 @@
 <style>
 /* ══════════════════════════════════════════
-   SIDEBAR
+   SIDEBAR — matches header exactly
+   Header height: 56px  |  Brand bg: #0f1623
+   Accent: #00b894  |  Font: DM Sans
 ══════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
+/* ── Outer nav: sits BELOW the 56px header ── */
 .page-sidebar {
     width: 240px;
     background: #0f1623;
-    min-height: 100vh;
     position: fixed;
-    top: 0; left: 0;
-    z-index: 1000;
+    top: 56px;          /* flush under header */
+    left: 0;
+    bottom: 0;          /* fills to viewport bottom */
+    z-index: 998;       /* below header (999) */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: hidden;   /* clip horizontally only */
     font-family: 'DM Sans', sans-serif;
-    border-right: 1px solid rgba(255,255,255,.04);
+    border-right: 1px solid rgba(255,255,255,.05);
 }
 
+/* ── Inner scroll container fills remaining height ── */
 #sidebar-collapse {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
+    min-height: 0;      /* CRITICAL — lets flex child shrink & scroll */
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.1) transparent;
+    scrollbar-color: rgba(255,255,255,.12) transparent;
 }
-#sidebar-collapse::-webkit-scrollbar { width: 4px; }
-#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
+#sidebar-collapse::-webkit-scrollbar       { width: 3px; }
+#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
 
-/* ── PROFILE BLOCK ── */
-.sb-profile {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 18px 14px 14px;
-    border-bottom: 1px solid rgba(255,255,255,.06);
-    margin-bottom: 6px;
-    flex-shrink: 0;
-}
-.sb-profile__avatar {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #00b894, #0984e3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #fff;
-    flex-shrink: 0; letter-spacing: -.5px;
-}
-.sb-profile__name {
-    font-size: .8rem; font-weight: 600; color: #f0f4ff;
-    line-height: 1.2; white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis;
-}
-.sb-profile__role {
-    font-size: .62rem; font-weight: 500;
-    color: #00b894; text-transform: uppercase;
-    letter-spacing: .6px; margin-top: 2px;
-}
-
-/* ── NAV ── */
+/* ── NAV takes all remaining height so bottom dock sticks ── */
 .side-menu {
     list-style: none;
-    padding: 0 8px 12px;
+    padding: 4px 8px 8px;
     margin: 0;
-    flex: 1;
+    flex: 1;            /* pushes .sb-bottom to bottom */
 }
 
-/* Section headings */
+/* ── Section headings ── */
 .side-menu .heading {
-    font-size: .58rem;
+    font-size: .57rem;
     font-weight: 700;
-    letter-spacing: 1.3px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
-    color: rgba(255,255,255,.22);
-    padding: 14px 8px 5px;
+    color: rgba(255,255,255,.2);
+    padding: 13px 8px 4px;
     pointer-events: none;
     user-select: none;
 }
 
-/* Top-level item links */
+/* ── Top-level links ── */
 .side-menu > li > a {
     display: flex;
     align-items: center;
     gap: 9px;
     padding: 8px 9px;
     border-radius: 8px;
-    color: rgba(255,255,255,.55);
+    color: rgba(255,255,255,.52);
     font-size: .78rem;
     font-weight: 500;
     text-decoration: none !important;
-    transition: background .15s, color .15s;
+    transition: background .14s, color .14s;
     position: relative;
     margin-bottom: 1px;
     white-space: nowrap;
@@ -98,7 +75,7 @@
 }
 .side-menu > li > a:hover {
     background: rgba(255,255,255,.06);
-    color: rgba(255,255,255,.9);
+    color: rgba(255,255,255,.88);
 }
 
 /* Active parent */
@@ -106,7 +83,6 @@
     background: rgba(0,184,148,.13);
     color: #00b894;
 }
-/* Left accent bar on active */
 .side-menu > li.active > a::after {
     content: '';
     position: absolute;
@@ -116,7 +92,7 @@
     background: #00b894;
 }
 
-/* Icons */
+/* ── Icon pills ── */
 .sidebar-item-icon {
     width: 26px; height: 26px;
     border-radius: 7px;
@@ -124,52 +100,49 @@
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: .78rem;
+    font-size: .76rem;
     flex-shrink: 0;
-    transition: background .15s, color .15s;
+    transition: background .14s, color .14s;
 }
 .side-menu > li > a:hover .sidebar-item-icon {
-    background: rgba(255,255,255,.08);
-    color: rgba(255,255,255,.9);
+    background: rgba(255,255,255,.09);
 }
 .side-menu > li.active > a .sidebar-item-icon {
     background: rgba(0,184,148,.18);
     color: #00b894;
 }
 
-/* Arrow chevron */
+/* ── Chevron arrow ── */
 .side-menu .arrow {
     margin-left: auto;
-    font-size: .6rem;
-    color: rgba(255,255,255,.2);
-    transition: transform .2s, color .15s;
+    font-size: .58rem;
+    color: rgba(255,255,255,.18);
+    transition: transform .18s, color .14s;
     flex-shrink: 0;
 }
-/* Metismenu adds aria-expanded="true" when open */
 .side-menu > li > a[aria-expanded="true"] .arrow {
     transform: rotate(-90deg);
-    color: rgba(255,255,255,.45);
+    color: rgba(255,255,255,.4);
 }
 .side-menu > li.active > a .arrow {
-    color: rgba(0,184,148,.6);
+    color: rgba(0,184,148,.55);
 }
 
-/* ── SUBMENU ── */
+/* ── Submenu ── */
 .side-menu .nav-2-level {
     list-style: none;
-    padding: 2px 0 4px 14px;
+    padding: 2px 0 4px 13px;
     margin: 0;
     overflow: hidden;
 }
-.side-menu .nav-2-level li { margin-bottom: 0; }
 .side-menu .nav-2-level li a {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 6px 9px;
     border-radius: 7px;
-    color: rgba(255,255,255,.4);
-    font-size: .74rem;
+    color: rgba(255,255,255,.38);
+    font-size: .73rem;
     font-weight: 400;
     text-decoration: none !important;
     transition: background .12s, color .12s;
@@ -177,23 +150,21 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-/* Small dot before submenu items */
 .side-menu .nav-2-level li a::before {
     content: '';
     width: 4px; height: 4px;
     border-radius: 50%;
-    background: rgba(255,255,255,.18);
+    background: rgba(255,255,255,.15);
     flex-shrink: 0;
     transition: background .12s, transform .12s;
 }
 .side-menu .nav-2-level li a:hover {
-    color: rgba(255,255,255,.85);
+    color: rgba(255,255,255,.82);
     background: rgba(255,255,255,.04);
 }
 .side-menu .nav-2-level li a:hover::before {
-    background: rgba(255,255,255,.5);
+    background: rgba(255,255,255,.45);
 }
-/* Active submenu item */
 .side-menu .nav-2-level li a.active {
     color: #00b894;
     background: rgba(0,184,148,.08);
@@ -209,14 +180,14 @@
 .side-menu .nav-2-level.collapse.in,
 .side-menu .nav-2-level.collapsing       { display: block; }
 
-/* ── BOTTOM DOCK ── */
+/* ── Bottom dock — always visible at bottom ── */
 .sb-bottom {
-    padding: 10px 8px;
+    padding: 8px;
     border-top: 1px solid rgba(255,255,255,.06);
     display: flex;
     flex-direction: column;
     gap: 1px;
-    flex-shrink: 0;
+    flex-shrink: 0;     /* never squash */
 }
 .sb-bottom__link {
     display: flex;
@@ -224,8 +195,8 @@
     gap: 9px;
     padding: 7px 9px;
     border-radius: 8px;
-    color: rgba(255,255,255,.4);
-    font-size: .75rem;
+    color: rgba(255,255,255,.38);
+    font-size: .74rem;
     font-weight: 500;
     text-decoration: none !important;
     transition: background .12s, color .12s;
@@ -235,19 +206,18 @@
     border-radius: 6px;
     background: rgba(255,255,255,.04);
     display: flex; align-items: center; justify-content: center;
-    font-size: .72rem; flex-shrink: 0;
+    font-size: .7rem; flex-shrink: 0;
     transition: background .12s, color .12s;
 }
 .sb-bottom__link:hover {
     background: rgba(255,255,255,.05);
-    color: rgba(255,255,255,.85);
+    color: rgba(255,255,255,.82);
 }
 .sb-bottom__link:hover .sb-ico {
     background: rgba(255,255,255,.08);
-    color: rgba(255,255,255,.85);
 }
-.sb-bottom__link--danger { color: rgba(214,48,49,.65); }
-.sb-bottom__link--danger .sb-ico { color: rgba(214,48,49,.65); }
+.sb-bottom__link--danger { color: rgba(220,80,80,.7); }
+.sb-bottom__link--danger .sb-ico { color: rgba(220,80,80,.7); }
 .sb-bottom__link--danger:hover {
     background: rgba(214,48,49,.1);
     color: #ff7675;
@@ -256,6 +226,10 @@
     background: rgba(214,48,49,.12);
     color: #ff7675;
 }
+
+/* ── Profile block (no longer at top — removed; header handles user identity) ── */
+/* Keep a slim top spacer so first nav item isn't flush to edge */
+.sb-top-pad { height: 6px; flex-shrink: 0; }
 </style>
 
 <%
@@ -267,16 +241,7 @@ function isActive(pages) {
 <nav class="page-sidebar" id="sidebar">
     <div id="sidebar-collapse">
 
-        <!-- ── Profile ───────────────────────────────────── -->
-        <div class="sb-profile">
-            <div class="sb-profile__avatar">
-                <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
-            </div>
-            <div style="min-width:0;">
-                <div class="sb-profile__name"><%= user.first_name %> <%= user.last_name %></div>
-                <div class="sb-profile__role"><%= user.role %></div>
-            </div>
-        </div>
+        <div class="sb-top-pad"></div>
 
         <!-- ── Nav ───────────────────────────────────────── -->
         <ul class="side-menu metismenu">
