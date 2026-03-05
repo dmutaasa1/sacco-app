@@ -4001,25 +4001,21 @@ app.post('/financial_statements/generate', checkAuth, asyncHandler(async (req, r
 
 //=============================Live search============================
 app.get('/search', asyncHandler(async (req, res) => {
-  const q = `%${req.query.q || ''}%`;
-  const limit = parseInt(req.query.limit) || 5;
-
-  const [members] = await db.execute(
-    `SELECT id, First_name, Last_Name, tel_no, email 
-     FROM members_mst WHERE status='Active' 
-     AND (First_name LIKE ? OR Last_Name LIKE ? OR tel_no LIKE ?) LIMIT ?`,
-    [q, q, q, limit]
-  );
-
-  const [dependants] = await db.execute(
-    `SELECT d.id, d.First_name, d.Last_Name, d.relationship,
-            CONCAT(m.First_name,' ',m.Last_Name) AS member_name
-     FROM dependants d JOIN members_mst m ON d.member_id = m.id
-     WHERE d.First_name LIKE ? OR d.Last_Name LIKE ? LIMIT ?`,
-    [q, q, limit]
-  );
-
-  res.json({ members, dependants });
+    const q = `%${req.query.q || ''}%`;
+    const limit = parseInt(req.query.limit) || 5;
+    const [members] = await db.execute(
+        `SELECT id, First_name, Last_Name, tel_no, email FROM members_mst 
+         WHERE status='Active' AND (First_name LIKE ? OR Last_Name LIKE ? OR tel_no LIKE ?) LIMIT ?`,
+        [q, q, q, limit]
+    );
+    const [dependants] = await db.execute(
+        `SELECT d.id, d.First_name, d.Last_Name, d.relationship,
+                CONCAT(m.First_name,' ',m.Last_Name) AS member_name
+         FROM dependants d JOIN members_mst m ON d.member_id = m.id
+         WHERE d.First_name LIKE ? OR d.Last_Name LIKE ? LIMIT ?`,
+        [q, q, limit]
+    );
+    res.json({ members, dependants });
 }));
 
 

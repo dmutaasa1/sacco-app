@@ -75,7 +75,7 @@
     border-color: #00b894; box-shadow: 0 0 0 3px rgba(0,184,148,.1);
     background: #fff; width: 280px;
 }
-.hdr-search input:focus ~ .hdr-search__icon { color: #00b894; }
+/* icon color handled via JS focus class */
 .hdr-search input::placeholder { color: #a0aec0; }
 
 /* Clear button */
@@ -545,10 +545,18 @@
         searchResults.classList.add('open');
 
         fetch('/search?q=' + encodeURIComponent(q) + '&limit=5')
-            .then(function(r) { return r.json(); })
+            .then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
             .then(function(data) { renderResults(data); })
-            .catch(function() {
-                searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-exclamation-circle"></i> Search failed. Try again.</div>';
+            .catch(function(err) {
+                searchResults.innerHTML =
+                    '<div class="hsr-state" style="flex-direction:column;gap:4px;">' +
+                    '<i class="fa fa-exclamation-circle" style="color:#e17055;"></i>' +
+                    '<span>Search unavailable</span>' +
+                    '<small style="font-size:.65rem;color:#ccc;">Add GET /search route to app.js</small>' +
+                    '</div>';
             });
     }
 
@@ -565,7 +573,11 @@
     });
 
     searchInput.addEventListener('focus', function() {
+        document.querySelector('.hdr-search__icon').style.color = '#00b894';
         if (this.value.trim()) searchResults.classList.add('open');
+    });
+    searchInput.addEventListener('blur', function() {
+        document.querySelector('.hdr-search__icon').style.color = '#a0aec0';
     });
 
     searchInput.addEventListener('keydown', function(e) {

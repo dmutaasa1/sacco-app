@@ -1,235 +1,249 @@
 <style>
-/* ══════════════════════════════════════════
-   SIDEBAR — matches header exactly
-   Header height: 56px  |  Brand bg: #0f1623
-   Accent: #00b894  |  Font: DM Sans
-══════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* ── Outer nav: sits BELOW the 56px header ── */
-.page-sidebar {
-    width: 240px;                               /* exact match to header brand block */
-    background: #0f1623;                        /* exact match to header brand bg */
-    border-right: 1px solid rgba(255,255,255,.04); /* exact match to header brand border */
-    position: fixed;
-    top: 56px;                                  /* sits flush below header — no gap */
-    left: 0;
-    bottom: 0;
-    z-index: 998;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    font-family: 'DM Sans', sans-serif;
-    margin-top: 0;
-    padding-top: 0;
+/* ══════════════════════════════════════════════════════
+   SIDEBAR  — all rules use !important to override
+   main.min.css theme defaults
+   Must match header:  width 240px | bg #0f1623 | h 56px
+══════════════════════════════════════════════════════ */
+
+/* Force the outer nav to match header brand block exactly */
+.page-sidebar,
+#sidebar {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    background: #0f1623 !important;
+    border-right: 1px solid rgba(255,255,255,.04) !important;
+    position: fixed !important;
+    top: 56px !important;       /* flush under 56px header, zero gap */
+    left: 0 !important;
+    bottom: 0 !important;
+    height: calc(100vh - 56px) !important;
+    z-index: 998 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    font-family: 'DM Sans', sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
 }
 
-/* ── Inner scroll container fills remaining height ── */
+/* Inner scroll container */
 #sidebar-collapse {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;      /* CRITICAL — lets flex child shrink & scroll */
-    overflow-y: auto;
-    overflow-x: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,.12) transparent;
+    height: 100% !important;
 }
 #sidebar-collapse::-webkit-scrollbar       { width: 3px; }
-#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
 
-/* ── NAV takes all remaining height so bottom dock sticks ── */
+/* ── NAV list ── */
 .side-menu {
-    list-style: none;
-    padding: 6px 8px 8px;
-    margin: 0;
-    flex: 1;            /* pushes .sb-bottom to bottom */
+    list-style: none !important;
+    padding: 6px 8px 8px !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    background: transparent !important;
 }
 
-/* ── Section headings ── */
+/* Section headings */
 .side-menu .heading {
-    font-size: .57rem;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,.2);
-    padding: 13px 8px 4px;
-    pointer-events: none;
-    user-select: none;
+    font-size: .57rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.2px !important;
+    text-transform: uppercase !important;
+    color: rgba(255,255,255,.22) !important;
+    padding: 13px 8px 4px !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    background: transparent !important;
+    border: none !important;
 }
 
-/* ── Top-level links ── */
+/* Top-level links */
 .side-menu > li > a {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 8px 9px;
-    border-radius: 8px;
-    color: rgba(255,255,255,.52);
-    font-size: .78rem;
-    font-weight: 500;
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    padding: 8px 9px !important;
+    border-radius: 8px !important;
+    color: rgba(255,255,255,.55) !important;
+    font-size: .78rem !important;
+    font-weight: 500 !important;
     text-decoration: none !important;
-    transition: background .14s, color .14s;
-    position: relative;
-    margin-bottom: 1px;
-    white-space: nowrap;
-    overflow: hidden;
+    transition: background .14s, color .14s !important;
+    position: relative !important;
+    margin-bottom: 1px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    line-height: normal !important;
 }
 .side-menu > li > a:hover {
-    background: rgba(255,255,255,.06);
-    color: rgba(255,255,255,.88);
+    background: rgba(255,255,255,.07) !important;
+    color: rgba(255,255,255,.9) !important;
+    text-decoration: none !important;
 }
 
 /* Active parent */
 .side-menu > li.active > a {
-    background: rgba(0,184,148,.13);
-    color: #00b894;
+    background: rgba(0,184,148,.13) !important;
+    color: #00b894 !important;
 }
 .side-menu > li.active > a::after {
-    content: '';
-    position: absolute;
-    left: 0; top: 18%; bottom: 18%;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: #00b894;
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important; top: 18% !important; bottom: 18% !important;
+    width: 3px !important;
+    border-radius: 0 3px 3px 0 !important;
+    background: #00b894 !important;
 }
 
-/* ── Icon pills ── */
+/* Icon pills */
 .sidebar-item-icon {
-    width: 26px; height: 26px;
-    border-radius: 7px;
-    background: rgba(255,255,255,.05);
+    width: 26px !important; height: 26px !important;
+    border-radius: 7px !important;
+    background: rgba(255,255,255,.06) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: .76rem;
-    flex-shrink: 0;
-    transition: background .14s, color .14s;
+    font-size: .76rem !important;
+    flex-shrink: 0 !important;
+    transition: background .14s, color .14s !important;
+    color: rgba(255,255,255,.55) !important;
 }
 .side-menu > li > a:hover .sidebar-item-icon {
-    background: rgba(255,255,255,.09);
+    background: rgba(255,255,255,.1) !important;
+    color: rgba(255,255,255,.9) !important;
 }
 .side-menu > li.active > a .sidebar-item-icon {
-    background: rgba(0,184,148,.18);
-    color: #00b894;
+    background: rgba(0,184,148,.18) !important;
+    color: #00b894 !important;
 }
 
-/* ── Chevron arrow ── */
+/* Chevron arrow */
 .side-menu .arrow {
-    margin-left: auto;
-    font-size: .58rem;
-    color: rgba(255,255,255,.18);
-    transition: transform .18s, color .14s;
-    flex-shrink: 0;
+    margin-left: auto !important;
+    font-size: .58rem !important;
+    color: rgba(255,255,255,.2) !important;
+    transition: transform .18s, color .14s !important;
+    flex-shrink: 0 !important;
 }
 .side-menu > li > a[aria-expanded="true"] .arrow {
-    transform: rotate(-90deg);
-    color: rgba(255,255,255,.4);
+    transform: rotate(-90deg) !important;
+    color: rgba(255,255,255,.45) !important;
 }
 .side-menu > li.active > a .arrow {
-    color: rgba(0,184,148,.55);
+    color: rgba(0,184,148,.55) !important;
 }
 
-/* ── Submenu ── */
+/* Submenu */
 .side-menu .nav-2-level {
-    list-style: none;
-    padding: 2px 0 4px 13px;
-    margin: 0;
-    overflow: hidden;
+    list-style: none !important;
+    padding: 2px 0 4px 13px !important;
+    margin: 0 !important;
+    background: transparent !important;
 }
 .side-menu .nav-2-level li a {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 9px;
-    border-radius: 7px;
-    color: rgba(255,255,255,.38);
-    font-size: .73rem;
-    font-weight: 400;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 9px !important;
+    border-radius: 7px !important;
+    color: rgba(255,255,255,.38) !important;
+    font-size: .73rem !important;
+    font-weight: 400 !important;
     text-decoration: none !important;
-    transition: background .12s, color .12s;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    transition: background .12s, color .12s !important;
+    background: transparent !important;
+    border: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 .side-menu .nav-2-level li a::before {
-    content: '';
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.15);
-    flex-shrink: 0;
-    transition: background .12s, transform .12s;
+    content: '' !important;
+    width: 4px !important; height: 4px !important;
+    border-radius: 50% !important;
+    background: rgba(255,255,255,.15) !important;
+    flex-shrink: 0 !important;
+    transition: background .12s, transform .12s !important;
+    display: inline-block !important;
 }
 .side-menu .nav-2-level li a:hover {
-    color: rgba(255,255,255,.82);
-    background: rgba(255,255,255,.04);
+    color: rgba(255,255,255,.85) !important;
+    background: rgba(255,255,255,.05) !important;
 }
 .side-menu .nav-2-level li a:hover::before {
-    background: rgba(255,255,255,.45);
+    background: rgba(255,255,255,.45) !important;
 }
 .side-menu .nav-2-level li a.active {
-    color: #00b894;
-    background: rgba(0,184,148,.08);
-    font-weight: 500;
+    color: #00b894 !important;
+    background: rgba(0,184,148,.09) !important;
+    font-weight: 500 !important;
 }
 .side-menu .nav-2-level li a.active::before {
-    background: #00b894;
-    transform: scale(1.4);
+    background: #00b894 !important;
+    transform: scale(1.4) !important;
 }
 
 /* Metismenu collapse */
-.side-menu .nav-2-level.collapse         { display: none; }
+.side-menu .nav-2-level.collapse         { display: none !important; }
 .side-menu .nav-2-level.collapse.in,
-.side-menu .nav-2-level.collapsing       { display: block; }
+.side-menu .nav-2-level.collapsing       { display: block !important; }
 
-/* ── Bottom dock — always visible at bottom ── */
+/* Bottom dock */
 .sb-bottom {
-    padding: 8px;
-    border-top: 1px solid rgba(255,255,255,.06);
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    flex-shrink: 0;     /* never squash */
+    padding: 8px !important;
+    border-top: 1px solid rgba(255,255,255,.06) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1px !important;
+    flex-shrink: 0 !important;
+    background: #0f1623 !important;
 }
 .sb-bottom__link {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 7px 9px;
-    border-radius: 8px;
-    color: rgba(255,255,255,.38);
-    font-size: .74rem;
-    font-weight: 500;
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    padding: 7px 9px !important;
+    border-radius: 8px !important;
+    color: rgba(255,255,255,.38) !important;
+    font-size: .74rem !important;
+    font-weight: 500 !important;
     text-decoration: none !important;
-    transition: background .12s, color .12s;
+    transition: background .12s, color .12s !important;
+    background: transparent !important;
 }
 .sb-bottom__link .sb-ico {
-    width: 24px; height: 24px;
-    border-radius: 6px;
-    background: rgba(255,255,255,.04);
-    display: flex; align-items: center; justify-content: center;
-    font-size: .7rem; flex-shrink: 0;
-    transition: background .12s, color .12s;
+    width: 24px !important; height: 24px !important;
+    border-radius: 6px !important;
+    background: rgba(255,255,255,.05) !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    font-size: .7rem !important; flex-shrink: 0 !important;
 }
 .sb-bottom__link:hover {
-    background: rgba(255,255,255,.05);
-    color: rgba(255,255,255,.82);
+    background: rgba(255,255,255,.06) !important;
+    color: rgba(255,255,255,.85) !important;
 }
-.sb-bottom__link:hover .sb-ico {
-    background: rgba(255,255,255,.08);
-}
-.sb-bottom__link--danger { color: rgba(220,80,80,.7); }
-.sb-bottom__link--danger .sb-ico { color: rgba(220,80,80,.7); }
+.sb-bottom__link--danger { color: rgba(220,80,80,.75) !important; }
 .sb-bottom__link--danger:hover {
-    background: rgba(214,48,49,.1);
-    color: #ff7675;
-}
-.sb-bottom__link--danger:hover .sb-ico {
-    background: rgba(214,48,49,.12);
-    color: #ff7675;
+    background: rgba(214,48,49,.1) !important;
+    color: #ff7675 !important;
 }
 
-.sb-top-pad { height: 0; flex-shrink: 0; }
+/* Zero-height spacer */
+.sb-top-pad { height: 0 !important; flex-shrink: 0 !important; }
 </style>
 
 <%
