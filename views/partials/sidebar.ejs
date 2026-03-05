@@ -8,18 +8,20 @@
 
 /* ── Outer nav: sits BELOW the 56px header ── */
 .page-sidebar {
-    width: 240px;
-    background: #0f1623;
+    width: 240px;                               /* exact match to header brand block */
+    background: #0f1623;                        /* exact match to header brand bg */
+    border-right: 1px solid rgba(255,255,255,.04); /* exact match to header brand border */
     position: fixed;
-    top: 56px;          /* flush under header */
+    top: 56px;                                  /* sits flush below header — no gap */
     left: 0;
-    bottom: 0;          /* fills to viewport bottom */
-    z-index: 998;       /* below header (999) */
+    bottom: 0;
+    z-index: 998;
     display: flex;
     flex-direction: column;
-    overflow: hidden;   /* clip horizontally only */
+    overflow: hidden;
     font-family: 'DM Sans', sans-serif;
-    border-right: 1px solid rgba(255,255,255,.05);
+    margin-top: 0;
+    padding-top: 0;
 }
 
 /* ── Inner scroll container fills remaining height ── */
@@ -39,7 +41,7 @@
 /* ── NAV takes all remaining height so bottom dock sticks ── */
 .side-menu {
     list-style: none;
-    padding: 4px 8px 8px;
+    padding: 6px 8px 8px;
     margin: 0;
     flex: 1;            /* pushes .sb-bottom to bottom */
 }
@@ -227,9 +229,7 @@
     color: #ff7675;
 }
 
-/* ── Profile block (no longer at top — removed; header handles user identity) ── */
-/* Keep a slim top spacer so first nav item isn't flush to edge */
-.sb-top-pad { height: 6px; flex-shrink: 0; }
+.sb-top-pad { height: 0; flex-shrink: 0; }
 </style>
 
 <%
