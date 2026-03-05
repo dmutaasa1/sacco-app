@@ -1,153 +1,414 @@
- <nav class="page-sidebar" id="sidebar">
-            <div id="sidebar-collapse">
-                <div class="admin-block d-flex">
-                    <div>
-                        <img src="./assets/img/admin-avatar.png" width="45px" />
-                    </div>
-                    <div class="admin-info">
-                        <div class="font-strong"><%= user.first_name %> <%= user.last_name %></div><small><%= user.role %></small></div>
-                </div>
-                <ul class="side-menu metismenu">
-                    <li class ="<%= currentPage === 'home' ? 'active' : '' %>">
-                         <a href="/"><i class="sidebar-item-icon fa fa-th-large "></i>
-                            <span class="nav-label">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="heading">BIO DATA</li>
-                    <li class ="<%= currentPage === 'member_add' ? 'active' : '' %>">
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-bookmark"></i>
-                            <span class="nav-label">Registration</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'member_add' ? 'active' : '' %>" href="/member_add">Add Member</a>
-                            </li>
-                            <li>
-                              <a class ="<%= currentPage === 'member_add' ? 'active' : '' %>" href="/dependant_add">Add Dependants</a>
-                            </li>
-                        
-                        </ul>
-                    </li>
-                  
-                    <li class ="<%= currentPage === 'members' ? 'active' : '' %>">
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-table"></i>
-                            <span class="nav-label">User Lists</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            
-                             
-                            <li>
-                                <a class ="<%= currentPage === 'members' ? 'active' : '' %>" href="/members">Members List</a>
-                            </li>
-                            <li>
-                                <a class ="<%= currentPage === 'Dependants' ? 'active' : '' %>" href="/Dependants">Dependants List</a>
-                            </li>
-                        </ul>
-                    </li>
-                  
-                  
-                    
-                    <li class="heading">FINANCIALS</li>
-                    <li class ="<%= currentPage === 'transaction' ? 'active' : '' %>">
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-envelope"></i>
-                            <span class="nav-label ">Transactions</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'transaction' ? 'active' : '' %>" href="/transaction">Member Transaction</a>
-                            </li>
-                            <li>
-                                <a  class ="<%= currentPage === 'internal_transaction' ? 'active' : '' %>"  href="/internal_transaction">Internal Transaction</a>
-                            </li>
-                            <li>
-                            <a class ="<%= currentPage === 'transaction_list' ? 'active' : '' %>"  href="/transaction_list">Member Transactions</a>
-                            </li>
+<style>
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-                             <li>
-                            <a class ="<%= currentPage === 'internal_transaction_listing' ? 'active' : '' %>"  href="/internal_transaction_listing">Internal Transactions</a>
-                            </li>
+.page-sidebar {
+    width: 240px;
+    background: #0f1623;
+    min-height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    border-right: 1px solid rgba(255,255,255,.04);
+}
 
-                            
-                        </ul>
-                    </li>
-                      <li class ="<%= currentPage === 'loan_application' ? 'active' : '' %>">
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-envelope"></i>
-                            <span class="nav-label ">Loans</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'loan_application' ? 'active' : '' %>" href="/loan_application">Loan Application</a>
-                            </li>
-                            <li>
-                                <a  class ="<%= currentPage === 'loan_list' ? 'active' : '' %>"  href="/loan_list">Loan List</a>
-                            </li>
-                           
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="calendar.html"><i class="sidebar-item-icon fa fa-calendar"></i>
-                            <span class="nav-label">Reports</span><i class="fa fa-angle-left arrow"></i></a>
+#sidebar-collapse {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.1) transparent;
+}
+#sidebar-collapse::-webkit-scrollbar { width: 4px; }
+#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
 
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'membership_fee' ? 'active' : '' %>" href="/membership_fee">Membership Fee</a>
-                            </li>
-                            <li>
-                                <a  class ="<%= currentPage === 'Welfare' ? 'active' : '' %>"  href="/Welfare">Welfare Fee</a>
-                            </li>
-                            <li>
-                            <a class ="<%= currentPage === 'Insurance_cover' ? 'active' : '' %>"  href="/Insurance_cover">Insuarance Cover</a>
-                            </li>
-                             <li>
-                            <a class ="<%= currentPage === 'savings_report' ? 'active' : '' %>"  href="/savings_report">Savings</a>
-                            </li>
-                            <li>
-                            <a class ="<%= currentPage === 'loans_report' ? 'active' : '' %>"  href="/loans_report">Loans</a>
-                            </li>
-                             <li>
-                            <a class ="<%= currentPage === 'liquidity_report' ? 'active' : '' %>"  href="/liquidity_report">Liquidity_report</a>
-                            </li>
-                        </ul>
-                    </li>
+/* ── PROFILE BLOCK ── */
+.sb-profile {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 18px 14px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+.sb-profile__avatar {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00b894, #0984e3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+    flex-shrink: 0; letter-spacing: -.5px;
+}
+.sb-profile__name {
+    font-size: .8rem; font-weight: 600; color: #f0f4ff;
+    line-height: 1.2; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+}
+.sb-profile__role {
+    font-size: .62rem; font-weight: 500;
+    color: #00b894; text-transform: uppercase;
+    letter-spacing: .6px; margin-top: 2px;
+}
 
-                     <li>
-                        <a href="calendar.html"><i class="sidebar-item-icon fa fa-calendar"></i>
-                            <span class="nav-label">User Management</span><i class="fa fa-angle-left arrow"></i></a>
+/* ── NAV ── */
+.side-menu {
+    list-style: none;
+    padding: 0 8px 12px;
+    margin: 0;
+    flex: 1;
+}
 
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a class ="<%= currentPage === 'users' ? 'active' : '' %>" href="/users">User List</a>
-                            </li>
-                            
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-file-text"></i>
-                            <span class="nav-label">Pages</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="invoice.html">Invoice</a>
-                            </li>
-                            <li>
-                                <a href="profile.html">Profile</a>
-                            </li>
-                            <li>
-                                <a href="login.html">Login</a>
-                            </li>
-                            <li>
-                                <a href="register.html">Register</a>
-                            </li>
-                            <li>
-                                <a href="lockscreen.html">Lockscreen</a>
-                            </li>
-                            <li>
-                                <a href="forgot_password.html">Forgot password</a>
-                            </li>
-                            <li>
-                                <a href="error_404.html">404 error</a>
-                            </li>
-                            <li>
-                                <a href="error_500.html">500 error</a>
-                            </li>
-                        </ul>
-                    </li>
-                   
-                </ul>
+/* Section headings */
+.side-menu .heading {
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.22);
+    padding: 14px 8px 5px;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Top-level item links */
+.side-menu > li > a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 9px;
+    border-radius: 8px;
+    color: rgba(255,255,255,.55);
+    font-size: .78rem;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: background .15s, color .15s;
+    position: relative;
+    margin-bottom: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.side-menu > li > a:hover {
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.9);
+}
+
+/* Active parent */
+.side-menu > li.active > a {
+    background: rgba(0,184,148,.13);
+    color: #00b894;
+}
+/* Left accent bar on active */
+.side-menu > li.active > a::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 18%; bottom: 18%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: #00b894;
+}
+
+/* Icons */
+.sidebar-item-icon {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: rgba(255,255,255,.05);
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: .78rem;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
+}
+.side-menu > li > a:hover .sidebar-item-icon {
+    background: rgba(255,255,255,.08);
+    color: rgba(255,255,255,.9);
+}
+.side-menu > li.active > a .sidebar-item-icon {
+    background: rgba(0,184,148,.18);
+    color: #00b894;
+}
+
+/* Arrow chevron */
+.side-menu .arrow {
+    margin-left: auto;
+    font-size: .6rem;
+    color: rgba(255,255,255,.2);
+    transition: transform .2s, color .15s;
+    flex-shrink: 0;
+}
+/* Metismenu adds aria-expanded="true" when open */
+.side-menu > li > a[aria-expanded="true"] .arrow {
+    transform: rotate(-90deg);
+    color: rgba(255,255,255,.45);
+}
+.side-menu > li.active > a .arrow {
+    color: rgba(0,184,148,.6);
+}
+
+/* ── SUBMENU ── */
+.side-menu .nav-2-level {
+    list-style: none;
+    padding: 2px 0 4px 14px;
+    margin: 0;
+    overflow: hidden;
+}
+.side-menu .nav-2-level li { margin-bottom: 0; }
+.side-menu .nav-2-level li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 9px;
+    border-radius: 7px;
+    color: rgba(255,255,255,.4);
+    font-size: .74rem;
+    font-weight: 400;
+    text-decoration: none !important;
+    transition: background .12s, color .12s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Small dot before submenu items */
+.side-menu .nav-2-level li a::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.18);
+    flex-shrink: 0;
+    transition: background .12s, transform .12s;
+}
+.side-menu .nav-2-level li a:hover {
+    color: rgba(255,255,255,.85);
+    background: rgba(255,255,255,.04);
+}
+.side-menu .nav-2-level li a:hover::before {
+    background: rgba(255,255,255,.5);
+}
+/* Active submenu item */
+.side-menu .nav-2-level li a.active {
+    color: #00b894;
+    background: rgba(0,184,148,.08);
+    font-weight: 500;
+}
+.side-menu .nav-2-level li a.active::before {
+    background: #00b894;
+    transform: scale(1.4);
+}
+
+/* Metismenu collapse */
+.side-menu .nav-2-level.collapse         { display: none; }
+.side-menu .nav-2-level.collapse.in,
+.side-menu .nav-2-level.collapsing       { display: block; }
+
+/* ── BOTTOM DOCK ── */
+.sb-bottom {
+    padding: 10px 8px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex-shrink: 0;
+}
+.sb-bottom__link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    color: rgba(255,255,255,.4);
+    font-size: .75rem;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: background .12s, color .12s;
+}
+.sb-bottom__link .sb-ico {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: rgba(255,255,255,.04);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; flex-shrink: 0;
+    transition: background .12s, color .12s;
+}
+.sb-bottom__link:hover {
+    background: rgba(255,255,255,.05);
+    color: rgba(255,255,255,.85);
+}
+.sb-bottom__link:hover .sb-ico {
+    background: rgba(255,255,255,.08);
+    color: rgba(255,255,255,.85);
+}
+.sb-bottom__link--danger { color: rgba(214,48,49,.65); }
+.sb-bottom__link--danger .sb-ico { color: rgba(214,48,49,.65); }
+.sb-bottom__link--danger:hover {
+    background: rgba(214,48,49,.1);
+    color: #ff7675;
+}
+.sb-bottom__link--danger:hover .sb-ico {
+    background: rgba(214,48,49,.12);
+    color: #ff7675;
+}
+</style>
+
+<%
+/*
+  Helper: returns 'active' if currentPage is in the provided array.
+  Usage:  <%- isActive(['home']) %>
+  Defined here so every include gets it fresh.
+*/
+function isActive(pages) {
+    return pages.includes(currentPage) ? 'active' : '';
+}
+%>
+
+<nav class="page-sidebar" id="sidebar">
+    <div id="sidebar-collapse">
+
+        <!-- ── Profile ───────────────────────────────────── -->
+        <div class="sb-profile">
+            <div class="sb-profile__avatar">
+                <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
             </div>
-        </nav>
+            <div style="min-width:0;">
+                <div class="sb-profile__name"><%= user.first_name %> <%= user.last_name %></div>
+                <div class="sb-profile__role"><%= user.role %></div>
+            </div>
+        </div>
+
+        <!-- ── Nav ───────────────────────────────────────── -->
+        <ul class="side-menu metismenu">
+
+            <!-- Dashboard -->
+            <li class="<%= isActive(['home']) %>">
+                <a href="/">
+                    <i class="sidebar-item-icon fa fa-home"></i>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+            </li>
+
+            <!-- ════ BIO DATA ════ -->
+            <li class="heading">Bio Data</li>
+
+            <!-- Registration -->
+            <li class="<%= isActive(['member_add','dependant_add']) %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-user-plus"></i>
+                    <span class="nav-label">Registration</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= isActive(['member_add']) %>"     href="/member_add">Add Member</a></li>
+                    <li><a class="<%= isActive(['dependant_add']) %>"  href="/dependant_add">Add Dependant</a></li>
+                </ul>
+            </li>
+
+            <!-- Member Lists -->
+            <li class="<%= isActive(['members','Dependants']) %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-users"></i>
+                    <span class="nav-label">Member Lists</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= isActive(['members']) %>"    href="/members">Members</a></li>
+                    <li><a class="<%= isActive(['Dependants']) %>" href="/Dependants">Dependants</a></li>
+                </ul>
+            </li>
+
+            <!-- ════ FINANCIALS ════ -->
+            <li class="heading">Financials</li>
+
+            <!-- Transactions -->
+            <li class="<%= isActive(['transaction','internal_transaction','transaction_list','internal_transaction_listing']) %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-exchange"></i>
+                    <span class="nav-label">Transactions</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= isActive(['transaction']) %>"                       href="/transaction">New Member Txn</a></li>
+                    <li><a class="<%= isActive(['internal_transaction']) %>"              href="/internal_transaction">New Internal Txn</a></li>
+                    <li><a class="<%= isActive(['transaction_list']) %>"                  href="/transaction_list">Member Txn List</a></li>
+                    <li><a class="<%= isActive(['internal_transaction_listing']) %>"      href="/internal_transaction_listing">Internal Txn List</a></li>
+                </ul>
+            </li>
+
+            <!-- Loans -->
+            <li class="<%= isActive(['loan_application','loan_list','loan_repayment','Loan_statement']) %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-money"></i>
+                    <span class="nav-label">Loans</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= isActive(['loan_application']) %>" href="/loan_application">New Application</a></li>
+                    <li><a class="<%= isActive(['loan_list']) %>"        href="/loan_list">Loan List</a></li>
+                    <li><a class="<%= isActive(['loan_repayment']) %>"   href="/loan_repayment">Repayments</a></li>
+                    <li><a class="<%= isActive(['Loan_statement']) %>"   href="/Loan_statement">Loan Statement</a></li>
+                </ul>
+            </li>
+
+            <!-- ════ REPORTS ════ -->
+            <li class="heading">Reports</li>
+
+            <li class="<%= isActive(['membership_fee','Welfare','Insurance_cover','savings_report','loans_report','liquidity_report','financial_statements']) %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-file-text-o"></i>
+                    <span class="nav-label">Reports</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= isActive(['membership_fee']) %>"     href="/membership_fee">Membership Fee</a></li>
+                    <li><a class="<%= isActive(['Welfare']) %>"            href="/Welfare">Welfare Fee</a></li>
+                    <li><a class="<%= isActive(['Insurance_cover']) %>"    href="/Insurance_cover">Insurance Cover</a></li>
+                    <li><a class="<%= isActive(['savings_report']) %>"     href="/savings_report">Savings Report</a></li>
+                    <li><a class="<%= isActive(['loans_report']) %>"       href="/loans_report">Loans Report</a></li>
+                    <li><a class="<%= isActive(['liquidity_report']) %>"   href="/liquidity_report">Liquidity Report</a></li>
+                    <li><a class="<%= isActive(['financial_statements']) %>" href="/financial_statements">Financial Statements</a></li>
+                </ul>
+            </li>
+
+            <!-- ════ ADMIN ════ -->
+            <li class="heading">Admin</li>
+
+            <!-- User Management -->
+            <li class="<%= isActive(['users','user_add']) %>">
+                <a href="javascript:;">
+                    <i class="sidebar-item-icon fa fa-user-secret"></i>
+                    <span class="nav-label">User Management</span>
+                    <i class="fa fa-angle-left arrow"></i>
+                </a>
+                <ul class="nav-2-level collapse">
+                    <li><a class="<%= isActive(['users']) %>"    href="/users">User List</a></li>
+                    <li><a class="<%= isActive(['user_add']) %>" href="/user_add">Add User</a></li>
+                </ul>
+            </li>
+
+        </ul>
+
+        <!-- ── Bottom dock ───────────────────────────────── -->
+        <div class="sb-bottom">
+            <a href="/profile" class="sb-bottom__link">
+                <span class="sb-ico"><i class="fa fa-user-o"></i></span>
+                My Profile
+            </a>
+            <a href="/settings" class="sb-bottom__link">
+                <span class="sb-ico"><i class="fa fa-cog"></i></span>
+                Settings
+            </a>
+            <a href="/logout" class="sb-bottom__link sb-bottom__link--danger">
+                <span class="sb-ico"><i class="fa fa-power-off"></i></span>
+                Sign Out
+            </a>
+        </div>
+
+    </div>
+</nav>

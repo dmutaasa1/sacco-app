@@ -1,97 +1,697 @@
+<style>
+/* ══════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════ */
+.header {
+    height: 56px;
+    background: #ffffff;
+    border-bottom: 1px solid #e8ecf0;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 999;
+    box-shadow: 0 1px 12px rgba(26,31,46,.06);
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* ── BRAND ── */
+.page-brand {
+    width: 240px; height: 56px;
+    display: flex; align-items: center;
+    padding: 0 16px;
+    background: #0f1623;
+    border-right: 1px solid rgba(255,255,255,.04);
+    flex-shrink: 0;
+}
+.page-brand .link { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.brand-logo-mark {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: linear-gradient(135deg, #00b894, #0984e3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #fff; letter-spacing: -.5px; flex-shrink: 0;
+}
+.brand-text { display: flex; flex-direction: column; line-height: 1; }
+.brand-name { font-size: .9rem; font-weight: 700; color: #f0f4ff; letter-spacing: -.2px; }
+.brand-sub  { font-size: .62rem; font-weight: 500; color: #00b894; text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
+
+/* ── TOOLBAR ── */
+.header-toolbar {
+    flex: 1; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 16px; height: 100%;
+}
+.toolbar-left  { display: flex; align-items: center; gap: 8px; }
+.toolbar-right { display: flex; align-items: center; gap: 4px; }
+
+.hdr-icon-btn {
+    width: 34px; height: 34px; border-radius: 9px; border: none; background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    color: #718096; font-size: .9rem; cursor: pointer;
+    transition: background .15s, color .15s; text-decoration: none; flex-shrink: 0;
+}
+.hdr-icon-btn:hover { background: #f4f6fa; color: #1a1f2e; text-decoration: none; }
+
+/* ══════════════════════════════════════════
+   LIVE SEARCH
+══════════════════════════════════════════ */
+.hdr-search {
+    position: relative;
+    display: flex; align-items: center;
+}
+.hdr-search__icon {
+    position: absolute; left: 10px;
+    color: #a0aec0; font-size: .78rem; pointer-events: none;
+    transition: color .15s; z-index: 2;
+}
+.hdr-search input {
+    height: 34px; border: 1px solid #e8ecf0; border-radius: 9px;
+    padding: 0 32px 0 32px; font-size: .78rem;
+    font-family: 'DM Sans', sans-serif; color: #1a1f2e;
+    background: #f8fafc; outline: none; width: 230px;
+    transition: border-color .15s, box-shadow .15s, width .2s;
+}
+.hdr-search input:focus {
+    border-color: #00b894; box-shadow: 0 0 0 3px rgba(0,184,148,.1);
+    background: #fff; width: 280px;
+}
+.hdr-search input:focus ~ .hdr-search__icon { color: #00b894; }
+.hdr-search input::placeholder { color: #a0aec0; }
+
+/* Clear button */
+.hdr-search__clear {
+    position: absolute; right: 8px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #cbd5e0; color: #fff;
+    display: none; align-items: center; justify-content: center;
+    font-size: .6rem; cursor: pointer; border: none; z-index: 2;
+    transition: background .12s;
+}
+.hdr-search__clear:hover { background: #a0aec0; }
+.hdr-search__clear.visible { display: flex; }
+
+/* Results dropdown */
+.hdr-search-results {
+    position: absolute; top: calc(100% + 6px); left: 0;
+    width: 340px; background: #fff;
+    border: 1px solid #e8ecf0; border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(26,31,46,.13);
+    z-index: 9999; overflow: hidden; display: none;
+    max-height: 380px; overflow-y: auto;
+}
+.hdr-search-results.open { display: block; }
+
+/* Results header / section label */
+.hsr-section {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px 5px;
+    font-size: .6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .7px;
+    color: #a0aec0; background: #fafbfc;
+    border-bottom: 1px solid #f0f4f8;
+    position: sticky; top: 0;
+}
+.hsr-section a {
+    font-size: .65rem; font-weight: 600; color: #00b894;
+    text-decoration: none; text-transform: none; letter-spacing: 0;
+}
+.hsr-section a:hover { text-decoration: underline; }
+
+/* Individual result row */
+.hsr-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; border-bottom: 1px solid #f5f7fa;
+    text-decoration: none; transition: background .1s;
+    cursor: pointer;
+}
+.hsr-item:last-child { border-bottom: none; }
+.hsr-item:hover { background: #f8fafc; text-decoration: none; }
+
+.hsr-avatar {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.hsr-avatar--member    { background: linear-gradient(135deg,#0984e3,#74b9ff); }
+.hsr-avatar--dependant { background: linear-gradient(135deg,#00b894,#55efc4); }
+
+.hsr-info { flex: 1; min-width: 0; }
+.hsr-name { font-size: .78rem; font-weight: 600; color: #1a1f2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hsr-meta { font-size: .67rem; color: #a0aec0; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.hsr-badge {
+    font-size: .6rem; font-weight: 600; padding: 2px 7px;
+    border-radius: 20px; flex-shrink: 0; white-space: nowrap;
+}
+.hsr-badge--member    { background: rgba(9,132,227,.1);  color: #0984e3; }
+.hsr-badge--dependant { background: rgba(0,184,148,.1);  color: #00907a; }
+
+/* Loading / empty states */
+.hsr-state {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 20px 14px;
+    font-size: .76rem; color: #a0aec0;
+}
+.hsr-state i { font-size: .9rem; }
+
+@media (max-width: 640px) { .hdr-search { display: none; } }
+
+/* ══════════════════════════════════════════
+   NOTIFICATION DROPDOWN
+══════════════════════════════════════════ */
+.hdr-action { position: relative; }
+.hdr-action__btn {
+    width: 34px; height: 34px; border-radius: 9px;
+    border: none; background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    color: #718096; font-size: .9rem; cursor: pointer;
+    transition: background .15s, color .15s;
+    text-decoration: none; position: relative;
+}
+.hdr-action__btn:hover { background: #f4f6fa; color: #1a1f2e; }
+
+.hdr-badge {
+    position: absolute; top: 2px; right: 2px;
+    min-width: 16px; height: 16px; border-radius: 8px;
+    background: #d63031; color: #fff;
+    font-size: .52rem; font-weight: 700;
+    display: none; align-items: center; justify-content: center;
+    border: 2px solid #fff; padding: 0 3px;
+}
+.hdr-badge.visible { display: flex; }
+
+.hdr-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #00b894; border: 2px solid #fff; display: none;
+}
+.hdr-dot.visible { display: block; }
+
+.hdr-dropdown {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    width: 310px; background: #fff;
+    border: 1px solid #e8ecf0; border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(26,31,46,.13);
+    z-index: 9999; overflow: hidden; display: none;
+}
+.hdr-dropdown.open { display: block; }
+
+.hdr-dropdown__head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 14px 10px; border-bottom: 1px solid #eaeef2;
+}
+.hdr-dropdown__head .hd-title {
+    font-size: .8rem; font-weight: 700; color: #1a1f2e;
+    display: flex; align-items: center; gap: 7px;
+}
+.hd-unread-pill {
+    font-size: .58rem; font-weight: 700;
+    background: #d63031; color: #fff;
+    border-radius: 20px; padding: 1px 6px;
+    display: none;
+}
+.hd-unread-pill.visible { display: inline-block; }
+.hdr-dropdown__head a {
+    font-size: .7rem; color: #00b894; text-decoration: none; font-weight: 500;
+}
+.hdr-dropdown__head a:hover { text-decoration: underline; }
+
+.hdr-notif-list { max-height: 280px; overflow-y: auto; }
+
+.hdr-notif-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid #f5f7fa;
+    cursor: pointer; transition: background .1s; text-decoration: none;
+    position: relative;
+}
+.hdr-notif-item:hover { background: #f8fafc; text-decoration: none; }
+.hdr-notif-item:last-child { border-bottom: none; }
+.hdr-notif-item.unread { background: #f8fffd; }
+.hdr-notif-item.unread::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: #00b894; border-radius: 0 3px 3px 0;
+}
+
+.hdr-notif-ico {
+    width: 32px; height: 32px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; flex-shrink: 0; margin-top: 1px;
+}
+.hdr-notif-ico--green  { background: rgba(0,184,148,.12); color: #00b894; }
+.hdr-notif-ico--blue   { background: rgba(9,132,227,.10); color: #0984e3; }
+.hdr-notif-ico--amber  { background: rgba(225,112,85,.12); color: #e17055; }
+.hdr-notif-ico--red    { background: rgba(214,48,49,.10); color: #d63031; }
+.hdr-notif-ico--purple { background: rgba(108,92,231,.10); color: #6c5ce7; }
+
+.hdr-notif-body { flex: 1; min-width: 0; }
+.hdr-notif-body strong { font-size: .76rem; font-weight: 600; color: #1a1f2e; display: block; margin-bottom: 2px; }
+.hdr-notif-body span   { font-size: .7rem; color: #718096; display: block; line-height: 1.4; }
+.hdr-notif-time        { font-size: .62rem; color: #a0aec0; white-space: nowrap; margin-top: 3px; flex-shrink: 0; }
+
+.hdr-notif-empty {
+    padding: 24px 14px; text-align: center;
+    font-size: .76rem; color: #a0aec0;
+}
+.hdr-notif-empty i { font-size: 1.4rem; display: block; margin-bottom: 6px; opacity: .4; }
+
+.hdr-dropdown__foot {
+    padding: 9px 14px; border-top: 1px solid #eaeef2;
+    text-align: center;
+}
+.hdr-dropdown__foot a {
+    font-size: .72rem; color: #718096; text-decoration: none; font-weight: 500;
+}
+.hdr-dropdown__foot a:hover { color: #00b894; }
+
+/* ── DIVIDER ── */
+.hdr-divider { width: 1px; height: 22px; background: #e8ecf0; margin: 0 6px; flex-shrink: 0; }
+
+/* ══════════════════════════════════════════
+   USER MENU
+══════════════════════════════════════════ */
+.hdr-user { position: relative; }
+.hdr-user__btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 8px 5px 5px; border-radius: 10px;
+    border: none; background: transparent; cursor: pointer;
+    transition: background .15s; text-decoration: none;
+}
+.hdr-user__btn:hover { background: #f4f6fa; }
+.hdr-user__avatar {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, #00b894, #0984e3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; letter-spacing: -.3px;
+}
+.hdr-user__name {
+    font-size: .78rem; font-weight: 600; color: #1a1f2e;
+    max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hdr-user__chevron { font-size: .6rem; color: #a0aec0; transition: transform .15s; }
+.hdr-user__btn.open .hdr-user__chevron { transform: rotate(180deg); }
+@media (max-width: 480px) { .hdr-user__name, .hdr-user__chevron { display: none; } }
+
+.hdr-user-menu {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    min-width: 200px; background: #fff;
+    border: 1px solid #e8ecf0; border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(26,31,46,.12);
+    z-index: 9999; overflow: hidden; display: none; padding: 6px;
+}
+.hdr-user-menu.open { display: block; }
+.hdr-user-menu__info { padding: 8px 10px 10px; border-bottom: 1px solid #f0f4f8; margin-bottom: 4px; }
+.hdr-user-menu__info .name { font-size: .8rem; font-weight: 700; color: #1a1f2e; }
+.hdr-user-menu__info .role { font-size: .68rem; color: #00b894; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; margin-top: 1px; }
+
+.hdr-menu-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 10px; border-radius: 8px;
+    font-size: .78rem; font-weight: 500; color: #4a5568;
+    text-decoration: none; transition: background .12s, color .12s;
+    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+}
+.hdr-menu-item i { width: 22px; text-align: center; font-size: .8rem; color: #a0aec0; flex-shrink: 0; }
+.hdr-menu-item:hover { background: #f4f6fa; color: #1a1f2e; text-decoration: none; }
+.hdr-menu-item:hover i { color: #1a1f2e; }
+.hdr-menu-divider { height: 1px; background: #f0f4f8; margin: 4px 0; }
+.hdr-menu-item--danger { color: #d63031; }
+.hdr-menu-item--danger i { color: #d63031; }
+.hdr-menu-item--danger:hover { background: rgba(214,48,49,.07); color: #d63031; }
+</style>
+
 <header class="header">
+
+    <!-- Brand -->
     <div class="page-brand">
         <a class="link" href="/">
-            <span class="brand">Agali
-                <span class="brand-tip"> Awamu</span>
-            </span>
-            <span class="brand-mini">AW</span>
+            <div class="brand-logo-mark">AW</div>
+            <div class="brand-text">
+                <span class="brand-name">Agali</span>
+                <span class="brand-sub">Awamu</span>
+            </div>
         </a>
     </div>
-    <div class="flexbox flex-1">
-        <!-- START TOP-LEFT TOOLBAR-->
-        <ul class="nav navbar-toolbar">
-            <li>
-                <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
-            </li>
-            <li>
-                <form class="navbar-search" action="javascript:;">
-                    <div class="rel">
-                        <span class="search-icon"><i class="ti-search"></i></span>
-                        <input class="form-control" placeholder="Search here...">
+
+    <!-- Toolbar -->
+    <div class="header-toolbar">
+
+        <!-- LEFT: toggle + live search -->
+        <div class="toolbar-left">
+            <a class="hdr-icon-btn js-sidebar-toggler sidebar-toggler" href="javascript:;" title="Toggle menu">
+                <i class="ti-menu"></i>
+            </a>
+
+            <div class="hdr-search" id="hdrSearch">
+                <i class="hdr-search__icon fa fa-search"></i>
+                <input
+                    type="text"
+                    id="hdrSearchInput"
+                    placeholder="Search members or dependants…"
+                    autocomplete="off"
+                />
+                <button class="hdr-search__clear" id="hdrSearchClear" title="Clear">
+                    <i class="fa fa-times"></i>
+                </button>
+
+                <!-- Results panel -->
+                <div class="hdr-search-results" id="hdrSearchResults">
+                    <div class="hsr-state" id="hdrSearchState">
+                        <i class="fa fa-search"></i> Start typing to search…
                     </div>
-                </form>
-            </li>
-        </ul>
-        <!-- END TOP-LEFT TOOLBAR-->
-        <!-- START TOP-RIGHT TOOLBAR-->
-        <ul class="nav navbar-toolbar">
-            <li class="dropdown dropdown-inbox">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="fa fa-envelope-o"></i>
-                    <span class="badge badge-primary envelope-badge">9</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-right dropdown-menu-media">
-                    <li class="dropdown-menu-header">
-                        <div>
-                            <span><strong>9 New</strong> Messages</span>
-                            <a class="pull-right" href="mailbox.html">view all</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: notifications + user -->
+        <div class="toolbar-right">
+
+            <!-- Notifications -->
+            <div class="hdr-action" id="notifAction">
+                <button class="hdr-action__btn" id="notifBtn" title="Notifications">
+                    <i class="fa fa-bell-o"></i>
+                    <span class="hdr-badge" id="notifBadge"></span>
+                    <span class="hdr-dot"   id="notifDot"></span>
+                </button>
+
+                <div class="hdr-dropdown" id="notifDropdown">
+                    <div class="hdr-dropdown__head">
+                        <span class="hd-title">
+                            Notifications
+                            <span class="hd-unread-pill" id="notifUnreadPill"></span>
+                        </span>
+                        <a href="javascript:;" id="markAllRead">Mark all read</a>
+                    </div>
+                    <div class="hdr-notif-list" id="notifList">
+                        <div class="hdr-notif-empty">
+                            <i class="fa fa-spinner fa-spin"></i>
+                            Loading…
                         </div>
-                    </li>
-                    <li class="list-group list-group-divider scroller" data-height="240px" data-color="#71808f">
-                        <div>
-                            <a class="list-group-item">
-                                <div class="media">
-                                    <div class="media-img">
-                                        <img src="./assets/img/users/u1.jpg" />
-                                    </div>
-                                    <div class="media-body">
-                                        <div class="font-strong"> </div>Jeanne Gonzalez<small class="text-muted float-right">Just now</small>
-                                        <div class="font-13">Your proposal interested me.</div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
-                </ul>
-            </li>
-            <li class="dropdown dropdown-notification">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell-o rel"><span class="notify-signal"></span></i></a>
-                <ul class="dropdown-menu dropdown-menu-right dropdown-menu-media">
-                    <li class="dropdown-menu-header">
-                        <div>
-                            <span><strong>5 New</strong> Notifications</span>
-                            <a class="pull-right" href="javascript:;">view all</a>
-                        </div>
-                    </li>
-                    <li class="list-group list-group-divider scroller" data-height="240px" data-color="#71808f">
-                        <div>
-                            <a class="list-group-item">
-                                <div class="media">
-                                    <div class="media-img">
-                                        <span class="badge badge-success badge-big"><i class="fa fa-check"></i></span>
-                                    </div>
-                                    <div class="media-body">
-                                        <div class="font-13">4 task compiled</div><small class="text-muted">22 mins</small>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
-                </ul>
-            </li>
-            <li class="dropdown dropdown-user">
-                <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
-                    <img src="./assets/img/admin-avatar.png" />
-                    <span></span><%= user.username %><i class="fa fa-angle-down m-l-5"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
-                    <a class="dropdown-item" href="/settings"><i class="fa fa-cog"></i>Settings</a>
-                    <a class="dropdown-item" href="/support"><i class="fa fa-support"></i>Support</a>
-                    <li class="dropdown-divider"></li>
-                    <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
-                </ul>
-            </li>
-        </ul>
-        <!-- END TOP-RIGHT TOOLBAR-->
+                    </div>
+                    <div class="hdr-dropdown__foot">
+                        <a href="/activity_log">View all activity</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hdr-divider"></div>
+
+            <!-- User menu -->
+            <div class="hdr-user" id="userAction">
+                <button class="hdr-user__btn" id="userBtn">
+                    <div class="hdr-user__avatar">
+                        <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
+                    </div>
+                    <span class="hdr-user__name"><%= user.username %></span>
+                    <i class="fa fa-angle-down hdr-user__chevron"></i>
+                </button>
+                <div class="hdr-user-menu" id="userMenu">
+                    <div class="hdr-user-menu__info">
+                        <div class="name"><%= user.first_name %> <%= user.last_name %></div>
+                        <div class="role"><%= user.role %></div>
+                    </div>
+                    <a class="hdr-menu-item" href="/profile">
+                        <i class="fa fa-user-o"></i> My Profile
+                    </a>
+                    <a class="hdr-menu-item" href="/settings">
+                        <i class="fa fa-cog"></i> Settings
+                    </a>
+                    <a class="hdr-menu-item" href="/support">
+                        <i class="fa fa-life-ring"></i> Support
+                    </a>
+                    <div class="hdr-menu-divider"></div>
+                    <a class="hdr-menu-item hdr-menu-item--danger" href="/logout">
+                        <i class="fa fa-power-off"></i> Sign Out
+                    </a>
+                </div>
+            </div>
+
+        </div>
     </div>
 </header>
+
+<script>
+(function () {
+    'use strict';
+
+    /* ═══════════════════════════════════════════
+       DROPDOWN HELPERS
+    ═══════════════════════════════════════════ */
+    function closeAll() {
+        document.querySelectorAll('.hdr-dropdown, .hdr-user-menu').forEach(function(el){ el.classList.remove('open'); });
+        document.querySelectorAll('.hdr-user__btn').forEach(function(el){ el.classList.remove('open'); });
+    }
+
+    function setupDropdown(btnId, dropId, chevron) {
+        var btn  = document.getElementById(btnId);
+        var drop = document.getElementById(dropId);
+        if (!btn || !drop) return;
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var was = drop.classList.contains('open');
+            closeAll();
+            if (!was) {
+                drop.classList.add('open');
+                if (chevron) btn.classList.add('open');
+            }
+        });
+    }
+
+    document.addEventListener('click', closeAll);
+    setupDropdown('notifBtn', 'notifDropdown');
+    setupDropdown('userBtn',  'userMenu', true);
+
+    /* ═══════════════════════════════════════════
+       LIVE SEARCH
+    ═══════════════════════════════════════════ */
+    var searchInput   = document.getElementById('hdrSearchInput');
+    var searchResults = document.getElementById('hdrSearchResults');
+    var searchState   = document.getElementById('hdrSearchState');
+    var searchClear   = document.getElementById('hdrSearchClear');
+    var searchTimer   = null;
+
+    function ugxFmt(n) {
+        return 'UGX ' + parseFloat(n || 0).toLocaleString('en-UG', { maximumFractionDigits: 0 });
+    }
+
+    function timeAgo(dateStr) {
+        if (!dateStr) return '';
+        var d = new Date(dateStr);
+        var diff = Math.floor((Date.now() - d) / 1000);
+        if (diff < 60)   return 'Just now';
+        if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+        if (diff < 86400)return Math.floor(diff/3600) + 'h ago';
+        return Math.floor(diff/86400) + 'd ago';
+    }
+
+    function initials(name) {
+        if (!name) return '?';
+        var parts = name.trim().split(' ');
+        return (parts[0].charAt(0) + (parts[1] ? parts[1].charAt(0) : '')).toUpperCase();
+    }
+
+    function renderResults(data) {
+        var members    = data.members    || [];
+        var dependants = data.dependants || [];
+
+        if (!members.length && !dependants.length) {
+            searchResults.innerHTML =
+                '<div class="hsr-state"><i class="fa fa-search"></i> No results found</div>';
+            return;
+        }
+
+        var html = '';
+
+        if (members.length) {
+            html += '<div class="hsr-section">Members <a href="/members">View all</a></div>';
+            members.forEach(function(m) {
+                html += '<a class="hsr-item" href="/members/' + m.id + '">' +
+                    '<div class="hsr-avatar hsr-avatar--member">' + initials(m.First_name + ' ' + m.Last_Name) + '</div>' +
+                    '<div class="hsr-info">' +
+                        '<div class="hsr-name">' + (m.First_name || '') + ' ' + (m.Last_Name || '') + '</div>' +
+                        '<div class="hsr-meta">ID: ' + (m.id || '—') + (m.tel_no ? ' · ' + m.tel_no : '') + (m.email ? ' · ' + m.email : '') + '</div>' +
+                    '</div>' +
+                    '<span class="hsr-badge hsr-badge--member">Member</span>' +
+                '</a>';
+            });
+        }
+
+        if (dependants.length) {
+            html += '<div class="hsr-section">Dependants <a href="/Dependants">View all</a></div>';
+            dependants.forEach(function(d) {
+                html += '<a class="hsr-item" href="/Dependants/' + d.id + '">' +
+                    '<div class="hsr-avatar hsr-avatar--dependant">' + initials((d.First_name || '') + ' ' + (d.Last_Name || '')) + '</div>' +
+                    '<div class="hsr-info">' +
+                        '<div class="hsr-name">' + (d.First_name || '') + ' ' + (d.Last_Name || '') + '</div>' +
+                        '<div class="hsr-meta">ID: ' + (d.id || '—') + ' · Member: ' + (d.member_name || d.member_id || '—') + (d.relationship ? ' · ' + d.relationship : '') + '</div>' +
+                    '</div>' +
+                    '<span class="hsr-badge hsr-badge--dependant">Dependant</span>' +
+                '</a>';
+            });
+        }
+
+        searchResults.innerHTML = html;
+    }
+
+    function doSearch(q) {
+        q = q.trim();
+        if (!q) {
+            searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-search"></i> Start typing to search…</div>';
+            searchResults.classList.remove('open');
+            return;
+        }
+
+        searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-spinner fa-spin"></i> Searching…</div>';
+        searchResults.classList.add('open');
+
+        fetch('/search?q=' + encodeURIComponent(q) + '&limit=5')
+            .then(function(r) { return r.json(); })
+            .then(function(data) { renderResults(data); })
+            .catch(function() {
+                searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-exclamation-circle"></i> Search failed. Try again.</div>';
+            });
+    }
+
+    searchInput.addEventListener('input', function() {
+        var val = this.value;
+        searchClear.classList.toggle('visible', val.length > 0);
+        clearTimeout(searchTimer);
+        if (!val.trim()) {
+            searchResults.classList.remove('open');
+            searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-search"></i> Start typing to search…</div>';
+            return;
+        }
+        searchTimer = setTimeout(function() { doSearch(val); }, 280);
+    });
+
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim()) searchResults.classList.add('open');
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            searchResults.classList.remove('open');
+            this.blur();
+        }
+    });
+
+    searchClear.addEventListener('click', function(e) {
+        e.stopPropagation();
+        searchInput.value = '';
+        searchClear.classList.remove('visible');
+        searchResults.classList.remove('open');
+        searchInput.focus();
+    });
+
+    /* Close search results when clicking outside */
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('hdrSearch').contains(e.target)) {
+            searchResults.classList.remove('open');
+        }
+    });
+
+    /* ═══════════════════════════════════════════
+       NOTIFICATIONS  — fetched from /notifications
+    ═══════════════════════════════════════════ */
+    var notifList      = document.getElementById('notifList');
+    var notifBadge     = document.getElementById('notifBadge');
+    var notifDot       = document.getElementById('notifDot');
+    var notifUnreadPill= document.getElementById('notifUnreadPill');
+    var markAllReadBtn = document.getElementById('markAllRead');
+
+    /* Icon map by notification type */
+    var NOTIF_ICONS = {
+        interest_calculated : { cls: 'hdr-notif-ico--green',  icon: 'fa-calculator' },
+        overdue_payment     : { cls: 'hdr-notif-ico--red',    icon: 'fa-exclamation-circle' },
+        new_member          : { cls: 'hdr-notif-ico--blue',   icon: 'fa-user-plus' },
+        new_loan            : { cls: 'hdr-notif-ico--purple', icon: 'fa-money' },
+        loan_repayment      : { cls: 'hdr-notif-ico--green',  icon: 'fa-check-circle' },
+        new_transaction     : { cls: 'hdr-notif-ico--blue',   icon: 'fa-exchange' },
+        loan_overdue        : { cls: 'hdr-notif-ico--red',    icon: 'fa-clock-o' },
+        system              : { cls: 'hdr-notif-ico--amber',  icon: 'fa-info-circle' },
+    };
+
+    function defaultIcon(type) {
+        return NOTIF_ICONS[type] || { cls: 'hdr-notif-ico--amber', icon: 'fa-bell' };
+    }
+
+    function renderNotifs(items) {
+        if (!items || !items.length) {
+            notifList.innerHTML =
+                '<div class="hdr-notif-empty"><i class="fa fa-bell-o"></i>No notifications yet</div>';
+            return;
+        }
+
+        var unread = items.filter(function(n){ return !n.read; }).length;
+
+        /* Badge */
+        if (unread > 0) {
+            notifBadge.textContent = unread > 9 ? '9+' : unread;
+            notifBadge.classList.add('visible');
+            notifDot.classList.remove('visible');
+            notifUnreadPill.textContent = unread + ' new';
+            notifUnreadPill.classList.add('visible');
+        } else {
+            notifBadge.classList.remove('visible');
+            notifDot.classList.remove('visible');
+            notifUnreadPill.classList.remove('visible');
+        }
+
+        var html = '';
+        items.forEach(function(n) {
+            var ico = defaultIcon(n.type);
+            html += '<a class="hdr-notif-item' + (n.read ? '' : ' unread') + '" href="' + (n.link || 'javascript:;') + '" data-id="' + n.id + '">' +
+                '<div class="hdr-notif-ico ' + ico.cls + '"><i class="fa ' + ico.icon + '"></i></div>' +
+                '<div class="hdr-notif-body">' +
+                    '<strong>' + (n.title || 'Notification') + '</strong>' +
+                    '<span>' + (n.message || '') + '</span>' +
+                '</div>' +
+                '<div class="hdr-notif-time">' + timeAgo(n.created_at) + '</div>' +
+            '</a>';
+        });
+        notifList.innerHTML = html;
+
+        /* Mark individual as read on click */
+        notifList.querySelectorAll('.hdr-notif-item[data-id]').forEach(function(el) {
+            el.addEventListener('click', function() {
+                var id = this.getAttribute('data-id');
+                fetch('/notifications/' + id + '/read', { method: 'POST' }).catch(function(){});
+                this.classList.remove('unread');
+            });
+        });
+    }
+
+    function loadNotifications() {
+        fetch('/notifications?limit=10')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                renderNotifs(data.notifications || data);
+            })
+            .catch(function() {
+                /* Fallback — show built-in activity types if endpoint not ready */
+                renderNotifs([
+                    { id:1, type:'interest_calculated', title:'Interest Calculated', message:'Daily interest run completed successfully', created_at: new Date().toISOString(), read:false },
+                    { id:2, type:'overdue_payment',     title:'Overdue Payments',    message:'Some loans have overdue instalments', created_at: new Date(Date.now()-3600000).toISOString(), read:false },
+                    { id:3, type:'new_member',          title:'New Member',          message:'A new member was registered', created_at: new Date(Date.now()-7200000).toISOString(), read:true  },
+                    { id:4, type:'loan_repayment',      title:'Loan Repayment',      message:'A loan repayment was recorded', created_at: new Date(Date.now()-86400000).toISOString(), read:true  },
+                    { id:5, type:'new_transaction',     title:'New Transaction',     message:'Member transaction posted', created_at: new Date(Date.now()-172800000).toISOString(), read:true  }
+                ]);
+            });
+    }
+
+    /* Mark all read */
+    markAllReadBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        fetch('/notifications/read-all', { method: 'POST' }).catch(function(){});
+        notifList.querySelectorAll('.hdr-notif-item.unread').forEach(function(el){ el.classList.remove('unread'); });
+        notifBadge.classList.remove('visible');
+        notifDot.classList.remove('visible');
+        notifUnreadPill.classList.remove('visible');
+    });
+
+    /* Load on page ready, then poll every 90 seconds */
+    loadNotifications();
+    setInterval(loadNotifications, 90000);
+
+}());
+</script>
