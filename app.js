@@ -3325,6 +3325,7 @@ app.get('/search', checkAuth, asyncHandler(async (req, res) => {
 }));
 
 
+
 /* ── GET /notifications ──────────────────────────────── */
 app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 12, 50);
