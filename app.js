@@ -4023,7 +4023,13 @@ app.get('/search', asyncHandler(async (req, res) => {
   res.json({ members, dependants });
 }));
 
+// GET /notifications?limit=12
+res.json({ notifications: [{ id, type, title, message, created_at, read, status }] });
+// type can be: 'interest' | 'overdue' | 'member' | 'loan' | 'repayment' | 'transaction' | 'system'
+// status (for interest type): 'running' | 'done' | 'error'
 
+// POST /notifications/:id/read
+// POST /notifications/read-all
 
 
 

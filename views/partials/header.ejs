@@ -1,10 +1,13 @@
 <style>
-/* ══════════════════════════════════════════
-   HEADER
-══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+/* ═══════════════════════════════════════════
+   HEADER  —  height 60px  |  brand 220px
+   Same dark bg as sidebar: #0f1623
+═══════════════════════════════════════════ */
 .header {
-    height: 56px;
-    background: #ffffff;
+    height: 60px;
+    background: #fff;
     border-bottom: 1px solid #e8ecf0;
     display: flex;
     align-items: center;
@@ -12,317 +15,292 @@
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 999;
-    box-shadow: 0 1px 12px rgba(26,31,46,.06);
+    box-shadow: 0 1px 8px rgba(26,31,46,.07);
     font-family: 'DM Sans', sans-serif;
+    transition: none;
 }
 
-/* ── BRAND ── */
+/* ── BRAND BLOCK — exactly 220px, same dark bg as sidebar ── */
 .page-brand {
-    width: 240px; height: 56px;
-    display: flex; align-items: center;
-    padding: 0 16px;
-    background: #0f1623;
+    width: 220px;
+    height: 60px;
+    background: #0f1623;          /* ← must match sidebar bg */
     border-right: 1px solid rgba(255,255,255,.04);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
     flex-shrink: 0;
+    transition: width .22s ease;
+    overflow: hidden;
 }
-.page-brand .link { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.page-brand .link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
 .brand-logo-mark {
-    width: 32px; height: 32px; border-radius: 9px;
+    width: 34px; height: 34px;
+    border-radius: 9px;
     background: linear-gradient(135deg, #00b894, #0984e3);
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 800; color: #fff; letter-spacing: -.5px; flex-shrink: 0;
+    font-size: 13px; font-weight: 800; color: #fff;
+    letter-spacing: -.5px; flex-shrink: 0;
 }
-.brand-text { display: flex; flex-direction: column; line-height: 1; }
-.brand-name { font-size: .9rem; font-weight: 700; color: #f0f4ff; letter-spacing: -.2px; }
-.brand-sub  { font-size: .62rem; font-weight: 500; color: #00b894; text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
+.brand-text {
+    display: flex; flex-direction: column; line-height: 1;
+    overflow: hidden;
+    transition: opacity .15s, width .22s;
+    white-space: nowrap;
+}
+.brand-name { font-size: .88rem; font-weight: 700; color: #f0f4ff; letter-spacing: -.2px; }
+.brand-sub  { font-size: .6rem; font-weight: 500; color: #00b894; text-transform: uppercase; letter-spacing: .8px; margin-top: 3px; }
+
+/* ── COLLAPSED state: brand shrinks to just the logo mark ── */
+body.sidebar-collapsed .page-brand {
+    width: 60px;
+    padding: 0;
+    justify-content: center;
+}
+body.sidebar-collapsed .page-brand .link { justify-content: center; gap: 0; }
+body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
 
 /* ── TOOLBAR ── */
 .header-toolbar {
     flex: 1; display: flex; align-items: center;
-    justify-content: space-between; padding: 0 16px; height: 100%;
+    justify-content: space-between;
+    padding: 0 16px; height: 100%;
 }
 .toolbar-left  { display: flex; align-items: center; gap: 8px; }
 .toolbar-right { display: flex; align-items: center; gap: 4px; }
 
 .hdr-icon-btn {
-    width: 34px; height: 34px; border-radius: 9px; border: none; background: transparent;
+    width: 34px; height: 34px; border-radius: 9px;
+    border: none; background: transparent;
     display: flex; align-items: center; justify-content: center;
-    color: #718096; font-size: .9rem; cursor: pointer;
-    transition: background .15s, color .15s; text-decoration: none; flex-shrink: 0;
+    color: #718096; font-size: .95rem; cursor: pointer;
+    transition: background .15s, color .15s;
+    text-decoration: none; flex-shrink: 0;
 }
-.hdr-icon-btn:hover { background: #f4f6fa; color: #1a1f2e; text-decoration: none; }
+.hdr-icon-btn:hover { background: #f0f4f8; color: #1a1f2e; text-decoration: none; }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    LIVE SEARCH
-══════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 .hdr-search {
     position: relative;
     display: flex; align-items: center;
 }
 .hdr-search__icon {
     position: absolute; left: 10px;
-    color: #a0aec0; font-size: .78rem; pointer-events: none;
-    transition: color .15s; z-index: 2;
+    color: #a0aec0; font-size: .78rem;
+    pointer-events: none; z-index: 2;
+    transition: color .15s;
 }
 .hdr-search input {
-    height: 34px; border: 1px solid #e8ecf0; border-radius: 9px;
+    height: 34px; border: 1px solid #e2e8f0; border-radius: 9px;
     padding: 0 32px 0 32px; font-size: .78rem;
     font-family: 'DM Sans', sans-serif; color: #1a1f2e;
-    background: #f8fafc; outline: none; width: 230px;
+    background: #f7fafc; outline: none; width: 220px;
     transition: border-color .15s, box-shadow .15s, width .2s;
 }
 .hdr-search input:focus {
-    border-color: #00b894; box-shadow: 0 0 0 3px rgba(0,184,148,.1);
-    background: #fff; width: 280px;
+    border-color: #00b894;
+    box-shadow: 0 0 0 3px rgba(0,184,148,.1);
+    background: #fff; width: 270px;
 }
-.hdr-search input:focus ~ .hdr-search__icon { color: #00b894; }
-.hdr-search input::placeholder { color: #a0aec0; }
+.hdr-search input::placeholder { color: #b0bec5; }
+.hdr-search.focused .hdr-search__icon { color: #00b894; }
 
-/* Clear button */
 .hdr-search__clear {
     position: absolute; right: 8px;
-    width: 18px; height: 18px; border-radius: 50%;
+    width: 17px; height: 17px; border-radius: 50%;
     background: #cbd5e0; color: #fff;
     display: none; align-items: center; justify-content: center;
-    font-size: .6rem; cursor: pointer; border: none; z-index: 2;
-    transition: background .12s;
+    font-size: .58rem; cursor: pointer; border: none; z-index: 2;
 }
 .hdr-search__clear:hover { background: #a0aec0; }
 .hdr-search__clear.visible { display: flex; }
 
 /* Results dropdown */
 .hdr-search-results {
-    position: absolute; top: calc(100% + 6px); left: 0;
-    width: 340px; background: #fff;
+    position: absolute; top: calc(100% + 7px); left: 0;
+    width: 360px; background: #fff;
     border: 1px solid #e8ecf0; border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(26,31,46,.13);
-    z-index: 9999; overflow: hidden; display: none;
-    max-height: 380px; overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(26,31,46,.13);
+    z-index: 9999; display: none;
+    max-height: 400px; overflow-y: auto;
 }
 .hdr-search-results.open { display: block; }
 
-/* Results header / section label */
-.hsr-section {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 14px 5px;
-    font-size: .6rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .7px;
-    color: #a0aec0; background: #fafbfc;
-    border-bottom: 1px solid #f0f4f8;
-    position: sticky; top: 0;
+.hsr-section-label {
+    font-size: .6rem; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: #a0aec0;
+    padding: 10px 14px 4px;
 }
-.hsr-section a {
-    font-size: .65rem; font-weight: 600; color: #00b894;
-    text-decoration: none; text-transform: none; letter-spacing: 0;
-}
-.hsr-section a:hover { text-decoration: underline; }
-
-/* Individual result row */
 .hsr-item {
     display: flex; align-items: center; gap: 10px;
-    padding: 9px 14px; border-bottom: 1px solid #f5f7fa;
-    text-decoration: none; transition: background .1s;
-    cursor: pointer;
+    padding: 8px 14px; cursor: pointer;
+    transition: background .12s;
+    text-decoration: none;
 }
-.hsr-item:last-child { border-bottom: none; }
-.hsr-item:hover { background: #f8fafc; text-decoration: none; }
-
+.hsr-item:hover { background: #f7fafc; text-decoration: none; }
 .hsr-avatar {
     width: 30px; height: 30px; border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+    font-size: .68rem; font-weight: 700; color: #fff; flex-shrink: 0;
 }
-.hsr-avatar--member    { background: linear-gradient(135deg,#0984e3,#74b9ff); }
-.hsr-avatar--dependant { background: linear-gradient(135deg,#00b894,#55efc4); }
-
-.hsr-info { flex: 1; min-width: 0; }
-.hsr-name { font-size: .78rem; font-weight: 600; color: #1a1f2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hsr-meta { font-size: .67rem; color: #a0aec0; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.hsr-badge {
-    font-size: .6rem; font-weight: 600; padding: 2px 7px;
-    border-radius: 20px; flex-shrink: 0; white-space: nowrap;
-}
-.hsr-badge--member    { background: rgba(9,132,227,.1);  color: #0984e3; }
-.hsr-badge--dependant { background: rgba(0,184,148,.1);  color: #00907a; }
-
-/* Loading / empty states */
+.hsr-info { min-width: 0; }
+.hsr-name  { font-size: .78rem; font-weight: 600; color: #1a1f2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hsr-meta  { font-size: .67rem; color: #a0aec0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hsr-divider { height: 1px; background: #f0f4f8; margin: 4px 0; }
 .hsr-state {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 20px 14px;
-    font-size: .76rem; color: #a0aec0;
+    padding: 18px 14px; color: #a0aec0; font-size: .78rem;
+    display: flex; align-items: center; gap: 8px;
 }
-.hsr-state i { font-size: .9rem; }
 
-@media (max-width: 640px) { .hdr-search { display: none; } }
-
-/* ══════════════════════════════════════════
-   NOTIFICATION DROPDOWN
-══════════════════════════════════════════ */
-.hdr-action { position: relative; }
-.hdr-action__btn {
-    width: 34px; height: 34px; border-radius: 9px;
-    border: none; background: transparent;
-    display: flex; align-items: center; justify-content: center;
-    color: #718096; font-size: .9rem; cursor: pointer;
-    transition: background .15s, color .15s;
-    text-decoration: none; position: relative;
-}
-.hdr-action__btn:hover { background: #f4f6fa; color: #1a1f2e; }
-
-.hdr-badge {
-    position: absolute; top: 2px; right: 2px;
+/* ═══════════════════════════════════════════
+   NOTIFICATIONS
+═══════════════════════════════════════════ */
+.notif-wrap { position: relative; }
+.notif-badge {
+    position: absolute; top: 3px; right: 3px;
     min-width: 16px; height: 16px; border-radius: 8px;
-    background: #d63031; color: #fff;
-    font-size: .52rem; font-weight: 700;
+    background: #e53e3e; color: #fff;
+    font-size: .55rem; font-weight: 700;
     display: none; align-items: center; justify-content: center;
-    border: 2px solid #fff; padding: 0 3px;
+    padding: 0 3px; line-height: 1;
+    border: 2px solid #fff;
 }
-.hdr-badge.visible { display: flex; }
+.notif-badge.visible { display: flex; }
 
-.hdr-dot {
-    position: absolute; top: 6px; right: 6px;
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #00b894; border: 2px solid #fff; display: none;
-}
-.hdr-dot.visible { display: block; }
-
-.hdr-dropdown {
-    position: absolute; top: calc(100% + 8px); right: 0;
-    width: 310px; background: #fff;
+.notif-dropdown {
+    position: absolute; top: calc(100% + 8px); right: -8px;
+    width: 320px; background: #fff;
     border: 1px solid #e8ecf0; border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(26,31,46,.13);
-    z-index: 9999; overflow: hidden; display: none;
+    box-shadow: 0 8px 32px rgba(26,31,46,.13);
+    z-index: 9999; display: none; overflow: hidden;
 }
-.hdr-dropdown.open { display: block; }
+.notif-dropdown.open { display: block; }
 
-.hdr-dropdown__head {
+.notif-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 14px 10px; border-bottom: 1px solid #eaeef2;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid #f0f4f8;
 }
-.hdr-dropdown__head .hd-title {
-    font-size: .8rem; font-weight: 700; color: #1a1f2e;
-    display: flex; align-items: center; gap: 7px;
+.notif-header-title { font-size: .82rem; font-weight: 700; color: #1a1f2e; }
+.notif-mark-all {
+    font-size: .68rem; color: #00b894; cursor: pointer;
+    background: none; border: none; padding: 0; font-family: inherit;
 }
-.hd-unread-pill {
-    font-size: .58rem; font-weight: 700;
-    background: #d63031; color: #fff;
-    border-radius: 20px; padding: 1px 6px;
-    display: none;
-}
-.hd-unread-pill.visible { display: inline-block; }
-.hdr-dropdown__head a {
-    font-size: .7rem; color: #00b894; text-decoration: none; font-weight: 500;
-}
-.hdr-dropdown__head a:hover { text-decoration: underline; }
+.notif-mark-all:hover { text-decoration: underline; }
 
-.hdr-notif-list { max-height: 280px; overflow-y: auto; }
-
-.hdr-notif-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 10px 14px; border-bottom: 1px solid #f5f7fa;
-    cursor: pointer; transition: background .1s; text-decoration: none;
-    position: relative;
+.notif-list { max-height: 320px; overflow-y: auto; }
+.notif-item {
+    display: flex; gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid #f7fafc;
+    transition: background .12s; cursor: pointer;
 }
-.hdr-notif-item:hover { background: #f8fafc; text-decoration: none; }
-.hdr-notif-item:last-child { border-bottom: none; }
-.hdr-notif-item.unread { background: #f8fffd; }
-.hdr-notif-item.unread::before {
-    content: ''; position: absolute;
-    left: 0; top: 0; bottom: 0; width: 3px;
-    background: #00b894; border-radius: 0 3px 3px 0;
-}
-
-.hdr-notif-ico {
-    width: 32px; height: 32px; border-radius: 9px;
+.notif-item:hover { background: #f7fafc; }
+.notif-item.unread { background: #f0fdf9; }
+.notif-item.unread:hover { background: #e6faf4; }
+.notif-icon {
+    width: 30px; height: 30px; border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: .75rem; flex-shrink: 0; margin-top: 1px;
+    font-size: .72rem; flex-shrink: 0; margin-top: 1px;
 }
-.hdr-notif-ico--green  { background: rgba(0,184,148,.12); color: #00b894; }
-.hdr-notif-ico--blue   { background: rgba(9,132,227,.10); color: #0984e3; }
-.hdr-notif-ico--amber  { background: rgba(225,112,85,.12); color: #e17055; }
-.hdr-notif-ico--red    { background: rgba(214,48,49,.10); color: #d63031; }
-.hdr-notif-ico--purple { background: rgba(108,92,231,.10); color: #6c5ce7; }
+.notif-body { min-width: 0; }
+.notif-title { font-size: .75rem; font-weight: 600; color: #1a1f2e; line-height: 1.3; }
+.notif-msg   { font-size: .68rem; color: #718096; margin-top: 2px; line-height: 1.35; }
+.notif-time  { font-size: .62rem; color: #b0bec5; margin-top: 3px; }
 
-.hdr-notif-body { flex: 1; min-width: 0; }
-.hdr-notif-body strong { font-size: .76rem; font-weight: 600; color: #1a1f2e; display: block; margin-bottom: 2px; }
-.hdr-notif-body span   { font-size: .7rem; color: #718096; display: block; line-height: 1.4; }
-.hdr-notif-time        { font-size: .62rem; color: #a0aec0; white-space: nowrap; margin-top: 3px; flex-shrink: 0; }
+/* interest calc status colours */
+.notif-icon.interest   { background: rgba(0,184,148,.12); color: #00b894; }
+.notif-icon.overdue    { background: rgba(229,62,62,.1);  color: #e53e3e; }
+.notif-icon.member     { background: rgba(66,153,225,.1); color: #4299e1; }
+.notif-icon.loan       { background: rgba(159,122,234,.1);color: #9f7aea; }
+.notif-icon.repayment  { background: rgba(72,187,120,.1); color: #48bb78; }
+.notif-icon.txn        { background: rgba(237,137,54,.1); color: #ed8936; }
+.notif-icon.system     { background: rgba(160,174,192,.12);color: #718096; }
 
-.hdr-notif-empty {
+.notif-empty {
     padding: 24px 14px; text-align: center;
-    font-size: .76rem; color: #a0aec0;
+    color: #a0aec0; font-size: .78rem;
 }
-.hdr-notif-empty i { font-size: 1.4rem; display: block; margin-bottom: 6px; opacity: .4; }
-
-.hdr-dropdown__foot {
-    padding: 9px 14px; border-top: 1px solid #eaeef2;
+.notif-footer {
+    padding: 8px 14px;
+    border-top: 1px solid #f0f4f8;
     text-align: center;
 }
-.hdr-dropdown__foot a {
-    font-size: .72rem; color: #718096; text-decoration: none; font-weight: 500;
+.notif-footer a { font-size: .72rem; color: #00b894; text-decoration: none; }
+.notif-footer a:hover { text-decoration: underline; }
+
+/* Interest calc status pill */
+.interest-status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: .65rem; font-weight: 600;
+    background: rgba(0,184,148,.1); color: #00b894;
+    margin-left: 4px;
 }
-.hdr-dropdown__foot a:hover { color: #00b894; }
+.interest-status-pill.running { background: rgba(237,137,54,.12); color: #ed8936; }
+.interest-status-pill.error   { background: rgba(229,62,62,.1);  color: #e53e3e; }
+.interest-status-pill i { font-size: .6rem; }
 
-/* ── DIVIDER ── */
-.hdr-divider { width: 1px; height: 22px; background: #e8ecf0; margin: 0 6px; flex-shrink: 0; }
-
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    USER MENU
-══════════════════════════════════════════ */
-.hdr-user { position: relative; }
-.hdr-user__btn {
+═══════════════════════════════════════════ */
+.usr-wrap { position: relative; }
+.usr-btn {
     display: flex; align-items: center; gap: 8px;
-    padding: 5px 8px 5px 5px; border-radius: 10px;
+    padding: 4px 8px 4px 4px; border-radius: 10px;
     border: none; background: transparent; cursor: pointer;
-    transition: background .15s; text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: background .15s;
 }
-.hdr-user__btn:hover { background: #f4f6fa; }
-.hdr-user__avatar {
+.usr-btn:hover { background: #f0f4f8; }
+.usr-avatar {
     width: 30px; height: 30px; border-radius: 8px;
     background: linear-gradient(135deg, #00b894, #0984e3);
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; letter-spacing: -.3px;
+    font-size: .72rem; font-weight: 700; color: #fff; flex-shrink: 0;
 }
-.hdr-user__name {
-    font-size: .78rem; font-weight: 600; color: #1a1f2e;
-    max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.hdr-user__chevron { font-size: .6rem; color: #a0aec0; transition: transform .15s; }
-.hdr-user__btn.open .hdr-user__chevron { transform: rotate(180deg); }
-@media (max-width: 480px) { .hdr-user__name, .hdr-user__chevron { display: none; } }
+.usr-name { font-size: .78rem; font-weight: 600; color: #1a1f2e; }
+.usr-chevron { font-size: .6rem; color: #a0aec0; transition: transform .18s; }
+.usr-btn.open .usr-chevron { transform: rotate(180deg); }
 
-.hdr-user-menu {
+.usr-dropdown {
     position: absolute; top: calc(100% + 8px); right: 0;
-    min-width: 200px; background: #fff;
-    border: 1px solid #e8ecf0; border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(26,31,46,.12);
-    z-index: 9999; overflow: hidden; display: none; padding: 6px;
+    width: 180px; background: #fff;
+    border: 1px solid #e8ecf0; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(26,31,46,.11);
+    z-index: 9999; display: none; overflow: hidden;
+    padding: 4px;
 }
-.hdr-user-menu.open { display: block; }
-.hdr-user-menu__info { padding: 8px 10px 10px; border-bottom: 1px solid #f0f4f8; margin-bottom: 4px; }
-.hdr-user-menu__info .name { font-size: .8rem; font-weight: 700; color: #1a1f2e; }
-.hdr-user-menu__info .role { font-size: .68rem; color: #00b894; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; margin-top: 1px; }
-
+.usr-dropdown.open { display: block; }
 .hdr-menu-item {
-    display: flex; align-items: center; gap: 9px;
-    padding: 8px 10px; border-radius: 8px;
-    font-size: .78rem; font-weight: 500; color: #4a5568;
-    text-decoration: none; transition: background .12s, color .12s;
-    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; border-radius: 7px;
+    font-size: .76rem; color: #4a5568; cursor: pointer;
+    text-decoration: none; transition: background .12s;
 }
-.hdr-menu-item i { width: 22px; text-align: center; font-size: .8rem; color: #a0aec0; flex-shrink: 0; }
-.hdr-menu-item:hover { background: #f4f6fa; color: #1a1f2e; text-decoration: none; }
-.hdr-menu-item:hover i { color: #1a1f2e; }
-.hdr-menu-divider { height: 1px; background: #f0f4f8; margin: 4px 0; }
-.hdr-menu-item--danger { color: #d63031; }
-.hdr-menu-item--danger i { color: #d63031; }
-.hdr-menu-item--danger:hover { background: rgba(214,48,49,.07); color: #d63031; }
+.hdr-menu-item:hover { background: #f7fafc; text-decoration: none; }
+.hdr-menu-item i { width: 14px; text-align: center; color: #a0aec0; }
+.hdr-menu-divider { height: 1px; background: #f0f4f8; margin: 3px 0; }
+.hdr-menu-item--danger { color: #e53e3e; }
+.hdr-menu-item--danger i { color: #e53e3e; }
+.hdr-menu-item--danger:hover { background: rgba(229,62,62,.06); }
+
+@media (max-width: 640px) {
+    .hdr-search { display: none; }
+    .usr-name   { display: none; }
+}
 </style>
 
 <header class="header">
 
-    <!-- Brand -->
+    <!-- Brand — collapses to logo-only when sidebar is collapsed -->
     <div class="page-brand">
         <a class="link" href="/">
             <div class="brand-logo-mark">AW</div>
@@ -336,93 +314,71 @@
     <!-- Toolbar -->
     <div class="header-toolbar">
 
-        <!-- LEFT: toggle + live search -->
+        <!-- LEFT -->
         <div class="toolbar-left">
-            <a class="hdr-icon-btn js-sidebar-toggler sidebar-toggler" href="javascript:;" title="Toggle menu">
-                <i class="ti-menu"></i>
-            </a>
 
+            <!-- Sidebar toggle -->
+            <button class="hdr-icon-btn" id="sidebarToggleBtn" title="Toggle sidebar" style="border:none;">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <!-- Live search -->
             <div class="hdr-search" id="hdrSearch">
                 <i class="hdr-search__icon fa fa-search"></i>
-                <input
-                    type="text"
-                    id="hdrSearchInput"
+                <input type="text" id="hdrSearchInput"
                     placeholder="Search members or dependants…"
-                    autocomplete="off"
-                />
-                <button class="hdr-search__clear" id="hdrSearchClear" title="Clear">
+                    autocomplete="off" spellcheck="false" />
+                <button class="hdr-search__clear" id="hdrSearchClear" type="button">
                     <i class="fa fa-times"></i>
                 </button>
-
-                <!-- Results panel -->
                 <div class="hdr-search-results" id="hdrSearchResults">
-                    <div class="hsr-state" id="hdrSearchState">
-                        <i class="fa fa-search"></i> Start typing to search…
-                    </div>
+                    <div class="hsr-state"><i class="fa fa-search"></i>&nbsp; Start typing to search…</div>
                 </div>
             </div>
+
         </div>
 
-        <!-- RIGHT: notifications + user -->
+        <!-- RIGHT -->
         <div class="toolbar-right">
 
-            <!-- Notifications -->
-            <div class="hdr-action" id="notifAction">
-                <button class="hdr-action__btn" id="notifBtn" title="Notifications">
-                    <i class="fa fa-bell-o"></i>
-                    <span class="hdr-badge" id="notifBadge"></span>
-                    <span class="hdr-dot"   id="notifDot"></span>
-                </button>
+            <!-- Interest calculation status pill -->
+            <span class="interest-status-pill" id="interestStatusPill" style="display:none;">
+                <i class="fa fa-calculator"></i>
+                <span id="interestStatusText">Calculating…</span>
+            </span>
 
-                <div class="hdr-dropdown" id="notifDropdown">
-                    <div class="hdr-dropdown__head">
-                        <span class="hd-title">
-                            Notifications
-                            <span class="hd-unread-pill" id="notifUnreadPill"></span>
-                        </span>
-                        <a href="javascript:;" id="markAllRead">Mark all read</a>
+            <!-- Notifications bell -->
+            <div class="notif-wrap">
+                <button class="hdr-icon-btn" id="notifBtn" type="button" style="position:relative;border:none;">
+                    <i class="fa fa-bell-o"></i>
+                    <span class="notif-badge" id="notifBadge"></span>
+                </button>
+                <div class="notif-dropdown" id="notifDropdown">
+                    <div class="notif-header">
+                        <span class="notif-header-title">Notifications</span>
+                        <button class="notif-mark-all" id="markAllRead" type="button">Mark all read</button>
                     </div>
-                    <div class="hdr-notif-list" id="notifList">
-                        <div class="hdr-notif-empty">
-                            <i class="fa fa-spinner fa-spin"></i>
-                            Loading…
-                        </div>
+                    <div class="notif-list" id="notifList">
+                        <div class="notif-empty"><i class="fa fa-spinner fa-spin"></i>&nbsp; Loading…</div>
                     </div>
-                    <div class="hdr-dropdown__foot">
-                        <a href="/activity_log">View all activity</a>
-                    </div>
+                    <div class="notif-footer"><a href="/notifications">View all</a></div>
                 </div>
             </div>
 
-            <div class="hdr-divider"></div>
-
             <!-- User menu -->
-            <div class="hdr-user" id="userAction">
-                <button class="hdr-user__btn" id="userBtn">
-                    <div class="hdr-user__avatar">
-                        <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
+            <div class="usr-wrap">
+                <button class="usr-btn" id="usrBtn" type="button">
+                    <div class="usr-avatar" id="usrAvatar">
+                        <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name  || '').charAt(0).toUpperCase() %>
                     </div>
-                    <span class="hdr-user__name"><%= user.username %></span>
-                    <i class="fa fa-angle-down hdr-user__chevron"></i>
+                    <span class="usr-name"><%= user.first_name %></span>
+                    <i class="fa fa-chevron-down usr-chevron"></i>
                 </button>
-                <div class="hdr-user-menu" id="userMenu">
-                    <div class="hdr-user-menu__info">
-                        <div class="name"><%= user.first_name %> <%= user.last_name %></div>
-                        <div class="role"><%= user.role %></div>
-                    </div>
-                    <a class="hdr-menu-item" href="/profile">
-                        <i class="fa fa-user-o"></i> My Profile
-                    </a>
-                    <a class="hdr-menu-item" href="/settings">
-                        <i class="fa fa-cog"></i> Settings
-                    </a>
-                    <a class="hdr-menu-item" href="/support">
-                        <i class="fa fa-life-ring"></i> Support
-                    </a>
+                <div class="usr-dropdown" id="usrDropdown">
+                    <a href="/profile" class="hdr-menu-item"><i class="fa fa-user-o"></i> Profile</a>
+                    <a href="/settings" class="hdr-menu-item"><i class="fa fa-cog"></i> Settings</a>
                     <div class="hdr-menu-divider"></div>
-                    <a class="hdr-menu-item hdr-menu-item--danger" href="/logout">
-                        <i class="fa fa-power-off"></i> Sign Out
-                    </a>
+                    <a href="/logout" class="hdr-menu-item hdr-menu-item--danger"><i class="fa fa-power-off"></i> Sign Out</a>
                 </div>
             </div>
 
@@ -432,266 +388,299 @@
 
 <script>
 (function () {
-    'use strict';
 
     /* ═══════════════════════════════════════════
-       DROPDOWN HELPERS
+       SIDEBAR TOGGLE
+       Adds/removes body.sidebar-collapsed
+       Both header brand and sidebar respond via CSS
     ═══════════════════════════════════════════ */
-    function closeAll() {
-        document.querySelectorAll('.hdr-dropdown, .hdr-user-menu').forEach(function(el){ el.classList.remove('open'); });
-        document.querySelectorAll('.hdr-user__btn').forEach(function(el){ el.classList.remove('open'); });
-    }
-
-    function setupDropdown(btnId, dropId, chevron) {
-        var btn  = document.getElementById(btnId);
-        var drop = document.getElementById(dropId);
-        if (!btn || !drop) return;
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            var was = drop.classList.contains('open');
-            closeAll();
-            if (!was) {
-                drop.classList.add('open');
-                if (chevron) btn.classList.add('open');
-            }
+    var toggleBtn = document.getElementById('sidebarToggleBtn');
+    if (toggleBtn) {
+        // Restore saved preference
+        if (localStorage.getItem('sidebarCollapsed') === '1') {
+            document.body.classList.add('sidebar-collapsed');
+        }
+        toggleBtn.addEventListener('click', function () {
+            document.body.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed',
+                document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
         });
     }
-
-    document.addEventListener('click', closeAll);
-    setupDropdown('notifBtn', 'notifDropdown');
-    setupDropdown('userBtn',  'userMenu', true);
 
     /* ═══════════════════════════════════════════
        LIVE SEARCH
     ═══════════════════════════════════════════ */
-    var searchInput   = document.getElementById('hdrSearchInput');
-    var searchResults = document.getElementById('hdrSearchResults');
-    var searchState   = document.getElementById('hdrSearchState');
-    var searchClear   = document.getElementById('hdrSearchClear');
-    var searchTimer   = null;
+    var searchWrap   = document.getElementById('hdrSearch');
+    var searchInput  = document.getElementById('hdrSearchInput');
+    var searchClear  = document.getElementById('hdrSearchClear');
+    var searchResult = document.getElementById('hdrSearchResults');
+    var searchTimer  = null;
 
-    function ugxFmt(n) {
-        return 'UGX ' + parseFloat(n || 0).toLocaleString('en-UG', { maximumFractionDigits: 0 });
+    var AVATAR_COLORS = ['#0984e3','#00b894','#6c5ce7','#e17055','#00cec9','#fd79a8'];
+    function avatarColor(str) {
+        var n = 0;
+        for (var i = 0; i < (str||'').length; i++) n += str.charCodeAt(i);
+        return AVATAR_COLORS[n % AVATAR_COLORS.length];
     }
-
-    function timeAgo(dateStr) {
-        if (!dateStr) return '';
-        var d = new Date(dateStr);
-        var diff = Math.floor((Date.now() - d) / 1000);
-        if (diff < 60)   return 'Just now';
-        if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-        if (diff < 86400)return Math.floor(diff/3600) + 'h ago';
-        return Math.floor(diff/86400) + 'd ago';
-    }
-
-    function initials(name) {
-        if (!name) return '?';
-        var parts = name.trim().split(' ');
-        return (parts[0].charAt(0) + (parts[1] ? parts[1].charAt(0) : '')).toUpperCase();
+    function initials(f, l) {
+        return ((f||'')[0]||'').toUpperCase() + ((l||'')[0]||'').toUpperCase();
     }
 
     function renderResults(data) {
-        var members    = data.members    || [];
-        var dependants = data.dependants || [];
+        var members   = data.members   || [];
+        var dependants= data.dependants|| [];
 
         if (!members.length && !dependants.length) {
-            searchResults.innerHTML =
-                '<div class="hsr-state"><i class="fa fa-search"></i> No results found</div>';
+            searchResult.innerHTML = '<div class="hsr-state"><i class="fa fa-search"></i>&nbsp; No results found.</div>';
+            searchResult.classList.add('open');
             return;
         }
 
         var html = '';
 
         if (members.length) {
-            html += '<div class="hsr-section">Members <a href="/members">View all</a></div>';
-            members.forEach(function(m) {
-                html += '<a class="hsr-item" href="/members/' + m.id + '">' +
-                    '<div class="hsr-avatar hsr-avatar--member">' + initials(m.First_name + ' ' + m.Last_Name) + '</div>' +
+            html += '<div class="hsr-section-label">Members</div>';
+            members.forEach(function (m) {
+                var ini = initials(m.First_name, m.Last_Name);
+                var col = avatarColor(ini);
+                html += '<a class="hsr-item" href="/member_view/' + m.id + '">' +
+                    '<div class="hsr-avatar" style="background:' + col + '">' + ini + '</div>' +
                     '<div class="hsr-info">' +
-                        '<div class="hsr-name">' + (m.First_name || '') + ' ' + (m.Last_Name || '') + '</div>' +
-                        '<div class="hsr-meta">ID: ' + (m.id || '—') + (m.tel_no ? ' · ' + m.tel_no : '') + (m.email ? ' · ' + m.email : '') + '</div>' +
-                    '</div>' +
-                    '<span class="hsr-badge hsr-badge--member">Member</span>' +
-                '</a>';
+                        '<div class="hsr-name">' + (m.First_name||'') + ' ' + (m.Last_Name||'') + '</div>' +
+                        '<div class="hsr-meta">ID: ' + m.id + (m.tel_no ? ' &middot; ' + m.tel_no : '') + (m.email ? ' &middot; ' + m.email : '') + '</div>' +
+                    '</div></a>';
             });
         }
 
         if (dependants.length) {
-            html += '<div class="hsr-section">Dependants <a href="/Dependants">View all</a></div>';
-            dependants.forEach(function(d) {
-                html += '<a class="hsr-item" href="/Dependants/' + d.id + '">' +
-                    '<div class="hsr-avatar hsr-avatar--dependant">' + initials((d.First_name || '') + ' ' + (d.Last_Name || '')) + '</div>' +
+            if (members.length) html += '<div class="hsr-divider"></div>';
+            html += '<div class="hsr-section-label">Dependants</div>';
+            dependants.forEach(function (d) {
+                var ini = initials(d.First_name, d.Last_Name);
+                var col = avatarColor(ini + 'dep');
+                html += '<a class="hsr-item" href="/dependant_view/' + d.id + '">' +
+                    '<div class="hsr-avatar" style="background:' + col + '">' + ini + '</div>' +
                     '<div class="hsr-info">' +
-                        '<div class="hsr-name">' + (d.First_name || '') + ' ' + (d.Last_Name || '') + '</div>' +
-                        '<div class="hsr-meta">ID: ' + (d.id || '—') + ' · Member: ' + (d.member_name || d.member_id || '—') + (d.relationship ? ' · ' + d.relationship : '') + '</div>' +
-                    '</div>' +
-                    '<span class="hsr-badge hsr-badge--dependant">Dependant</span>' +
-                '</a>';
+                        '<div class="hsr-name">' + (d.First_name||'') + ' ' + (d.Last_Name||'') + '</div>' +
+                        '<div class="hsr-meta">ID: ' + d.id + ' &middot; ' + (d.member_name||'') + (d.relationship ? ' &middot; ' + d.relationship : '') + '</div>' +
+                    '</div></a>';
             });
         }
 
-        searchResults.innerHTML = html;
+        searchResult.innerHTML = html;
+        searchResult.classList.add('open');
     }
 
     function doSearch(q) {
-        q = q.trim();
+        q = (q || '').trim();
         if (!q) {
-            searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-search"></i> Start typing to search…</div>';
-            searchResults.classList.remove('open');
+            searchResult.classList.remove('open');
+            searchResult.innerHTML = '<div class="hsr-state"><i class="fa fa-search"></i>&nbsp; Start typing to search…</div>';
             return;
         }
+        searchResult.innerHTML = '<div class="hsr-state"><i class="fa fa-spinner fa-spin"></i>&nbsp; Searching…</div>';
+        searchResult.classList.add('open');
 
-        searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-spinner fa-spin"></i> Searching…</div>';
-        searchResults.classList.add('open');
-
-        fetch('/search?q=' + encodeURIComponent(q) + '&limit=5')
-            .then(function(r) { return r.json(); })
-            .then(function(data) { renderResults(data); })
-            .catch(function() {
-                searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-exclamation-circle"></i> Search failed. Try again.</div>';
-            });
+        fetch('/search?q=' + encodeURIComponent(q) + '&limit=6', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status + ' — is GET /search defined in app.js?');
+            return r.json();
+        })
+        .then(function (data) { renderResults(data); })
+        .catch(function (err) {
+            searchResult.innerHTML =
+                '<div class="hsr-state" style="flex-direction:column;align-items:flex-start;gap:3px;">' +
+                '<span style="color:#e53e3e;"><i class="fa fa-exclamation-circle"></i> ' + err.message + '</span>' +
+                '<small style="color:#a0aec0;font-size:.65rem;">Check browser console (F12) for details.</small>' +
+                '</div>';
+        });
     }
 
-    searchInput.addEventListener('input', function() {
-        var val = this.value;
-        searchClear.classList.toggle('visible', val.length > 0);
-        clearTimeout(searchTimer);
-        if (!val.trim()) {
-            searchResults.classList.remove('open');
-            searchResults.innerHTML = '<div class="hsr-state"><i class="fa fa-search"></i> Start typing to search…</div>';
-            return;
-        }
-        searchTimer = setTimeout(function() { doSearch(val); }, 280);
-    });
-
-    searchInput.addEventListener('focus', function() {
-        if (this.value.trim()) searchResults.classList.add('open');
-    });
-
-    searchInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            searchResults.classList.remove('open');
-            this.blur();
-        }
-    });
-
-    searchClear.addEventListener('click', function(e) {
-        e.stopPropagation();
-        searchInput.value = '';
-        searchClear.classList.remove('visible');
-        searchResults.classList.remove('open');
-        searchInput.focus();
-    });
-
-    /* Close search results when clicking outside */
-    document.addEventListener('click', function(e) {
-        if (!document.getElementById('hdrSearch').contains(e.target)) {
-            searchResults.classList.remove('open');
-        }
-    });
+    if (searchInput) {
+        searchInput.addEventListener('focus', function () {
+            searchWrap.classList.add('focused');
+            if (this.value.trim()) searchResult.classList.add('open');
+        });
+        searchInput.addEventListener('blur', function () {
+            searchWrap.classList.remove('focused');
+        });
+        searchInput.addEventListener('input', function () {
+            var val = this.value;
+            searchClear.classList.toggle('visible', val.length > 0);
+            clearTimeout(searchTimer);
+            if (!val.trim()) {
+                searchResult.classList.remove('open');
+                return;
+            }
+            searchTimer = setTimeout(function () { doSearch(val); }, 300);
+        });
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { searchResult.classList.remove('open'); this.blur(); }
+        });
+        searchClear.addEventListener('click', function (e) {
+            e.stopPropagation();
+            searchInput.value = '';
+            searchClear.classList.remove('visible');
+            searchResult.classList.remove('open');
+            searchInput.focus();
+        });
+        document.addEventListener('click', function (e) {
+            if (!searchWrap.contains(e.target)) searchResult.classList.remove('open');
+        });
+    }
 
     /* ═══════════════════════════════════════════
-       NOTIFICATIONS  — fetched from /notifications
+       NOTIFICATIONS  — fetches from /notifications
+       Shows interest calculation status as a pill
     ═══════════════════════════════════════════ */
-    var notifList      = document.getElementById('notifList');
-    var notifBadge     = document.getElementById('notifBadge');
-    var notifDot       = document.getElementById('notifDot');
-    var notifUnreadPill= document.getElementById('notifUnreadPill');
-    var markAllReadBtn = document.getElementById('markAllRead');
+    var notifBtn      = document.getElementById('notifBtn');
+    var notifDropdown = document.getElementById('notifDropdown');
+    var notifList     = document.getElementById('notifList');
+    var notifBadge    = document.getElementById('notifBadge');
+    var markAllBtn    = document.getElementById('markAllRead');
+    var intPill       = document.getElementById('interestStatusPill');
+    var intText       = document.getElementById('interestStatusText');
+    var notifOpen     = false;
+    var pollTimer     = null;
 
-    /* Icon map by notification type */
-    var NOTIF_ICONS = {
-        interest_calculated : { cls: 'hdr-notif-ico--green',  icon: 'fa-calculator' },
-        overdue_payment     : { cls: 'hdr-notif-ico--red',    icon: 'fa-exclamation-circle' },
-        new_member          : { cls: 'hdr-notif-ico--blue',   icon: 'fa-user-plus' },
-        new_loan            : { cls: 'hdr-notif-ico--purple', icon: 'fa-money' },
-        loan_repayment      : { cls: 'hdr-notif-ico--green',  icon: 'fa-check-circle' },
-        new_transaction     : { cls: 'hdr-notif-ico--blue',   icon: 'fa-exchange' },
-        loan_overdue        : { cls: 'hdr-notif-ico--red',    icon: 'fa-clock-o' },
-        system              : { cls: 'hdr-notif-ico--amber',  icon: 'fa-info-circle' },
+    var TYPE_MAP = {
+        interest   : { icon: 'fa-calculator', cls: 'interest',  label: 'Interest' },
+        overdue    : { icon: 'fa-exclamation-circle', cls: 'overdue', label: 'Overdue' },
+        member     : { icon: 'fa-user-plus',  cls: 'member',    label: 'Member' },
+        loan       : { icon: 'fa-money',      cls: 'loan',      label: 'Loan' },
+        repayment  : { icon: 'fa-check-circle', cls: 'repayment', label: 'Repayment' },
+        transaction: { icon: 'fa-exchange',   cls: 'txn',       label: 'Transaction' },
+        system     : { icon: 'fa-info-circle',cls: 'system',    label: 'System' }
     };
 
-    function defaultIcon(type) {
-        return NOTIF_ICONS[type] || { cls: 'hdr-notif-ico--amber', icon: 'fa-bell' };
+    function timeAgo(dateStr) {
+        var now  = new Date();
+        var then = new Date(dateStr);
+        var s    = Math.floor((now - then) / 1000);
+        if (s < 60)   return 'just now';
+        if (s < 3600) return Math.floor(s/60) + 'm ago';
+        if (s < 86400)return Math.floor(s/3600) + 'h ago';
+        return Math.floor(s/86400) + 'd ago';
     }
 
-    function renderNotifs(items) {
+    function renderNotifications(items) {
         if (!items || !items.length) {
-            notifList.innerHTML =
-                '<div class="hdr-notif-empty"><i class="fa fa-bell-o"></i>No notifications yet</div>';
+            notifList.innerHTML = '<div class="notif-empty"><i class="fa fa-bell-o"></i><br>No notifications yet</div>';
             return;
         }
-
-        var unread = items.filter(function(n){ return !n.read; }).length;
-
-        /* Badge */
-        if (unread > 0) {
-            notifBadge.textContent = unread > 9 ? '9+' : unread;
-            notifBadge.classList.add('visible');
-            notifDot.classList.remove('visible');
-            notifUnreadPill.textContent = unread + ' new';
-            notifUnreadPill.classList.add('visible');
-        } else {
-            notifBadge.classList.remove('visible');
-            notifDot.classList.remove('visible');
-            notifUnreadPill.classList.remove('visible');
-        }
-
-        var html = '';
-        items.forEach(function(n) {
-            var ico = defaultIcon(n.type);
-            html += '<a class="hdr-notif-item' + (n.read ? '' : ' unread') + '" href="' + (n.link || 'javascript:;') + '" data-id="' + n.id + '">' +
-                '<div class="hdr-notif-ico ' + ico.cls + '"><i class="fa ' + ico.icon + '"></i></div>' +
-                '<div class="hdr-notif-body">' +
-                    '<strong>' + (n.title || 'Notification') + '</strong>' +
-                    '<span>' + (n.message || '') + '</span>' +
-                '</div>' +
-                '<div class="hdr-notif-time">' + timeAgo(n.created_at) + '</div>' +
-            '</a>';
+        var unread = 0;
+        var html   = '';
+        items.forEach(function (n) {
+            var t   = TYPE_MAP[n.type] || TYPE_MAP.system;
+            var cls = n.read ? '' : 'unread';
+            if (!n.read) unread++;
+            html += '<div class="notif-item ' + cls + '" data-id="' + n.id + '" onclick="markRead(' + n.id + ',this)">' +
+                '<div class="notif-icon ' + t.cls + '"><i class="fa ' + t.icon + '"></i></div>' +
+                '<div class="notif-body">' +
+                    '<div class="notif-title">' + (n.title || t.label) + '</div>' +
+                    '<div class="notif-msg">' + (n.message || '') + '</div>' +
+                    '<div class="notif-time">' + timeAgo(n.created_at) + '</div>' +
+                '</div></div>';
         });
         notifList.innerHTML = html;
+        if (unread > 0) {
+            notifBadge.textContent = unread > 99 ? '99+' : unread;
+            notifBadge.classList.add('visible');
+        } else {
+            notifBadge.classList.remove('visible');
+        }
 
-        /* Mark individual as read on click */
-        notifList.querySelectorAll('.hdr-notif-item[data-id]').forEach(function(el) {
-            el.addEventListener('click', function() {
-                var id = this.getAttribute('data-id');
-                fetch('/notifications/' + id + '/read', { method: 'POST' }).catch(function(){});
-                this.classList.remove('unread');
-            });
+        /* Show interest status pill from latest interest notification */
+        var latest = items.find(function(n){ return n.type === 'interest'; });
+        if (latest) {
+            var status = latest.status || 'done';
+            intPill.style.display = 'inline-flex';
+            intPill.className = 'interest-status-pill' + (status === 'running' ? ' running' : status === 'error' ? ' error' : '');
+            if (status === 'running') {
+                intText.textContent = 'Calculating…';
+                intPill.querySelector('i').className = 'fa fa-spinner fa-spin';
+            } else if (status === 'error') {
+                intText.textContent = 'Calc Error';
+                intPill.querySelector('i').className = 'fa fa-exclamation-triangle';
+            } else {
+                intText.textContent = latest.message || 'Interest Applied';
+                intPill.querySelector('i').className = 'fa fa-check-circle';
+                /* Auto-hide after 8s if it's just informational */
+                setTimeout(function () { intPill.style.display = 'none'; }, 8000);
+            }
+        }
+    }
+
+    function fetchNotifications() {
+        fetch('/notifications?limit=12', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function (data) {
+            renderNotifications(data.notifications || data || []);
+        })
+        .catch(function () {
+            notifList.innerHTML = '<div class="notif-empty" style="color:#e53e3e;"><i class="fa fa-exclamation-circle"></i><br>Could not load<br><small style="color:#a0aec0">Add GET /notifications route</small></div>';
         });
     }
 
-    function loadNotifications() {
-        fetch('/notifications?limit=10')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                renderNotifs(data.notifications || data);
-            })
-            .catch(function() {
-                /* Fallback — show built-in activity types if endpoint not ready */
-                renderNotifs([
-                    { id:1, type:'interest_calculated', title:'Interest Calculated', message:'Daily interest run completed successfully', created_at: new Date().toISOString(), read:false },
-                    { id:2, type:'overdue_payment',     title:'Overdue Payments',    message:'Some loans have overdue instalments', created_at: new Date(Date.now()-3600000).toISOString(), read:false },
-                    { id:3, type:'new_member',          title:'New Member',          message:'A new member was registered', created_at: new Date(Date.now()-7200000).toISOString(), read:true  },
-                    { id:4, type:'loan_repayment',      title:'Loan Repayment',      message:'A loan repayment was recorded', created_at: new Date(Date.now()-86400000).toISOString(), read:true  },
-                    { id:5, type:'new_transaction',     title:'New Transaction',     message:'Member transaction posted', created_at: new Date(Date.now()-172800000).toISOString(), read:true  }
-                ]);
+    /* Global function so onclick in dynamically-rendered HTML works */
+    window.markRead = function (id, el) {
+        if (!el) return;
+        el.classList.remove('unread');
+        fetch('/notifications/' + id + '/read', { method: 'POST' }).catch(function(){});
+        var unreadCount = notifList.querySelectorAll('.notif-item.unread').length;
+        if (unreadCount > 0) {
+            notifBadge.textContent = unreadCount;
+        } else {
+            notifBadge.classList.remove('visible');
+        }
+    };
+
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function () {
+            notifList.querySelectorAll('.notif-item.unread').forEach(function (el) {
+                el.classList.remove('unread');
             });
+            notifBadge.classList.remove('visible');
+            fetch('/notifications/read-all', { method: 'POST' }).catch(function(){});
+        });
     }
 
-    /* Mark all read */
-    markAllReadBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        fetch('/notifications/read-all', { method: 'POST' }).catch(function(){});
-        notifList.querySelectorAll('.hdr-notif-item.unread').forEach(function(el){ el.classList.remove('unread'); });
-        notifBadge.classList.remove('visible');
-        notifDot.classList.remove('visible');
-        notifUnreadPill.classList.remove('visible');
-    });
+    if (notifBtn) {
+        notifBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            notifOpen = !notifOpen;
+            notifDropdown.classList.toggle('open', notifOpen);
+            if (notifOpen) fetchNotifications();
+        });
+    }
 
-    /* Load on page ready, then poll every 90 seconds */
-    loadNotifications();
-    setInterval(loadNotifications, 90000);
+    /* Poll every 90s */
+    fetchNotifications();
+    pollTimer = setInterval(fetchNotifications, 90000);
+
+    /* ═══════════════════════════════════════════
+       USER DROPDOWN
+    ═══════════════════════════════════════════ */
+    var usrBtn      = document.getElementById('usrBtn');
+    var usrDropdown = document.getElementById('usrDropdown');
+    if (usrBtn) {
+        usrBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = usrDropdown.classList.toggle('open');
+            usrBtn.classList.toggle('open', open);
+        });
+    }
+
+    /* Close all dropdowns on outside click */
+    document.addEventListener('click', function () {
+        if (notifDropdown) { notifDropdown.classList.remove('open'); notifOpen = false; }
+        if (usrDropdown)   { usrDropdown.classList.remove('open'); }
+        if (usrBtn)        { usrBtn.classList.remove('open'); }
+    });
 
 }());
 </script>

@@ -1,303 +1,234 @@
-<style>
-/* ══════════════════════════════════════════
-   SIDEBAR
-══════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-
-.page-sidebar {
-    width: 240px;
-    background: #0f1623;
-    min-height: 100vh;
-    position: fixed;
-    top: 0; left: 0;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    font-family: 'DM Sans', sans-serif;
-    border-right: 1px solid rgba(255,255,255,.04);
-}
-
-#sidebar-collapse {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.1) transparent;
-}
-#sidebar-collapse::-webkit-scrollbar { width: 4px; }
-#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
-
-/* ── PROFILE BLOCK ── */
-.sb-profile {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 18px 14px 14px;
-    border-bottom: 1px solid rgba(255,255,255,.06);
-    margin-bottom: 6px;
-    flex-shrink: 0;
-}
-.sb-profile__avatar {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #00b894, #0984e3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #fff;
-    flex-shrink: 0; letter-spacing: -.5px;
-}
-.sb-profile__name {
-    font-size: .8rem; font-weight: 600; color: #f0f4ff;
-    line-height: 1.2; white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis;
-}
-.sb-profile__role {
-    font-size: .62rem; font-weight: 500;
-    color: #00b894; text-transform: uppercase;
-    letter-spacing: .6px; margin-top: 2px;
-}
-
-/* ── NAV ── */
-.side-menu {
-    list-style: none;
-    padding: 0 8px 12px;
-    margin: 0;
-    flex: 1;
-}
-
-/* Section headings */
-.side-menu .heading {
-    font-size: .58rem;
-    font-weight: 700;
-    letter-spacing: 1.3px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,.22);
-    padding: 14px 8px 5px;
-    pointer-events: none;
-    user-select: none;
-}
-
-/* Top-level item links */
-.side-menu > li > a {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 8px 9px;
-    border-radius: 8px;
-    color: rgba(255,255,255,.55);
-    font-size: .78rem;
-    font-weight: 500;
-    text-decoration: none !important;
-    transition: background .15s, color .15s;
-    position: relative;
-    margin-bottom: 1px;
-    white-space: nowrap;
-    overflow: hidden;
-}
-.side-menu > li > a:hover {
-    background: rgba(255,255,255,.06);
-    color: rgba(255,255,255,.9);
-}
-
-/* Active parent */
-.side-menu > li.active > a {
-    background: rgba(0,184,148,.13);
-    color: #00b894;
-}
-/* Left accent bar on active */
-.side-menu > li.active > a::after {
-    content: '';
-    position: absolute;
-    left: 0; top: 18%; bottom: 18%;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: #00b894;
-}
-
-/* Icons */
-.sidebar-item-icon {
-    width: 26px; height: 26px;
-    border-radius: 7px;
-    background: rgba(255,255,255,.05);
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: .78rem;
-    flex-shrink: 0;
-    transition: background .15s, color .15s;
-}
-.side-menu > li > a:hover .sidebar-item-icon {
-    background: rgba(255,255,255,.08);
-    color: rgba(255,255,255,.9);
-}
-.side-menu > li.active > a .sidebar-item-icon {
-    background: rgba(0,184,148,.18);
-    color: #00b894;
-}
-
-/* Arrow chevron */
-.side-menu .arrow {
-    margin-left: auto;
-    font-size: .6rem;
-    color: rgba(255,255,255,.2);
-    transition: transform .2s, color .15s;
-    flex-shrink: 0;
-}
-/* Metismenu adds aria-expanded="true" when open */
-.side-menu > li > a[aria-expanded="true"] .arrow {
-    transform: rotate(-90deg);
-    color: rgba(255,255,255,.45);
-}
-.side-menu > li.active > a .arrow {
-    color: rgba(0,184,148,.6);
-}
-
-/* ── SUBMENU ── */
-.side-menu .nav-2-level {
-    list-style: none;
-    padding: 2px 0 4px 14px;
-    margin: 0;
-    overflow: hidden;
-}
-.side-menu .nav-2-level li { margin-bottom: 0; }
-.side-menu .nav-2-level li a {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 9px;
-    border-radius: 7px;
-    color: rgba(255,255,255,.4);
-    font-size: .74rem;
-    font-weight: 400;
-    text-decoration: none !important;
-    transition: background .12s, color .12s;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-/* Small dot before submenu items */
-.side-menu .nav-2-level li a::before {
-    content: '';
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.18);
-    flex-shrink: 0;
-    transition: background .12s, transform .12s;
-}
-.side-menu .nav-2-level li a:hover {
-    color: rgba(255,255,255,.85);
-    background: rgba(255,255,255,.04);
-}
-.side-menu .nav-2-level li a:hover::before {
-    background: rgba(255,255,255,.5);
-}
-/* Active submenu item */
-.side-menu .nav-2-level li a.active {
-    color: #00b894;
-    background: rgba(0,184,148,.08);
-    font-weight: 500;
-}
-.side-menu .nav-2-level li a.active::before {
-    background: #00b894;
-    transform: scale(1.4);
-}
-
-/* Metismenu collapse */
-.side-menu .nav-2-level.collapse         { display: none; }
-.side-menu .nav-2-level.collapse.in,
-.side-menu .nav-2-level.collapsing       { display: block; }
-
-/* ── BOTTOM DOCK ── */
-.sb-bottom {
-    padding: 10px 8px;
-    border-top: 1px solid rgba(255,255,255,.06);
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    flex-shrink: 0;
-}
-.sb-bottom__link {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 7px 9px;
-    border-radius: 8px;
-    color: rgba(255,255,255,.4);
-    font-size: .75rem;
-    font-weight: 500;
-    text-decoration: none !important;
-    transition: background .12s, color .12s;
-}
-.sb-bottom__link .sb-ico {
-    width: 24px; height: 24px;
-    border-radius: 6px;
-    background: rgba(255,255,255,.04);
-    display: flex; align-items: center; justify-content: center;
-    font-size: .72rem; flex-shrink: 0;
-    transition: background .12s, color .12s;
-}
-.sb-bottom__link:hover {
-    background: rgba(255,255,255,.05);
-    color: rgba(255,255,255,.85);
-}
-.sb-bottom__link:hover .sb-ico {
-    background: rgba(255,255,255,.08);
-    color: rgba(255,255,255,.85);
-}
-.sb-bottom__link--danger { color: rgba(214,48,49,.65); }
-.sb-bottom__link--danger .sb-ico { color: rgba(214,48,49,.65); }
-.sb-bottom__link--danger:hover {
-    background: rgba(214,48,49,.1);
-    color: #ff7675;
-}
-.sb-bottom__link--danger:hover .sb-ico {
-    background: rgba(214,48,49,.12);
-    color: #ff7675;
-}
-</style>
-
 <%
-/*
-  Helper: returns 'active' if currentPage is in the provided array.
-  Usage:  <%- isActive(['home']) %>
-  Defined here so every include gets it fresh.
-*/
 function isActive(pages) {
     return pages.includes(currentPage) ? 'active' : '';
 }
 %>
 
-<nav class="page-sidebar" id="sidebar">
+<style>
+/* ═══════════════════════════════════════════════════
+   SIDEBAR — all rules scoped to #sidebar
+   so main.min.css cannot override them.
+   bg #0f1623 = identical to header .page-brand
+   width 220px | top 60px (matches header height)
+═══════════════════════════════════════════════════ */
+
+#sidebar {
+    width: 220px;
+    background: #0f1623;
+    border-right: 1px solid rgba(255,255,255,.04);
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    height: calc(100vh - 60px);
+    z-index: 998;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    transition: width .22s ease;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+}
+body.sidebar-collapsed #sidebar { width: 60px; }
+
+/* scroll container */
+#sidebar-collapse {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.1) transparent;
+}
+#sidebar-collapse::-webkit-scrollbar       { width: 3px; }
+#sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+
+/* nav list */
+#sidebar #side-menu {
+    list-style: none;
+    padding: 4px 7px 8px;
+    margin: 0;
+    flex: 1;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* section headings */
+#sidebar #side-menu > li.heading {
+    font-size: .57rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.2);
+    padding: 12px 9px 4px;
+    margin: 0;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    background: transparent;
+    transition: opacity .15s, padding .15s, height .15s;
+}
+body.sidebar-collapsed #sidebar #side-menu > li.heading {
+    opacity: 0; padding: 0; height: 0; overflow: hidden;
+}
+
+/* top-level links */
+#sidebar #side-menu > li > a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px;
+    padding: 8px 8px;
+    border-radius: 8px;
+    color: rgba(255,255,255,.52);
+    font-size: .78rem;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: background .13s, color .13s;
+    position: relative;
+    margin-bottom: 1px;
+    overflow: hidden;
+    background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    line-height: 1.3 !important;
+    width: 100%;
+    white-space: nowrap;
+    box-shadow: none !important;
+}
+#sidebar #side-menu > li > a:hover {
+    background: rgba(255,255,255,.07) !important;
+    color: rgba(255,255,255,.9) !important;
+}
+#sidebar #side-menu > li.active > a {
+    background: rgba(0,184,148,.13) !important;
+    color: #00b894 !important;
+}
+#sidebar #side-menu > li.active > a::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14%; bottom: 14%;
+    width: 3px; border-radius: 0 3px 3px 0;
+    background: #00b894;
+}
+
+/* icon pill */
+#sidebar .sidebar-item-icon {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: rgba(255,255,255,.06);
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: .76rem; flex-shrink: 0;
+    color: rgba(255,255,255,.5);
+    transition: background .13s, color .13s;
+}
+#sidebar #side-menu > li > a:hover .sidebar-item-icon {
+    background: rgba(255,255,255,.1); color: rgba(255,255,255,.88);
+}
+#sidebar #side-menu > li.active > a .sidebar-item-icon {
+    background: rgba(0,184,148,.18); color: #00b894;
+}
+
+/* nav label */
+#sidebar .nav-label {
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: opacity .15s;
+}
+body.sidebar-collapsed #sidebar .nav-label { opacity: 0; width: 0; flex: 0; overflow: hidden; }
+
+/* chevron */
+#sidebar .arrow {
+    margin-left: auto; font-size: .58rem;
+    color: rgba(255,255,255,.2);
+    transition: transform .18s, color .13s, opacity .15s;
+    flex-shrink: 0;
+}
+body.sidebar-collapsed #sidebar .arrow { opacity: 0; width: 0; overflow: hidden; }
+#sidebar #side-menu > li > a[aria-expanded="true"] > .arrow {
+    transform: rotate(-90deg); color: rgba(255,255,255,.45);
+}
+#sidebar #side-menu > li.active > a .arrow { color: rgba(0,184,148,.5); }
+
+/* submenu — Bootstrap/metismenu controls display, we only style */
+#sidebar ul.nav-2-level {
+    list-style: none;
+    padding: 1px 0 3px 12px;
+    margin: 0;
+    background: transparent;
+}
+body.sidebar-collapsed #sidebar ul.nav-2-level { display: none !important; }
+
+#sidebar ul.nav-2-level > li > a {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: rgba(255,255,255,.37);
+    font-size: .72rem; font-weight: 400;
+    text-decoration: none;
+    transition: background .12s, color .12s;
+    background: transparent; border: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    width: 100%;
+}
+#sidebar ul.nav-2-level > li > a::before {
+    content: ''; width: 4px; height: 4px; border-radius: 50%;
+    background: rgba(255,255,255,.14); flex-shrink: 0;
+    display: inline-block; transition: background .12s, transform .12s;
+}
+#sidebar ul.nav-2-level > li > a:hover {
+    color: rgba(255,255,255,.82); background: rgba(255,255,255,.04);
+}
+#sidebar ul.nav-2-level > li > a:hover::before { background: rgba(255,255,255,.4); }
+#sidebar ul.nav-2-level > li > a.active {
+    color: #00b894; background: rgba(0,184,148,.09); font-weight: 500;
+}
+#sidebar ul.nav-2-level > li > a.active::before { background: #00b894; transform: scale(1.4); }
+
+/* bottom dock */
+#sidebar .sb-bottom {
+    padding: 7px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    display: flex; flex-direction: column; gap: 1px;
+    flex-shrink: 0; background: #0f1623; overflow: hidden;
+}
+#sidebar .sb-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px; border-radius: 7px;
+    color: rgba(255,255,255,.38); font-size: .73rem; font-weight: 500;
+    text-decoration: none;
+    transition: background .12s, color .12s;
+    background: transparent; white-space: nowrap; overflow: hidden;
+}
+#sidebar .sb-ico {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: rgba(255,255,255,.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem; flex-shrink: 0;
+}
+#sidebar .sb-link:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.82); }
+#sidebar .sb-link.danger { color: rgba(220,80,80,.7); }
+#sidebar .sb-link.danger:hover { background: rgba(214,48,49,.1); color: #ff7675; }
+body.sidebar-collapsed #sidebar .sb-label { display: none; }
+</style>
+
+<nav id="sidebar" class="page-sidebar">
     <div id="sidebar-collapse">
 
-        <!-- ── Profile ───────────────────────────────────── -->
-        <div class="sb-profile">
-            <div class="sb-profile__avatar">
-                <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
-            </div>
-            <div style="min-width:0;">
-                <div class="sb-profile__name"><%= user.first_name %> <%= user.last_name %></div>
-                <div class="sb-profile__role"><%= user.role %></div>
-            </div>
-        </div>
+        <ul id="side-menu" class="side-menu metismenu">
 
-        <!-- ── Nav ───────────────────────────────────────── -->
-        <ul class="side-menu metismenu">
-
-            <!-- Dashboard -->
             <li class="<%= isActive(['home']) %>">
-                <a href="/">
-                    <i class="sidebar-item-icon fa fa-home"></i>
-                    <span class="nav-label">Dashboard</span>
-                </a>
+                <a href="/"><i class="sidebar-item-icon fa fa-home"></i><span class="nav-label">Dashboard</span></a>
             </li>
 
-            <!-- ════ BIO DATA ════ -->
             <li class="heading">Bio Data</li>
 
-            <!-- Registration -->
             <li class="<%= isActive(['member_add','dependant_add']) %>">
                 <a href="javascript:;">
                     <i class="sidebar-item-icon fa fa-user-plus"></i>
@@ -305,12 +236,11 @@ function isActive(pages) {
                     <i class="fa fa-angle-left arrow"></i>
                 </a>
                 <ul class="nav-2-level collapse">
-                    <li><a class="<%= isActive(['member_add']) %>"     href="/member_add">Add Member</a></li>
-                    <li><a class="<%= isActive(['dependant_add']) %>"  href="/dependant_add">Add Dependant</a></li>
+                    <li><a class="<%= isActive(['member_add']) %>"    href="/member_add">Add Member</a></li>
+                    <li><a class="<%= isActive(['dependant_add']) %>" href="/dependant_add">Add Dependant</a></li>
                 </ul>
             </li>
 
-            <!-- Member Lists -->
             <li class="<%= isActive(['members','Dependants']) %>">
                 <a href="javascript:;">
                     <i class="sidebar-item-icon fa fa-users"></i>
@@ -323,10 +253,8 @@ function isActive(pages) {
                 </ul>
             </li>
 
-            <!-- ════ FINANCIALS ════ -->
             <li class="heading">Financials</li>
 
-            <!-- Transactions -->
             <li class="<%= isActive(['transaction','internal_transaction','transaction_list','internal_transaction_listing']) %>">
                 <a href="javascript:;">
                     <i class="sidebar-item-icon fa fa-exchange"></i>
@@ -334,14 +262,13 @@ function isActive(pages) {
                     <i class="fa fa-angle-left arrow"></i>
                 </a>
                 <ul class="nav-2-level collapse">
-                    <li><a class="<%= isActive(['transaction']) %>"                       href="/transaction">New Member Txn</a></li>
-                    <li><a class="<%= isActive(['internal_transaction']) %>"              href="/internal_transaction">New Internal Txn</a></li>
-                    <li><a class="<%= isActive(['transaction_list']) %>"                  href="/transaction_list">Member Txn List</a></li>
-                    <li><a class="<%= isActive(['internal_transaction_listing']) %>"      href="/internal_transaction_listing">Internal Txn List</a></li>
+                    <li><a class="<%= isActive(['transaction']) %>"                  href="/transaction">New Member Txn</a></li>
+                    <li><a class="<%= isActive(['internal_transaction']) %>"         href="/internal_transaction">New Internal Txn</a></li>
+                    <li><a class="<%= isActive(['transaction_list']) %>"             href="/transaction_list">Member Txn List</a></li>
+                    <li><a class="<%= isActive(['internal_transaction_listing']) %>" href="/internal_transaction_listing">Internal Txn List</a></li>
                 </ul>
             </li>
 
-            <!-- Loans -->
             <li class="<%= isActive(['loan_application','loan_list','loan_repayment','Loan_statement']) %>">
                 <a href="javascript:;">
                     <i class="sidebar-item-icon fa fa-money"></i>
@@ -356,7 +283,6 @@ function isActive(pages) {
                 </ul>
             </li>
 
-            <!-- ════ REPORTS ════ -->
             <li class="heading">Reports</li>
 
             <li class="<%= isActive(['membership_fee','Welfare','Insurance_cover','savings_report','loans_report','liquidity_report','financial_statements']) %>">
@@ -366,20 +292,18 @@ function isActive(pages) {
                     <i class="fa fa-angle-left arrow"></i>
                 </a>
                 <ul class="nav-2-level collapse">
-                    <li><a class="<%= isActive(['membership_fee']) %>"     href="/membership_fee">Membership Fee</a></li>
-                    <li><a class="<%= isActive(['Welfare']) %>"            href="/Welfare">Welfare Fee</a></li>
-                    <li><a class="<%= isActive(['Insurance_cover']) %>"    href="/Insurance_cover">Insurance Cover</a></li>
-                    <li><a class="<%= isActive(['savings_report']) %>"     href="/savings_report">Savings Report</a></li>
-                    <li><a class="<%= isActive(['loans_report']) %>"       href="/loans_report">Loans Report</a></li>
-                    <li><a class="<%= isActive(['liquidity_report']) %>"   href="/liquidity_report">Liquidity Report</a></li>
+                    <li><a class="<%= isActive(['membership_fee']) %>"       href="/membership_fee">Membership Fee</a></li>
+                    <li><a class="<%= isActive(['Welfare']) %>"              href="/Welfare">Welfare Fee</a></li>
+                    <li><a class="<%= isActive(['Insurance_cover']) %>"      href="/Insurance_cover">Insurance Cover</a></li>
+                    <li><a class="<%= isActive(['savings_report']) %>"       href="/savings_report">Savings Report</a></li>
+                    <li><a class="<%= isActive(['loans_report']) %>"         href="/loans_report">Loans Report</a></li>
+                    <li><a class="<%= isActive(['liquidity_report']) %>"     href="/liquidity_report">Liquidity Report</a></li>
                     <li><a class="<%= isActive(['financial_statements']) %>" href="/financial_statements">Financial Statements</a></li>
                 </ul>
             </li>
 
-            <!-- ════ ADMIN ════ -->
             <li class="heading">Admin</li>
 
-            <!-- User Management -->
             <li class="<%= isActive(['users','user_add']) %>">
                 <a href="javascript:;">
                     <i class="sidebar-item-icon fa fa-user-secret"></i>
@@ -394,21 +318,49 @@ function isActive(pages) {
 
         </ul>
 
-        <!-- ── Bottom dock ───────────────────────────────── -->
         <div class="sb-bottom">
-            <a href="/profile" class="sb-bottom__link">
-                <span class="sb-ico"><i class="fa fa-user-o"></i></span>
-                My Profile
+            <a href="/profile" class="sb-link">
+                <span class="sb-ico"><i class="fa fa-user-o"></i></span><span class="sb-label">My Profile</span>
             </a>
-            <a href="/settings" class="sb-bottom__link">
-                <span class="sb-ico"><i class="fa fa-cog"></i></span>
-                Settings
+            <a href="/settings" class="sb-link">
+                <span class="sb-ico"><i class="fa fa-cog"></i></span><span class="sb-label">Settings</span>
             </a>
-            <a href="/logout" class="sb-bottom__link sb-bottom__link--danger">
-                <span class="sb-ico"><i class="fa fa-power-off"></i></span>
-                Sign Out
+            <a href="/logout" class="sb-link danger">
+                <span class="sb-ico"><i class="fa fa-power-off"></i></span><span class="sb-label">Sign Out</span>
             </a>
         </div>
 
     </div>
 </nav>
+
+<script>
+(function () {
+    function initSidebar() {
+        if (typeof jQuery === 'undefined' || !jQuery.fn.metisMenu) {
+            return setTimeout(initSidebar, 60);
+        }
+        var $menu = jQuery('#side-menu');
+        if ($menu.data('metisMenu')) return;
+
+        $menu.metisMenu({ toggle: true });
+
+        /* Auto-open active parent */
+        $menu.find('li.active').each(function () {
+            var $sub = jQuery(this).children('ul.nav-2-level');
+            if ($sub.length) {
+                $sub.addClass('in').css('height', '');
+                jQuery(this).children('a').attr('aria-expanded', 'true');
+            }
+        });
+        $menu.find('ul.nav-2-level a.active').each(function () {
+            var $sub = jQuery(this).closest('ul.nav-2-level');
+            $sub.addClass('in').css('height', '');
+            $sub.closest('li').children('a').attr('aria-expanded', 'true');
+        });
+    }
+
+    document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', initSidebar)
+        : initSidebar();
+}());
+</script>
