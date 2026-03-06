@@ -3301,14 +3301,15 @@ app.get('/search', checkAuth, asyncHandler(async (req, res) => {
 
     const q = '%' + raw + '%';
 
+    /* LIMIT must be inlined — mysql2 rejects integer params in LIMIT clause */
     const [members] = await dbConfig.execute(`
         SELECT id, First_name, Last_Name, tel_no, email
         FROM members_mst
         WHERE status = 'Active'
           AND (First_name LIKE ? OR Last_Name LIKE ? OR tel_no LIKE ? OR email LIKE ?)
         ORDER BY First_name, Last_Name
-        LIMIT ?
-    `, [q, q, q, q, limit]);
+        LIMIT ${limit}
+    `, [q, q, q, q]);
 
     const [dependants] = await dbConfig.execute(`
         SELECT d.id, d.First_name, d.Last_Name, d.relationship,
@@ -3318,11 +3319,12 @@ app.get('/search', checkAuth, asyncHandler(async (req, res) => {
         JOIN members_mst m ON d.member_id = m.id
         WHERE d.First_name LIKE ? OR d.Last_Name LIKE ?
         ORDER BY d.First_name, d.Last_Name
-        LIMIT ?
-    `, [q, q, limit]);
+        LIMIT ${limit}
+    `, [q, q]);
 
     res.json({ members, dependants });
 }));
+
 
 
 
