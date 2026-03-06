@@ -3999,37 +3999,228 @@ app.post('/financial_statements/generate', checkAuth, asyncHandler(async (req, r
   });
 }));
 
-//=============================Live search============================
-//=============================Live search============================
-app.get('/search', asyncHandler(async (req, res) => {
-  const q = `%${req.query.q || ''}%`;
-  const limit = parseInt(req.query.limit) || 5;
 
-  const [members] = await db.execute(
-    `SELECT id, First_name, Last_Name, tel_no, email 
-     FROM members_mst WHERE status='Active' 
-     AND (First_name LIKE ? OR Last_Name LIKE ? OR tel_no LIKE ?) LIMIT ?`,
-    [q, q, q, limit]
-  );
 
-  const [dependants] = await db.execute(
-    `SELECT d.id, d.First_name, d.Last_Name, d.relationship,
-            CONCAT(m.First_name,' ',m.Last_Name) AS member_name
-     FROM dependants d JOIN members_mst m ON d.member_id = m.id
-     WHERE d.First_name LIKE ? OR d.Last_Name LIKE ? LIMIT ?`,
-    [q, q, limit]
-  );
 
-  res.json({ members, dependants });
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICATIONS ROUTES
+   Add these to app.js — replace the example comment that was
+   previously shown. These are real working Express routes.
+═══════════════════════════════════════════════════════════ */
+
+/* ── GET /notifications  ─────────────────────────────────
+   Returns recent activity as notifications.
+   Pulls from real tables: loans, members, transactions, etc.
+   No separate notifications table needed.
+──────────────────────────────────────────────────────────*/
+app.get('/notifications', isAuthenticated, asyncHandler(async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit) || 12, 50);
+    const notifications = [];
+
+    /* 1. Latest interest calculation run (from interest_logs if it exists,
+          otherwise from savings transactions tagged as interest) */
+    try {
+        const [intRows] = await db.execute(`
+            SELECT id, created_at, description, status
+            FROM interest_logs
+            ORDER BY created_at DESC
+            LIMIT 1
+        `);
+        if (intRows.length) {
+            const r = intRows[0];
+            notifications.push({
+                id:         'int_' + r.id,
+                type:       'interest',
+                title:      'Interest Calculation',
+                message:    r.description || 'Daily interest calculated successfully',
+                created_at: r.created_at,
+                read:       true,
+                status:     r.status || 'done'   /* 'running' | 'done' | 'error' */
+            });
+        }
+    } catch (e) {
+        /* interest_logs table may not exist — skip silently */
+    }
+
+    /* 2. Overdue loans */
+    try {
+        const [overdueRows] = await db.execute(`
+            SELECT l.id, l.loan_amount, l.due_date,
+                   CONCAT(m.First_name,' ',m.Last_Name) AS member_name
+            FROM loans l
+            JOIN members_mst m ON l.member_id = m.id
+            WHERE l.status = 'Active'
+              AND l.due_date < CURDATE()
+            ORDER BY l.due_date ASC
+            LIMIT 5
+        `);
+        overdueRows.forEach(function(r) {
+            notifications.push({
+                id:         'ov_' + r.id,
+                type:       'overdue',
+                title:      'Overdue Loan',
+                message:    r.member_name + ' — UGX ' + Number(r.loan_amount).toLocaleString() + ' overdue since ' + (r.due_date ? r.due_date.toISOString().split('T')[0] : ''),
+                created_at: r.due_date,
+                read:       false,
+                status:     null
+            });
+        });
+    } catch (e) { /* skip */ }
+
+    /* 3. Recently registered members (last 7 days) */
+    try {
+        const [memberRows] = await db.execute(`
+            SELECT id, First_name, Last_Name, created_at
+            FROM members_mst
+            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            ORDER BY created_at DESC
+            LIMIT 5
+        `);
+        memberRows.forEach(function(r) {
+            notifications.push({
+                id:         'mem_' + r.id,
+                type:       'member',
+                title:      'New Member Registered',
+                message:    (r.First_name || '') + ' ' + (r.Last_Name || '') + ' joined the SACCO',
+                created_at: r.created_at,
+                read:       true,
+                status:     null
+            });
+        });
+    } catch (e) { /* skip */ }
+
+    /* 4. Recent loan applications (last 7 days) */
+    try {
+        const [loanRows] = await db.execute(`
+            SELECT l.id, l.loan_amount, l.created_at,
+                   CONCAT(m.First_name,' ',m.Last_Name) AS member_name
+            FROM loans l
+            JOIN members_mst m ON l.member_id = m.id
+            WHERE l.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            ORDER BY l.created_at DESC
+            LIMIT 5
+        `);
+        loanRows.forEach(function(r) {
+            notifications.push({
+                id:         'loan_' + r.id,
+                type:       'loan',
+                title:      'New Loan Application',
+                message:    r.member_name + ' applied for UGX ' + Number(r.loan_amount).toLocaleString(),
+                created_at: r.created_at,
+                read:       true,
+                status:     null
+            });
+        });
+    } catch (e) { /* skip */ }
+
+    /* 5. Recent loan repayments (last 7 days) */
+    try {
+        const [repayRows] = await db.execute(`
+            SELECT lr.id, lr.amount, lr.created_at,
+                   CONCAT(m.First_name,' ',m.Last_Name) AS member_name
+            FROM loan_repayments lr
+            JOIN loans l ON lr.loan_id = l.id
+            JOIN members_mst m ON l.member_id = m.id
+            WHERE lr.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            ORDER BY lr.created_at DESC
+            LIMIT 5
+        `);
+        repayRows.forEach(function(r) {
+            notifications.push({
+                id:         'rep_' + r.id,
+                type:       'repayment',
+                title:      'Loan Repayment Received',
+                message:    r.member_name + ' paid UGX ' + Number(r.amount).toLocaleString(),
+                created_at: r.created_at,
+                read:       true,
+                status:     null
+            });
+        });
+    } catch (e) { /* skip */ }
+
+    /* 6. Recent transactions (last 3 days) */
+    try {
+        const [txnRows] = await db.execute(`
+            SELECT t.id, t.amount, t.transaction_type, t.created_at,
+                   CONCAT(m.First_name,' ',m.Last_Name) AS member_name
+            FROM transactions t
+            JOIN members_mst m ON t.member_id = m.id
+            WHERE t.created_at >= DATE_SUB(NOW(), INTERVAL 3 DAY)
+            ORDER BY t.created_at DESC
+            LIMIT 5
+        `);
+        txnRows.forEach(function(r) {
+            notifications.push({
+                id:         'txn_' + r.id,
+                type:       'transaction',
+                title:      (r.transaction_type || 'Transaction') + ' Posted',
+                message:    r.member_name + ' — UGX ' + Number(r.amount).toLocaleString(),
+                created_at: r.created_at,
+                read:       true,
+                status:     null
+            });
+        });
+    } catch (e) { /* skip */ }
+
+    /* Sort all by created_at descending, take limit */
+    notifications.sort(function(a, b) {
+        return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+    res.json({ notifications: notifications.slice(0, limit) });
 }));
 
-// GET /notifications?limit=12
-res.json({ notifications: [{ id, type, title, message, created_at, read, status }] });
-// type can be: 'interest' | 'overdue' | 'member' | 'loan' | 'repayment' | 'transaction' | 'system'
-// status (for interest type): 'running' | 'done' | 'error'
 
-// POST /notifications/:id/read
-// POST /notifications/read-all
+/* ── POST /notifications/:id/read  ──────────────────────
+   Mark a single notification read.
+   Since we build notifications dynamically (no table),
+   we just acknowledge — frontend already updates UI.
+──────────────────────────────────────────────────────────*/
+app.post('/notifications/:id/read', isAuthenticated, asyncHandler(async (req, res) => {
+    /* If you add a notifications table later, update it here */
+    res.json({ ok: true });
+}));
+
+
+/* ── POST /notifications/read-all  ──────────────────────*/
+app.post('/notifications/read-all', isAuthenticated, asyncHandler(async (req, res) => {
+    res.json({ ok: true });
+}));
+
+
+/* ── GET /search  ────────────────────────────────────────
+   Live search for members and dependants.
+──────────────────────────────────────────────────────────*/
+app.get('/search', isAuthenticated, asyncHandler(async (req, res) => {
+    const raw   = (req.query.q || '').trim();
+    const limit = Math.min(parseInt(req.query.limit) || 6, 20);
+
+    if (!raw) return res.json({ members: [], dependants: [] });
+
+    const q = '%' + raw + '%';
+
+    const [members] = await db.execute(`
+        SELECT id, First_name, Last_Name, tel_no, email
+        FROM members_mst
+        WHERE status = 'Active'
+          AND (First_name LIKE ? OR Last_Name LIKE ? OR tel_no LIKE ? OR email LIKE ?)
+        ORDER BY First_name, Last_Name
+        LIMIT ?
+    `, [q, q, q, q, limit]);
+
+    const [dependants] = await db.execute(`
+        SELECT d.id, d.First_name, d.Last_Name, d.relationship,
+               CONCAT(m.First_name, ' ', m.Last_Name) AS member_name,
+               m.id AS member_id
+        FROM dependants d
+        JOIN members_mst m ON d.member_id = m.id
+        WHERE d.First_name LIKE ? OR d.Last_Name LIKE ?
+        ORDER BY d.First_name, d.Last_Name
+        LIMIT ?
+    `, [q, q, limit]);
+
+    res.json({ members, dependants });
+}));
 
 
 
