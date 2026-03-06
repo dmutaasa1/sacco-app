@@ -3312,7 +3312,7 @@ app.get('/search', checkAuth, asyncHandler(async (req, res) => {
     `, [q, q, q, q]);
 
     const [dependants] = await dbConfig.execute(`
-        SELECT d.id, d.First_name, d.Last_Name, d.relationship,
+        SELECT d.id, d.First_name, d.Last_Name, 
                CONCAT(m.First_name, ' ', m.Last_Name) AS member_name,
                m.id AS member_id
         FROM dependants d
