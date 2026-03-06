@@ -14,7 +14,24 @@
 /* ── Outer nav ── */
 .page-sidebar,
 nav.page-sidebar,
-
+#sidebar {    
+    background: #0f1623 ;
+    border-right: 1px solid rgba(255,255,255,.05) ;
+    position: fixed ;
+    top: 60px ;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: calc(100vh - 60px) ;
+    z-index: 998 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    font-family: 'DM Sans', sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
 
 /* ── Scroll container ── */
 #sidebar-collapse {
