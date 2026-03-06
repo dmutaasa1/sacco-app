@@ -3316,7 +3316,7 @@ app.get('/search', checkAuth, asyncHandler(async (req, res) => {
                CONCAT(m.First_name, ' ', m.Last_Name) AS member_name,
                m.id AS member_id
         FROM dependants d
-        JOIN members_mst m ON d.member_id = m.id
+        JOIN members_mst m ON d.person_id = m.id
         WHERE d.First_name LIKE ? OR d.Last_Name LIKE ?
         ORDER BY d.First_name, d.Last_Name
         LIMIT ${limit}
