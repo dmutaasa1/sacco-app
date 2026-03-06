@@ -4001,7 +4001,6 @@ app.post('/financial_statements/generate', checkAuth, asyncHandler(async (req, r
 
 
 
-
 /* ═══════════════════════════════════════════════════════════
    NOTIFICATIONS ROUTES
    Add these to app.js — replace the example comment that was
@@ -4013,7 +4012,7 @@ app.post('/financial_statements/generate', checkAuth, asyncHandler(async (req, r
    Pulls from real tables: loans, members, transactions, etc.
    No separate notifications table needed.
 ──────────────────────────────────────────────────────────*/
-app.get('/notifications', isAuthenticated, asyncHandler(async (req, res) => {
+app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 12, 50);
     const notifications = [];
 
@@ -4176,14 +4175,14 @@ app.get('/notifications', isAuthenticated, asyncHandler(async (req, res) => {
    Since we build notifications dynamically (no table),
    we just acknowledge — frontend already updates UI.
 ──────────────────────────────────────────────────────────*/
-app.post('/notifications/:id/read', isAuthenticated, asyncHandler(async (req, res) => {
+app.post('/notifications/:id/read', checkAuth, asyncHandler(async (req, res) => {
     /* If you add a notifications table later, update it here */
     res.json({ ok: true });
 }));
 
 
 /* ── POST /notifications/read-all  ──────────────────────*/
-app.post('/notifications/read-all', isAuthenticated, asyncHandler(async (req, res) => {
+app.post('/notifications/read-all', checkAuth, asyncHandler(async (req, res) => {
     res.json({ ok: true });
 }));
 
@@ -4191,7 +4190,7 @@ app.post('/notifications/read-all', isAuthenticated, asyncHandler(async (req, re
 /* ── GET /search  ────────────────────────────────────────
    Live search for members and dependants.
 ──────────────────────────────────────────────────────────*/
-app.get('/search', isAuthenticated, asyncHandler(async (req, res) => {
+app.get('/search', checkAuth, asyncHandler(async (req, res) => {
     const raw   = (req.query.q || '').trim();
     const limit = Math.min(parseInt(req.query.limit) || 6, 20);
 
@@ -4221,7 +4220,6 @@ app.get('/search', isAuthenticated, asyncHandler(async (req, res) => {
 
     res.json({ members, dependants });
 }));
-
 
 
 // ==================== START SERVER WITH INTEREST CALCULATION ====================
