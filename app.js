@@ -3302,7 +3302,7 @@ app.get('/search', checkAuth, asyncHandler(async (req, res) => {
     const q = '%' + raw + '%';
 
     const [members] = await dbConfig.execute(`
-        SELECT id, First_name, Last_Name, tel_no, email
+        SELECT id, First_name, Last_Name, tel_no 
         FROM members_mst
         WHERE status = 'Active'
           AND (First_name LIKE ? OR Last_Name LIKE ? OR tel_no LIKE ?)
