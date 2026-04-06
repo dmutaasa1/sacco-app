@@ -7,6 +7,14 @@ const multer = require('multer');
 const cron = require('node-cron');
 const crypto = require('crypto');
 
+const { execSync } = require('child_process');
+try {
+    execSync('pip3 install openpyxl --quiet --break-system-packages', { timeout: 60000 });
+    console.log('✓ openpyxl ready');
+} catch(e) {
+    console.log('openpyxl install skipped:', e.message);
+}
+
 const app = express();
 app.set('trust proxy', 1); 
 
@@ -3279,18 +3287,7 @@ cron.schedule('59 23 * * *', async () => {
 });
 
 
-/* ═══════════════════════════════════════════════════════════
-   PASTE THESE ROUTES INTO app.js
-   ─────────────────────────────────────────────────────────
-   WHERE TO PASTE: RIGHT BEFORE the 404 handler block:
 
-       // 404 handler
-       app.use((req, res) => {
-         res.status(404).send('Page not found');
-       });
-
-   NOTE: uses `dbConfig` (not `db`) to match the rest of app.js
-═══════════════════════════════════════════════════════════ */
 
 /* ── GET /search ─────────────────────────────────────── */
 app.get('/search', checkAuth, asyncHandler(async (req, res) => {
@@ -3498,6 +3495,349 @@ app.post('/notifications/read-all', checkAuth, asyncHandler(async (req, res) => 
 app.post('/notifications/:id/read', checkAuth, asyncHandler(async (req, res) => {
     res.json({ ok: true });
 }));
+
+/* FINANCIAL STATEMENTS ROUTES
+   
+
+/* ── GET /financial_statements (render page) ─────────────── */
+app.get('/financial_statements', checkAuth, asyncHandler(async (req, res) => {
+    res.render('financial_statements', {
+        currentPage: 'financial_statements',
+        user: req.session.user
+    });
+}));
+
+
+/* ── POST /financial_statements/data (JSON for live preview) */
+app.post('/financial_statements/data', checkAuth, asyncHandler(async (req, res) => {
+    const { start_date, end_date } = req.body;
+    if (!start_date || !end_date) {
+        return res.status(400).json({ error: 'start_date and end_date are required' });
+    }
+
+    const db = dbConfig;
+    const data = await buildStatementData(db, start_date, end_date);
+    res.json(data);
+}));
+
+
+/* ── POST /financial_statements/export (download Excel) ───── */
+app.post('/financial_statements/export', checkAuth, asyncHandler(async (req, res) => {
+    const { start_date, end_date } = req.body;
+    if (!start_date || !end_date) {
+        return res.status(400).json({ error: 'Dates required' });
+    }
+
+    const db   = dbConfig;
+    const data = await buildStatementData(db, start_date, end_date);
+
+    const { spawn } = require('child_process');
+    const path = require('path');
+    const fs   = require('fs');
+
+    const scriptPath = '/home/claude/finstatements/build_excel.py';
+    const outPath    = `/tmp/fs_${Date.now()}.xlsx`;
+
+    // Write a temp script that outputs to the right path
+    const python = spawn('python3', ['-c', `
+import sys, json, subprocess, os
+os.environ['OUTPATH'] = '${outPath}'
+exec(open('${scriptPath}').read().replace('/mnt/user-data/outputs/financial_statements.xlsx', '${outPath}'))
+`]);
+
+    python.stdin.write(JSON.stringify(data));
+    python.stdin.end();
+
+    let stderr = '';
+    python.stderr.on('data', d => { stderr += d.toString(); });
+
+    python.on('close', code => {
+        if (code !== 0 || !fs.existsSync(outPath)) {
+            console.error('Excel build error:', stderr);
+            return res.status(500).json({ error: 'Failed to generate Excel', detail: stderr });
+        }
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=Financial_Statements_${start_date}_${end_date}.xlsx`);
+        const stream = fs.createReadStream(outPath);
+        stream.pipe(res);
+        stream.on('end', () => { try { fs.unlinkSync(outPath); } catch(e){} });
+    });
+}));
+
+
+/* ═══════════════════════════════════════════════════════════
+   CORE DATA BUILDER — called by both /data and /export
+═══════════════════════════════════════════════════════════ */
+async function buildStatementData(db, start_date, end_date) {
+
+    const q = async (sql, params) => {
+        const [rows] = await db.execute(sql, params || []);
+        return rows;
+    };
+    const val = (rows, col) => parseFloat((rows[0] || {})[col]) || 0;
+
+    /* ────────────────────────────────────────────────────
+       INCOME ITEMS
+    ──────────────────────────────────────────────────── */
+
+    // 1. Interest income from loan repayments (actual cash received)
+    const intPaid = await q(`
+        SELECT COALESCE(SUM(interest_paid), 0) AS v
+        FROM loan_payment_history
+        WHERE payment_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    // 2. Loan processing fees
+    const procFees = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions
+        WHERE transaction_type = 'Loan Processing Fee'
+          AND tran_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    // 3. Penalty / fine income
+    const penalties = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions
+        WHERE transaction_type = 'Penalty Fees'
+          AND tran_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    // 4. Membership fees collected
+    const memberFees = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions
+        WHERE transaction_type = 'Membership Fee'
+          AND tran_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    // 5. Welfare fees
+    const welfareFees = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions
+        WHERE transaction_type = 'welfare Fee'
+          AND tran_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    // 6. Insurance / cover fees
+    const insuranceFees = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions
+        WHERE transaction_type = 'Insuarance Cover'
+          AND tran_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    // 7. Other income (catch-all for any other Credit transaction types)
+    const otherIncome = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions
+        WHERE Debit_Credit = 'Credit'
+          AND transaction_type NOT IN (
+              'Saving','Savings Withdrawal','Loan Disbursement',
+              'Membership Fee','welfare Fee','Insuarance Cover',
+              'Loan Processing Fee','Penalty Fees','Loan Repayment'
+          )
+          AND tran_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    /* ────────────────────────────────────────────────────
+       EXPENDITURE ITEMS
+    ──────────────────────────────────────────────────── */
+
+    // 1. Savings withdrawals paid out
+    const savingsWithdrawals = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions
+        WHERE transaction_type = 'Savings Withdrawal'
+          AND tran_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    // 2. Loan disbursements (net amount paid to members)
+    const loanDisbursed = await q(`
+        SELECT COALESCE(SUM(net_disbursement), SUM(loan_amount), 0) AS v
+        FROM loans
+        WHERE disbursement_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    // 3. Other debit transactions (admin/operating expenses if any)
+    const otherExpense = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions
+        WHERE Debit_Credit = 'Debit'
+          AND transaction_type NOT IN (
+              'Loan Repayment','Savings Withdrawal','Loan Processing Fee',
+              'Penalty Fees','Loan Disbursement'
+          )
+          AND tran_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    /* ────────────────────────────────────────────────────
+       BALANCE SHEET — ASSETS
+    ──────────────────────────────────────────────────── */
+
+    // Cash & liquidity funds
+    const cashFunds = await q(`
+        SELECT COALESCE(SUM(amount), 0) AS v
+        FROM liquidity_funds
+        WHERE as_at_date = (
+            SELECT MAX(as_at_date) FROM liquidity_funds WHERE as_at_date <= ?
+        )
+    `, [end_date]);
+
+    // Outstanding loan balances (principal receivable)
+    const loanBalances = await q(`
+        SELECT COALESCE(SUM(balance), 0) AS v
+        FROM loans
+        WHERE status = 'Active'
+    `);
+
+    // Accrued interest (unpaid accumulated interest on active loans)
+    const accruedInterest = await q(`
+        SELECT COALESCE(SUM(accumulated_interest), 0) AS v
+        FROM loans
+        WHERE status = 'Active'
+    `);
+
+    // Total member savings (deposits minus withdrawals — lifetime)
+    const savingsIn = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions WHERE transaction_type = 'Saving'
+    `);
+    const savingsOut = await q(`
+        SELECT COALESCE(SUM(Amount), 0) AS v
+        FROM transactions WHERE transaction_type = 'Savings Withdrawal'
+    `);
+    const memberSavingsNet = val(savingsIn, 'v') - val(savingsOut, 'v');
+
+    /* ────────────────────────────────────────────────────
+       BALANCE SHEET — LIABILITIES
+    ──────────────────────────────────────────────────── */
+    // Member savings are owed back to members = liability
+
+    /* ────────────────────────────────────────────────────
+       BALANCE SHEET — EQUITY / FUNDS
+    ──────────────────────────────────────────────────── */
+
+    // Accumulated surplus (all income received minus all disbursements/withdrawals)
+    const totalIncomeEver = await q(`
+        SELECT 
+          COALESCE(SUM(CASE WHEN Debit_Credit='Credit' 
+                            AND transaction_type NOT IN ('Loan Disbursement')
+                       THEN Amount ELSE 0 END), 0) AS v
+        FROM transactions
+    `);
+    const totalExpEver = await q(`
+        SELECT 
+          COALESCE(SUM(CASE WHEN Debit_Credit='Debit' 
+                            AND transaction_type NOT IN ('Saving','Loan Repayment')
+                       THEN Amount ELSE 0 END), 0) AS v
+        FROM transactions
+    `);
+    const retainedSurplus = val(totalIncomeEver, 'v') - val(totalExpEver, 'v');
+
+    /* ────────────────────────────────────────────────────
+       LOAN PORTFOLIO
+    ──────────────────────────────────────────────────── */
+
+    const loanStats = await q(`
+        SELECT
+          COUNT(*) AS total_loans,
+          SUM(loan_amount) AS total_disbursed,
+          SUM(CASE WHEN status='Active'   THEN loan_amount ELSE 0 END) AS active_disbursed,
+          SUM(CASE WHEN status='Active'   THEN balance     ELSE 0 END) AS active_balance,
+          SUM(CASE WHEN status='Completed'THEN loan_amount ELSE 0 END) AS completed_amount,
+          SUM(accumulated_interest) AS total_accrued_interest
+        FROM loans
+    `);
+    const ls = loanStats[0] || {};
+
+    const overdueCount = await q(`
+        SELECT COUNT(DISTINCT loan_id) AS v
+        FROM loan_schedule
+        WHERE status = 'Overdue'
+    `);
+
+    const totalRepaid = await q(`
+        SELECT COALESCE(SUM(amount), 0) AS v
+        FROM loan_payment_history
+    `);
+
+    const interestCollected = await q(`
+        SELECT COALESCE(SUM(interest_paid), 0) AS v
+        FROM loan_payment_history
+    `);
+
+    const interestPeriod = await q(`
+        SELECT COALESCE(SUM(interest_paid), 0) AS v
+        FROM loan_payment_history
+        WHERE payment_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    const dailyInterestPeriod = await q(`
+        SELECT COALESCE(SUM(daily_interest_amount), 0) AS v
+        FROM loan_daily_interest
+        WHERE calculation_date BETWEEN ? AND ?
+    `, [start_date, end_date]);
+
+    /* ────────────────────────────────────────────────────
+       ASSEMBLE RESPONSE
+    ──────────────────────────────────────────────────── */
+    return {
+        sacco_name:  'Agali Awamu SACCO',
+        start_date,
+        end_date,
+        member_savings_net: memberSavingsNet,
+
+        income_items: [
+            { label: 'Interest on Loans (Received)',   amount: val(intPaid,       'v') },
+            { label: 'Loan Processing Fees',           amount: val(procFees,      'v') },
+            { label: 'Membership Fees',                amount: val(memberFees,    'v') },
+            { label: 'Welfare Fees',                   amount: val(welfareFees,   'v') },
+            { label: 'Insurance / Cover Fees',         amount: val(insuranceFees, 'v') },
+            { label: 'Penalty & Fine Income',          amount: val(penalties,     'v') },
+            { label: 'Other Income',                   amount: val(otherIncome,   'v') },
+        ],
+
+        expenditure_items: [
+            { label: 'Loans Disbursed to Members',     amount: val(loanDisbursed,      'v') },
+            { label: 'Savings Withdrawals Paid Out',   amount: val(savingsWithdrawals, 'v') },
+            { label: 'Other Expenditure',              amount: val(otherExpense,       'v') },
+        ],
+
+        asset_items: [
+            { label: 'Cash & Liquidity Funds',         amount: val(cashFunds,      'v') },
+            { label: 'Loans Receivable (Principal)',   amount: val(loanBalances,   'v') },
+            { label: 'Accrued Interest Receivable',    amount: val(accruedInterest,'v') },
+            { label: 'Member Savings (Asset Pool)',    amount: memberSavingsNet        },
+        ],
+
+        liability_items: [
+            { label: 'Member Savings Deposits Owed',   amount: memberSavingsNet },
+        ],
+
+        equity_items: [
+            { label: 'Accumulated Surplus / Reserves', amount: retainedSurplus > 0 ? retainedSurplus : 0 },
+            { label: 'Accumulated Deficit',            amount: retainedSurplus < 0 ? Math.abs(retainedSurplus) : 0 },
+        ],
+
+        loan_items: [
+            { label: 'Total Loans Disbursed (All Time)',  amount: parseFloat(ls.total_disbursed)   || 0 },
+            { label: 'Active Loan Portfolio',             amount: parseFloat(ls.active_disbursed)  || 0 },
+            { label: 'Outstanding Principal Balance',     amount: parseFloat(ls.active_balance)    || 0 },
+            { label: 'Loans Fully Repaid',                amount: parseFloat(ls.completed_amount)  || 0 },
+            { label: 'Total Repayments Received',         amount: val(totalRepaid, 'v')                 },
+            { label: 'Loans with Overdue Payments',       amount: val(overdueCount, 'v')               },
+        ],
+
+        interest_items: [
+            { label: 'Interest Accrued (This Period)',    amount: val(dailyInterestPeriod, 'v')          },
+            { label: 'Interest Collected (This Period)',  amount: val(interestPeriod, 'v')               },
+            { label: 'Interest Collected (All Time)',     amount: val(interestCollected, 'v')            },
+            { label: 'Accrued Interest Outstanding',      amount: parseFloat(ls.total_accrued_interest) || 0 },
+        ],
+    };
+}
+
 
 
 // ==================== ERROR HANDLING ====================

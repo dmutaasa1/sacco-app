@@ -1,310 +1,481 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Statements</title>
-    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <link href="assets/css/main.min.css" rel="stylesheet" />
-    <style>
-        .statement-card {
-            border-left: 4px solid;
-            transition: all .2s;
-            cursor: pointer;
-        }
-        .statement-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,.15);
-            transform: translateY(-2px);
-        }
-        .statement-card.income    { border-color: #28a745; }
-        .statement-card.balance   { border-color: #17a2b8; }
-        .statement-card.cashflow  { border-color: #ffc107; }
-        .statement-icon {
-            font-size: 48px;
-            opacity: .15;
-            position: absolute;
-            right: 20px;
-            top: 20px;
-        }
-        .form-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
+<%- include('partials/header') %>
+<%- include('partials/sidebar') %>
 
-<body class="fixed-navbar">
-<div class="page-wrapper">
-    <%- include('partials/header') %>
-    <%- include('partials/sidebar') %>
+<style>
+.fs-page { padding: 24px 28px; margin-left: 220px; margin-top: 60px; min-height: calc(100vh - 60px); background: #f7fafc; }
+body.sidebar-collapsed .fs-page { margin-left: 60px; }
 
-    <div class="content-wrapper">
+/* ── top bar ── */
+.fs-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+.fs-title  { font-size:1.3rem; font-weight:700; color:#1a1f2e; }
+.fs-sub    { font-size:.78rem; color:#a0aec0; margin-top:2px; }
 
-        <div class="page-heading">
-            <h1 class="page-title">Financial Statements</h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
-                <li class="breadcrumb-item">Reports</li>
-                <li class="breadcrumb-item">Financial Statements</li>
-            </ol>
+/* ── filter card ── */
+.fs-filter {
+    background:#fff; border-radius:12px; padding:16px 20px;
+    display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap;
+    box-shadow:0 1px 8px rgba(26,31,46,.07); margin-bottom:22px;
+    border:1px solid #e8ecf0;
+}
+.fs-filter label { font-size:.72rem; font-weight:600; color:#4a5568; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.5px; }
+.fs-filter input[type=date] {
+    height:36px; border:1px solid #e2e8f0; border-radius:8px;
+    padding:0 10px; font-size:.82rem; color:#1a1f2e; outline:none;
+    font-family:'DM Sans',sans-serif; background:#f8fafc;
+    transition:border-color .15s, box-shadow .15s;
+}
+.fs-filter input[type=date]:focus { border-color:#00b894; box-shadow:0 0 0 3px rgba(0,184,148,.1); }
+.fs-btn {
+    height:36px; padding:0 20px; border-radius:8px; border:none; cursor:pointer;
+    font-size:.8rem; font-weight:600; font-family:'DM Sans',sans-serif;
+    display:inline-flex; align-items:center; gap:7px; transition:all .15s;
+}
+.fs-btn-primary { background:#00b894; color:#fff; }
+.fs-btn-primary:hover { background:#00a37d; }
+.fs-btn-outline { background:#fff; color:#1a1f2e; border:1px solid #e2e8f0; }
+.fs-btn-outline:hover { background:#f7fafc; }
+.fs-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ── statement cards ── */
+.fs-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+.fs-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:18px; }
+@media(max-width:900px){ .fs-grid,.fs-grid-3{ grid-template-columns:1fr; } }
+
+.fs-card {
+    background:#fff; border-radius:12px; overflow:hidden;
+    box-shadow:0 1px 8px rgba(26,31,46,.07); border:1px solid #e8ecf0;
+}
+.fs-card-head {
+    padding:12px 16px; display:flex; align-items:center; gap:10px;
+    border-bottom:1px solid #f0f4f8;
+}
+.fs-card-head-ico {
+    width:32px; height:32px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:.85rem; flex-shrink:0;
+}
+.fs-card-head-title { font-size:.85rem; font-weight:700; color:#1a1f2e; }
+.fs-card-head-sub   { font-size:.68rem; color:#a0aec0; margin-top:1px; }
+.fs-card-body { padding:0; }
+
+/* ── statement table ── */
+.fs-table { width:100%; border-collapse:collapse; }
+.fs-table .sec-row td {
+    padding:8px 14px 6px; font-size:.68rem; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; color:#fff;
+    background:#0f1623;
+}
+.fs-table .sec-row.income td { background:#00b894; }
+.fs-table .sec-row.expense td { background:#e53e3e; }
+.fs-table .sec-row.asset  td { background:#00b894; }
+.fs-table .sec-row.liab   td { background:#e53e3e; }
+.fs-table .sec-row.equity td { background:#2d3748; }
+.fs-table .sec-row.loan   td { background:#00b894; }
+.fs-table .sec-row.int    td { background:#2d3748; }
+
+.fs-table .item-row td {
+    padding:7px 14px; font-size:.78rem; color:#4a5568;
+    border-bottom:1px solid #f7fafc;
+}
+.fs-table .item-row:nth-child(even) td { background:#f7fafc; }
+.fs-table .item-row td:last-child { text-align:right; font-variant-numeric:tabular-nums; font-weight:500; color:#1a1f2e; }
+
+.fs-table .total-row td {
+    padding:8px 14px; font-size:.8rem; font-weight:700;
+    background:#f0fdf9; color:#1a1f2e;
+    border-top:2px solid #00b894;
+}
+.fs-table .total-row.red td { background:#fff5f5; border-top-color:#e53e3e; }
+.fs-table .total-row.blue td { background:#ebf8ff; border-top-color:#4299e1; }
+.fs-table .total-row td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
+
+.fs-table .net-row td {
+    padding:10px 14px; font-size:.88rem; font-weight:700;
+    background:#0f1623; color:#fff;
+}
+.fs-table .net-row td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
+.fs-table .net-row.surplus td { background:#00b894; }
+.fs-table .net-row.deficit td { background:#e53e3e; }
+
+/* ── summary stat pills ── */
+.fs-stats { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+.fs-stat {
+    flex:1; min-width:140px; background:#fff; border-radius:10px;
+    padding:12px 16px; border:1px solid #e8ecf0;
+    box-shadow:0 1px 6px rgba(26,31,46,.06);
+}
+.fs-stat-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#a0aec0; margin-bottom:4px; }
+.fs-stat-value { font-size:1.05rem; font-weight:700; color:#1a1f2e; font-variant-numeric:tabular-nums; }
+.fs-stat-value.green { color:#00b894; }
+.fs-stat-value.red   { color:#e53e3e; }
+.fs-stat-value.blue  { color:#4299e1; }
+
+/* ── empty / loading ── */
+.fs-empty { padding:40px; text-align:center; color:#a0aec0; font-size:.82rem; }
+.fs-empty i { font-size:2rem; display:block; margin-bottom:8px; }
+.fs-spinner { animation:spin 1s linear infinite; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* ── download bar ── */
+.fs-download-bar {
+    display:none; background:#fff; border-radius:12px; padding:14px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 1px 8px rgba(26,31,46,.07); border:1px solid #e8ecf0;
+    margin-bottom:18px; gap:12px;
+}
+.fs-download-bar .msg { font-size:.82rem; color:#1a1f2e; font-weight:500; }
+.fs-download-bar .msg span { color:#00b894; }
+</style>
+
+<div class="fs-page">
+
+    <!-- Top bar -->
+    <div class="fs-topbar">
+        <div>
+            <div class="fs-title"><i class="fa fa-file-text-o" style="color:#00b894;margin-right:8px;"></i>Financial Statements</div>
+            <div class="fs-sub">Income &amp; Expenditure · Balance Sheet · Loan Portfolio</div>
+        </div>
+        <button class="fs-btn fs-btn-primary" id="downloadBtn" style="display:none;" onclick="downloadExcel()">
+            <i class="fa fa-download"></i> Download Excel
+        </button>
+    </div>
+
+    <!-- Filter -->
+    <div class="fs-filter">
+        <div>
+            <label>From Date</label>
+            <input type="date" id="startDate" />
+        </div>
+        <div>
+            <label>To Date</label>
+            <input type="date" id="endDate" />
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="fs-btn fs-btn-outline" onclick="setQuickRange('ytd')">YTD</button>
+            <button class="fs-btn fs-btn-outline" onclick="setQuickRange('q1')">Q1</button>
+            <button class="fs-btn fs-btn-outline" onclick="setQuickRange('q2')">Q2</button>
+            <button class="fs-btn fs-btn-outline" onclick="setQuickRange('q3')">Q3</button>
+            <button class="fs-btn fs-btn-outline" onclick="setQuickRange('q4')">Q4</button>
+            <button class="fs-btn fs-btn-outline" onclick="setQuickRange('fy')">Full Year</button>
+        </div>
+        <button class="fs-btn fs-btn-primary" id="generateBtn" onclick="generateStatements()">
+            <i class="fa fa-bar-chart"></i> Generate
+        </button>
+    </div>
+
+    <!-- Summary stats (hidden until generated) -->
+    <div class="fs-stats" id="summaryStats" style="display:none;">
+        <div class="fs-stat">
+            <div class="fs-stat-label">Total Income</div>
+            <div class="fs-stat-value green" id="statIncome">—</div>
+        </div>
+        <div class="fs-stat">
+            <div class="fs-stat-label">Total Expenditure</div>
+            <div class="fs-stat-value red" id="statExpense">—</div>
+        </div>
+        <div class="fs-stat">
+            <div class="fs-stat-label">Net Surplus / (Deficit)</div>
+            <div class="fs-stat-value" id="statNet">—</div>
+        </div>
+        <div class="fs-stat">
+            <div class="fs-stat-label">Total Assets</div>
+            <div class="fs-stat-value blue" id="statAssets">—</div>
+        </div>
+        <div class="fs-stat">
+            <div class="fs-stat-label">Loan Portfolio</div>
+            <div class="fs-stat-value blue" id="statLoans">—</div>
+        </div>
+        <div class="fs-stat">
+            <div class="fs-stat-label">Member Savings</div>
+            <div class="fs-stat-value blue" id="statSavings">—</div>
+        </div>
+    </div>
+
+    <!-- Loading state -->
+    <div id="loadingState" style="display:none;" class="fs-card">
+        <div class="fs-empty">
+            <i class="fa fa-spinner fs-spinner"></i>
+            Generating statements from live data…
+        </div>
+    </div>
+
+    <!-- Statements (hidden until generated) -->
+    <div id="statementsArea" style="display:none;">
+
+        <!-- Row 1: Income & Expenditure + Balance Sheet -->
+        <div class="fs-grid">
+
+            <!-- Income & Expenditure -->
+            <div class="fs-card">
+                <div class="fs-card-head">
+                    <div class="fs-card-head-ico" style="background:rgba(0,184,148,.12);color:#00b894;"><i class="fa fa-line-chart"></i></div>
+                    <div>
+                        <div class="fs-card-head-title">Income &amp; Expenditure</div>
+                        <div class="fs-card-head-sub" id="ieSubtitle">—</div>
+                    </div>
+                </div>
+                <div class="fs-card-body">
+                    <table class="fs-table" id="ieTable">
+                        <tbody id="ieTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Balance Sheet -->
+            <div class="fs-card">
+                <div class="fs-card-head">
+                    <div class="fs-card-head-ico" style="background:rgba(66,153,225,.12);color:#4299e1;"><i class="fa fa-balance-scale"></i></div>
+                    <div>
+                        <div class="fs-card-head-title">Balance Sheet</div>
+                        <div class="fs-card-head-sub" id="bsSubtitle">—</div>
+                    </div>
+                </div>
+                <div class="fs-card-body">
+                    <table class="fs-table" id="bsTable">
+                        <tbody id="bsTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
-        <div class="page-content fade-in-up">
-
-            <!-- Information Cards -->
-            <div class="row">
-                <div class="col-lg-4 col-md-6">
-                    <div class="ibox statement-card income">
-                        <div class="ibox-body" style="position:relative;">
-                            <i class="fa fa-line-chart statement-icon text-success"></i>
-                            <h5 class="font-strong mb-2">Income Statement</h5>
-                            <p class="text-muted mb-0" style="font-size:13px;">
-                                Revenue, expenses, and net income for the period. Shows profitability and operational performance.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="ibox statement-card balance">
-                        <div class="ibox-body" style="position:relative;">
-                            <i class="fa fa-balance-scale statement-icon text-info"></i>
-                            <h5 class="font-strong mb-2">Balance Sheet</h5>
-                            <p class="text-muted mb-0" style="font-size:13px;">
-                                Assets, liabilities, and equity at a point in time. Shows financial position and solvency.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="ibox statement-card cashflow">
-                        <div class="ibox-body" style="position:relative;">
-                            <i class="fa fa-exchange statement-icon text-warning"></i>
-                            <h5 class="font-strong mb-2">Cash Flow Statement</h5>
-                            <p class="text-muted mb-0" style="font-size:13px;">
-                                Operating, investing, and financing cash flows. Shows liquidity and cash management.
-                            </p>
-                        </div>
-                    </div>
+        <!-- Row 2: Loan Portfolio (full width) -->
+        <div class="fs-card" style="margin-bottom:18px;">
+            <div class="fs-card-head">
+                <div class="fs-card-head-ico" style="background:rgba(159,122,234,.12);color:#9f7aea;"><i class="fa fa-money"></i></div>
+                <div>
+                    <div class="fs-card-head-title">Loan Portfolio &amp; Interest Analysis</div>
+                    <div class="fs-card-head-sub" id="lpSubtitle">—</div>
                 </div>
             </div>
-
-            <!-- Generator Form -->
-            <div class="row">
-                <div class="col-lg-8 offset-lg-2">
-                    <div class="ibox">
-                        <div class="ibox-head">
-                            <div class="ibox-title">
-                                <i class="fa fa-file-excel-o text-success mr-2"></i>
-                                Generate Financial Statements Package
-                            </div>
-                        </div>
-                        <div class="ibox-body">
-
-                            <div class="form-section">
-                                <form id="statementsForm">
-
-                                    <div class="form-group row">
-                                        <label class="col-sm-3 col-form-label">SACCO Name</label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="sacco_name" 
-                                                   value="St. Kizito SACCO" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-                                        <label class="col-sm-3 col-form-label">Period Start</label>
-                                        <div class="col-sm-9">
-                                            <input type="date" class="form-control" id="start_date" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-                                        <label class="col-sm-3 col-form-label">Period End</label>
-                                        <div class="col-sm-9">
-                                            <input type="date" class="form-control" id="end_date" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-                                        <div class="col-sm-9 offset-sm-3">
-                                            <button type="button" class="btn btn-secondary btn-sm mr-2" id="setYTDBtn">
-                                                <i class="fa fa-calendar"></i> Year to Date
-                                            </button>
-                                            <button type="button" class="btn btn-secondary btn-sm mr-2" id="setQuarterBtn">
-                                                <i class="fa fa-calendar"></i> This Quarter
-                                            </button>
-                                            <button type="button" class="btn btn-secondary btn-sm" id="setMonthBtn">
-                                                <i class="fa fa-calendar"></i> This Month
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <hr>
-
-                                    <div class="alert alert-info" style="font-size:13px;">
-                                        <i class="fa fa-info-circle"></i>
-                                        <strong>Package includes:</strong>
-                                        <ul class="mb-0 mt-2" style="padding-left:20px;">
-                                            <li>Income Statement (Revenue vs Expenses)</li>
-                                            <li>Balance Sheet (Assets, Liabilities, Equity)</li>
-                                            <li>Cash Flow Statement (Operating, Investing, Financing)</li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="text-right">
-                                        <button type="submit" class="btn btn-success btn-lg" id="generateBtn">
-                                            <i class="fa fa-file-excel-o"></i> Generate Excel Package
-                                        </button>
-                                    </div>
-
-                                </form>
-                            </div>
-
-                        </div>
-                    </div>
+            <div class="fs-card-body">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                    <table class="fs-table" id="lpTable" style="border-right:1px solid #f0f4f8;">
+                        <tbody id="lpTbody"></tbody>
+                    </table>
+                    <table class="fs-table" id="intTable">
+                        <tbody id="intTbody"></tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Recent Reports -->
-            <div class="row">
-                <div class="col-lg-8 offset-lg-2">
-                    <div class="ibox">
-                        <div class="ibox-head">
-                            <div class="ibox-title">Tips for Accurate Statements</div>
-                        </div>
-                        <div class="ibox-body">
-                            <ul style="font-size:13px;line-height:1.8;">
-                                <li><strong>Income Statement:</strong> Shows interest income, fees, penalties, and operating expenses</li>
-                                <li><strong>Balance Sheet:</strong> Includes cash, loans receivable, member savings, and equity</li>
-                                <li><strong>Cash Flow:</strong> Tracks loan disbursements, repayments, and member deposit flows</li>
-                                <li><strong>Period Selection:</strong> Choose fiscal periods that match your reporting requirements</li>
-                                <li><strong>Reconciliation:</strong> Verify totals match your general ledger before external reporting</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div><!-- /page-content -->
-
-        <footer class="page-footer">
-            <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-        </footer>
     </div>
+
+    <!-- Initial empty state -->
+    <div id="emptyState" class="fs-card">
+        <div class="fs-empty">
+            <i class="fa fa-file-text-o"></i>
+            Select a date range and click <strong>Generate</strong> to view financial statements
+        </div>
+    </div>
+
 </div>
 
-<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
-<script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
-<script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
-<script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="assets/js/app.min.js"></script>
-
 <script>
-$(function () {
+var lastData = null;
 
-    // Set default dates — first day of current year to today
-    var today = new Date();
-    var yearStart = new Date(today.getFullYear(), 0, 1);
-    $('#start_date').val(yearStart.toISOString().split('T')[0]);
-    $('#end_date').val(today.toISOString().split('T')[0]);
+/* ── Quick date ranges ── */
+function setQuickRange(range) {
+    var now  = new Date();
+    var yr   = now.getFullYear();
+    var s, e;
+    switch(range) {
+        case 'ytd': s = yr+'-01-01'; e = now.toISOString().split('T')[0]; break;
+        case 'q1':  s = yr+'-01-01'; e = yr+'-03-31'; break;
+        case 'q2':  s = yr+'-04-01'; e = yr+'-06-30'; break;
+        case 'q3':  s = yr+'-07-01'; e = yr+'-09-30'; break;
+        case 'q4':  s = yr+'-10-01'; e = yr+'-12-31'; break;
+        case 'fy':  s = yr+'-01-01'; e = yr+'-12-31'; break;
+    }
+    document.getElementById('startDate').value = s;
+    document.getElementById('endDate').value   = e;
+}
 
-    // Quick date buttons
-    $('#setYTDBtn').on('click', function () {
-        var today = new Date();
-        var yearStart = new Date(today.getFullYear(), 0, 1);
-        $('#start_date').val(yearStart.toISOString().split('T')[0]);
-        $('#end_date').val(today.toISOString().split('T')[0]);
+/* ── Format number as UGX ── */
+function ugx(n) {
+    n = parseFloat(n) || 0;
+    var neg = n < 0;
+    var abs = Math.abs(n);
+    var str = abs.toLocaleString('en-UG', {minimumFractionDigits:0, maximumFractionDigits:0});
+    if (abs === 0) return '—';
+    return neg ? '(' + str + ')' : str;
+}
+
+/* ── Build I&E table ── */
+function buildIE(d) {
+    var html = '';
+
+    // Income section
+    html += '<tr class="sec-row income"><td colspan="2">INCOME</td></tr>';
+    var totalIncome = 0;
+    d.income_items.forEach(function(item, i) {
+        var cls = i%2===0 ? '' : ' style="background:#f7fafc;"';
+        html += '<tr class="item-row"><td>'+item.label+'</td><td>'+ugx(item.amount)+'</td></tr>';
+        totalIncome += parseFloat(item.amount)||0;
+    });
+    html += '<tr class="total-row"><td>TOTAL INCOME</td><td>'+ugx(totalIncome)+'</td></tr>';
+
+    // Expenditure section
+    html += '<tr class="sec-row expense"><td colspan="2">EXPENDITURE</td></tr>';
+    var totalExp = 0;
+    d.expenditure_items.forEach(function(item, i) {
+        html += '<tr class="item-row"><td>'+item.label+'</td><td>'+ugx(item.amount)+'</td></tr>';
+        totalExp += parseFloat(item.amount)||0;
+    });
+    html += '<tr class="total-row red"><td>TOTAL EXPENDITURE</td><td>'+ugx(totalExp)+'</td></tr>';
+
+    // Net row
+    var net = totalIncome - totalExp;
+    var netClass = net >= 0 ? 'surplus' : 'deficit';
+    html += '<tr class="net-row '+netClass+'"><td>'+(net>=0?'NET SURPLUS':'NET DEFICIT')+'</td><td>'+ugx(Math.abs(net))+'</td></tr>';
+
+    document.getElementById('ieTbody').innerHTML = html;
+    document.getElementById('ieSubtitle').textContent = d.start_date + ' to ' + d.end_date;
+
+    // Update summary stats
+    document.getElementById('statIncome').textContent  = ugx(totalIncome);
+    document.getElementById('statExpense').textContent = ugx(totalExp);
+    var netEl = document.getElementById('statNet');
+    netEl.textContent = ugx(Math.abs(net));
+    netEl.className = 'fs-stat-value ' + (net >= 0 ? 'green' : 'red');
+}
+
+/* ── Build Balance Sheet ── */
+function buildBS(d) {
+    var html = '';
+
+    // Assets
+    html += '<tr class="sec-row asset"><td colspan="2">ASSETS</td></tr>';
+    var totalAssets = 0;
+    d.asset_items.forEach(function(item) {
+        html += '<tr class="item-row"><td>'+item.label+'</td><td>'+ugx(item.amount)+'</td></tr>';
+        totalAssets += parseFloat(item.amount)||0;
+    });
+    html += '<tr class="total-row"><td>TOTAL ASSETS</td><td>'+ugx(totalAssets)+'</td></tr>';
+
+    // Liabilities
+    html += '<tr class="sec-row liab"><td colspan="2">LIABILITIES</td></tr>';
+    var totalLib = 0;
+    d.liability_items.forEach(function(item) {
+        html += '<tr class="item-row"><td>'+item.label+'</td><td>'+ugx(item.amount)+'</td></tr>';
+        totalLib += parseFloat(item.amount)||0;
+    });
+    html += '<tr class="total-row red"><td>TOTAL LIABILITIES</td><td>'+ugx(totalLib)+'</td></tr>';
+
+    // Equity
+    html += '<tr class="sec-row equity"><td colspan="2">MEMBERS\' FUNDS</td></tr>';
+    var totalEq = 0;
+    d.equity_items.forEach(function(item) {
+        html += '<tr class="item-row"><td>'+item.label+'</td><td>'+ugx(item.amount)+'</td></tr>';
+        totalEq += parseFloat(item.amount)||0;
+    });
+    html += '<tr class="total-row blue"><td>TOTAL MEMBERS\' FUNDS</td><td>'+ugx(totalEq)+'</td></tr>';
+
+    // Check total
+    html += '<tr class="net-row"><td>TOTAL LIABILITIES + FUNDS</td><td>'+ugx(totalLib+totalEq)+'</td></tr>';
+
+    document.getElementById('bsTbody').innerHTML = html;
+    document.getElementById('bsSubtitle').textContent = 'As at ' + d.end_date;
+    document.getElementById('statAssets').textContent = ugx(totalAssets);
+}
+
+/* ── Build Loan Portfolio ── */
+function buildLP(d) {
+    var lpHtml = '<tr class="sec-row loan"><td colspan="2">LOAN PORTFOLIO</td></tr>';
+    d.loan_items.forEach(function(item) {
+        lpHtml += '<tr class="item-row"><td>'+item.label+'</td><td>'+ugx(item.amount)+'</td></tr>';
+        if (item.label === 'Total Disbursed') document.getElementById('statLoans').textContent = ugx(item.amount);
     });
 
-    $('#setQuarterBtn').on('click', function () {
-        var today = new Date();
-        var quarter = Math.floor(today.getMonth() / 3);
-        var quarterStart = new Date(today.getFullYear(), quarter * 3, 1);
-        $('#start_date').val(quarterStart.toISOString().split('T')[0]);
-        $('#end_date').val(today.toISOString().split('T')[0]);
+    var intHtml = '<tr class="sec-row int"><td colspan="2">INTEREST ANALYSIS</td></tr>';
+    d.interest_items.forEach(function(item) {
+        intHtml += '<tr class="item-row"><td>'+item.label+'</td><td>'+ugx(item.amount)+'</td></tr>';
     });
 
-    $('#setMonthBtn').on('click', function () {
-        var today = new Date();
-        var monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        $('#start_date').val(monthStart.toISOString().split('T')[0]);
-        $('#end_date').val(today.toISOString().split('T')[0]);
+    document.getElementById('lpTbody').innerHTML  = lpHtml;
+    document.getElementById('intTbody').innerHTML = intHtml;
+    document.getElementById('lpSubtitle').textContent = 'As at ' + d.end_date;
+}
+
+/* ── Generate statements ── */
+function generateStatements() {
+    var start = document.getElementById('startDate').value;
+    var end   = document.getElementById('endDate').value;
+    if (!start || !end) { alert('Please select both dates.'); return; }
+    if (start > end)    { alert('Start date must be before end date.'); return; }
+
+    document.getElementById('emptyState').style.display    = 'none';
+    document.getElementById('statementsArea').style.display = 'none';
+    document.getElementById('loadingState').style.display   = 'block';
+    document.getElementById('generateBtn').disabled          = true;
+    document.getElementById('summaryStats').style.display   = 'none';
+    document.getElementById('downloadBtn').style.display    = 'none';
+
+    fetch('/financial_statements/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ start_date: start, end_date: end })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error) throw new Error(d.error);
+        lastData = d;
+
+        buildIE(d);
+        buildBS(d);
+        buildLP(d);
+        document.getElementById('statSavings').textContent = ugx(d.member_savings_net);
+
+        document.getElementById('loadingState').style.display    = 'none';
+        document.getElementById('statementsArea').style.display  = 'block';
+        document.getElementById('summaryStats').style.display    = 'flex';
+        document.getElementById('downloadBtn').style.display     = 'inline-flex';
+        document.getElementById('generateBtn').disabled           = false;
+    })
+    .catch(function(err) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('emptyState').style.display   = 'block';
+        document.getElementById('emptyState').querySelector('.fs-empty').innerHTML =
+            '<i class="fa fa-exclamation-circle" style="color:#e53e3e;"></i>' + err.message;
+        document.getElementById('generateBtn').disabled = false;
     });
+}
 
-    // Form submission
-    $('#statementsForm').on('submit', function (e) {
-        e.preventDefault();
+/* ── Download Excel ── */
+function downloadExcel() {
+    if (!lastData) return;
+    var start = document.getElementById('startDate').value;
+    var end   = document.getElementById('endDate').value;
+    var btn   = document.getElementById('downloadBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Building Excel…';
 
-        var formData = {
-            sacco_name  : $('#sacco_name').val(),
-            start_date  : $('#start_date').val(),
-            end_date    : $('#end_date').val()
-        };
-
-        if (!formData.start_date || !formData.end_date) {
-            Swal.fire({ icon: 'warning', title: 'Missing Dates',
-                text: 'Please select both start and end dates.' });
-            return;
-        }
-
-        if (new Date(formData.start_date) > new Date(formData.end_date)) {
-            Swal.fire({ icon: 'error', title: 'Invalid Date Range',
-                text: 'Start date must be before end date.' });
-            return;
-        }
-
-        $('#generateBtn').prop('disabled', true)
-            .html('<i class="fa fa-spinner fa-spin"></i> Generating...');
-
-        Swal.fire({
-            title: 'Generating Statements',
-            html: 'Please wait while we compile your financial data...',
-            allowOutsideClick: false,
-            didOpen: function () { Swal.showLoading(); }
-        });
-
-        $.ajax({
-            url: '/financial_statements/generate',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
-            success: function (response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Statements Generated',
-                    html:
-                        '<p>Your complete financial statements package has been created.</p>' +
-                        '<p class="mb-0"><strong>File:</strong> ' + response.filename + '</p>',
-                    confirmButtonText: 'Download Now'
-                }).then(function () {
-                    window.location.href = '/download/financial_statements.xlsx';
-                });
-            },
-            error: function (xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Generation Failed',
-                    text: xhr.responseJSON && xhr.responseJSON.error 
-                        ? xhr.responseJSON.error 
-                        : 'An error occurred. Please try again.'
-                });
-            },
-            complete: function () {
-                $('#generateBtn').prop('disabled', false)
-                    .html('<i class="fa fa-file-excel-o"></i> Generate Excel Package');
-            }
-        });
+    fetch('/financial_statements/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ start_date: start, end_date: end })
+    })
+    .then(function(r) {
+        if (!r.ok) throw new Error('Export failed');
+        return r.blob();
+    })
+    .then(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a   = document.createElement('a');
+        a.href  = url;
+        a.download = 'Financial_Statements_' + start + '_' + end + '.xlsx';
+        a.click();
+        URL.revokeObjectURL(url);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-download"></i> Download Excel';
+    })
+    .catch(function(err) {
+        alert('Export failed: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-download"></i> Download Excel';
     });
+}
 
-});
+/* Set default YTD on load */
+setQuickRange('ytd');
 </script>
-</body>
-</html>

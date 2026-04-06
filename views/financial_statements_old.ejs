@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Statements</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <style>
+        .statement-card {
+            border-left: 4px solid;
+            transition: all .2s;
+            cursor: pointer;
+        }
+        .statement-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+            transform: translateY(-2px);
+        }
+        .statement-card.income    { border-color: #28a745; }
+        .statement-card.balance   { border-color: #17a2b8; }
+        .statement-card.cashflow  { border-color: #ffc107; }
+        .statement-icon {
+            font-size: 48px;
+            opacity: .15;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+<div class="page-wrapper">
+    <%- include('partials/header') %>
+    <%- include('partials/sidebar') %>
+
+    <div class="content-wrapper">
+
+        <div class="page-heading">
+            <h1 class="page-title">Financial Statements</h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
+                <li class="breadcrumb-item">Reports</li>
+                <li class="breadcrumb-item">Financial Statements</li>
+            </ol>
+        </div>
+
+        <div class="page-content fade-in-up">
+
+            <!-- Information Cards -->
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <div class="ibox statement-card income">
+                        <div class="ibox-body" style="position:relative;">
+                            <i class="fa fa-line-chart statement-icon text-success"></i>
+                            <h5 class="font-strong mb-2">Income Statement</h5>
+                            <p class="text-muted mb-0" style="font-size:13px;">
+                                Revenue, expenses, and net income for the period. Shows profitability and operational performance.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="ibox statement-card balance">
+                        <div class="ibox-body" style="position:relative;">
+                            <i class="fa fa-balance-scale statement-icon text-info"></i>
+                            <h5 class="font-strong mb-2">Balance Sheet</h5>
+                            <p class="text-muted mb-0" style="font-size:13px;">
+                                Assets, liabilities, and equity at a point in time. Shows financial position and solvency.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="ibox statement-card cashflow">
+                        <div class="ibox-body" style="position:relative;">
+                            <i class="fa fa-exchange statement-icon text-warning"></i>
+                            <h5 class="font-strong mb-2">Cash Flow Statement</h5>
+                            <p class="text-muted mb-0" style="font-size:13px;">
+                                Operating, investing, and financing cash flows. Shows liquidity and cash management.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generator Form -->
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">
+                                <i class="fa fa-file-excel-o text-success mr-2"></i>
+                                Generate Financial Statements Package
+                            </div>
+                        </div>
+                        <div class="ibox-body">
+
+                            <div class="form-section">
+                                <form id="statementsForm">
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label">SACCO Name</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="sacco_name" 
+                                                   value="St. Kizito SACCO" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label">Period Start</label>
+                                        <div class="col-sm-9">
+                                            <input type="date" class="form-control" id="start_date" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label">Period End</label>
+                                        <div class="col-sm-9">
+                                            <input type="date" class="form-control" id="end_date" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-sm-9 offset-sm-3">
+                                            <button type="button" class="btn btn-secondary btn-sm mr-2" id="setYTDBtn">
+                                                <i class="fa fa-calendar"></i> Year to Date
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-sm mr-2" id="setQuarterBtn">
+                                                <i class="fa fa-calendar"></i> This Quarter
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-sm" id="setMonthBtn">
+                                                <i class="fa fa-calendar"></i> This Month
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="alert alert-info" style="font-size:13px;">
+                                        <i class="fa fa-info-circle"></i>
+                                        <strong>Package includes:</strong>
+                                        <ul class="mb-0 mt-2" style="padding-left:20px;">
+                                            <li>Income Statement (Revenue vs Expenses)</li>
+                                            <li>Balance Sheet (Assets, Liabilities, Equity)</li>
+                                            <li>Cash Flow Statement (Operating, Investing, Financing)</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="text-right">
+                                        <button type="submit" class="btn btn-success btn-lg" id="generateBtn">
+                                            <i class="fa fa-file-excel-o"></i> Generate Excel Package
+                                        </button>
+                                    </div>
+
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reports -->
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">Tips for Accurate Statements</div>
+                        </div>
+                        <div class="ibox-body">
+                            <ul style="font-size:13px;line-height:1.8;">
+                                <li><strong>Income Statement:</strong> Shows interest income, fees, penalties, and operating expenses</li>
+                                <li><strong>Balance Sheet:</strong> Includes cash, loans receivable, member savings, and equity</li>
+                                <li><strong>Cash Flow:</strong> Tracks loan disbursements, repayments, and member deposit flows</li>
+                                <li><strong>Period Selection:</strong> Choose fiscal periods that match your reporting requirements</li>
+                                <li><strong>Reconciliation:</strong> Verify totals match your general ledger before external reporting</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /page-content -->
+
+        <footer class="page-footer">
+            <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
+        </footer>
+    </div>
+</div>
+
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+<script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+<script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="assets/js/app.min.js"></script>
+
+<script>
+$(function () {
+
+    // Set default dates — first day of current year to today
+    var today = new Date();
+    var yearStart = new Date(today.getFullYear(), 0, 1);
+    $('#start_date').val(yearStart.toISOString().split('T')[0]);
+    $('#end_date').val(today.toISOString().split('T')[0]);
+
+    // Quick date buttons
+    $('#setYTDBtn').on('click', function () {
+        var today = new Date();
+        var yearStart = new Date(today.getFullYear(), 0, 1);
+        $('#start_date').val(yearStart.toISOString().split('T')[0]);
+        $('#end_date').val(today.toISOString().split('T')[0]);
+    });
+
+    $('#setQuarterBtn').on('click', function () {
+        var today = new Date();
+        var quarter = Math.floor(today.getMonth() / 3);
+        var quarterStart = new Date(today.getFullYear(), quarter * 3, 1);
+        $('#start_date').val(quarterStart.toISOString().split('T')[0]);
+        $('#end_date').val(today.toISOString().split('T')[0]);
+    });
+
+    $('#setMonthBtn').on('click', function () {
+        var today = new Date();
+        var monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        $('#start_date').val(monthStart.toISOString().split('T')[0]);
+        $('#end_date').val(today.toISOString().split('T')[0]);
+    });
+
+    // Form submission
+    $('#statementsForm').on('submit', function (e) {
+        e.preventDefault();
+
+        var formData = {
+            sacco_name  : $('#sacco_name').val(),
+            start_date  : $('#start_date').val(),
+            end_date    : $('#end_date').val()
+        };
+
+        if (!formData.start_date || !formData.end_date) {
+            Swal.fire({ icon: 'warning', title: 'Missing Dates',
+                text: 'Please select both start and end dates.' });
+            return;
+        }
+
+        if (new Date(formData.start_date) > new Date(formData.end_date)) {
+            Swal.fire({ icon: 'error', title: 'Invalid Date Range',
+                text: 'Start date must be before end date.' });
+            return;
+        }
+
+        $('#generateBtn').prop('disabled', true)
+            .html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+
+        Swal.fire({
+            title: 'Generating Statements',
+            html: 'Please wait while we compile your financial data...',
+            allowOutsideClick: false,
+            didOpen: function () { Swal.showLoading(); }
+        });
+
+        $.ajax({
+            url: '/financial_statements/generate',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Statements Generated',
+                    html:
+                        '<p>Your complete financial statements package has been created.</p>' +
+                        '<p class="mb-0"><strong>File:</strong> ' + response.filename + '</p>',
+                    confirmButtonText: 'Download Now'
+                }).then(function () {
+                    window.location.href = '/download/financial_statements.xlsx';
+                });
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Generation Failed',
+                    text: xhr.responseJSON && xhr.responseJSON.error 
+                        ? xhr.responseJSON.error 
+                        : 'An error occurred. Please try again.'
+                });
+            },
+            complete: function () {
+                $('#generateBtn').prop('disabled', false)
+                    .html('<i class="fa fa-file-excel-o"></i> Generate Excel Package');
+            }
+        });
+    });
+
+});
+</script>
+</body>
+</html>
