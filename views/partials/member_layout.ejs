@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Member Portal</title>
+
+<link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+<style>
+
+body {
+overflow-x:hidden;
+}
+
+.sidebar {
+position:fixed;
+left:0;
+top:0;
+}
+
+.content {
+margin-left:260px;
+padding:20px;
+}
+
+</style>
+
+</head>
+
+<body class="bg-light">
+
+<!-- SIDEBAR -->
+
+<%- include('partials/member_sidebar') %>
+
+
+<!-- PAGE CONTENT -->
+
+<div class="content">
+
+<%- body %>
+
+</div>
+
+</body>
+
+</html>

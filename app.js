@@ -4580,6 +4580,113 @@ app.post('/financial_statements/generate', checkAuth, asyncHandler(async (req, r
   });
 }));
 
+//==============MEMBER LOGIN===========================
+app.get('/member-login', (req, res) => {
+res.render('member_login');
+});
+
+
+app.post('/member_login', asyncHandler(async (req, res) => {
+
+const { username, password } = req.body;
+
+const [rows] = await db.execute(`
+SELECT * FROM users
+WHERE username = ?
+AND role = 'member'
+`, [username]);
+
+if (rows.length === 0) {
+return res.render('member_login', {
+error: "Invalid login"
+});
+}
+
+const user = rows[0];
+
+const match = await bcrypt.compare(password, user.password);
+
+if (!match) {
+return res.render('member_login', {
+error: "Invalid password"
+});
+}
+
+req.session.user = {
+id: user.id,
+member_id: user.member_id,
+first_name: user.first_name,
+role: user.role
+};
+
+res.redirect('/member/dashboard');
+
+}));
+
+//==============MEMBERS DASHBOARD===========================
+app.get('/member/dashboard', checkAuth, asyncHandler(async (req, res) => {
+
+const memberId = req.session.user.member_id;
+
+
+
+// TOTAL SAVINGS
+
+const [savingsTotal] = await db.execute(`
+SELECT COALESCE(SUM(Amount),0) total
+FROM transactions
+WHERE member_id = ?
+AND transaction_type = 'Saving'
+`, [memberId]);
+
+
+
+// LOAN BALANCE
+
+const [loanTotal] = await db.execute(`
+SELECT COALESCE(SUM(balance),0) total
+FROM loans
+WHERE member_id = ?
+AND status='Active'
+`, [memberId]);
+
+
+
+res.render('member_dashboard', {
+
+user: req.session.user,
+
+totalSavings: savingsTotal[0].total,
+
+outstandingLoan: loanTotal[0].total
+
+});
+
+}));
+
+//======SAVINGS STATEMENT=====================
+app.get('/member/savings', checkAuth, asyncHandler(async (req, res) => {
+
+const memberId = req.session.user.member_id;
+
+const [rows] = await db.execute(`
+SELECT 
+DATE_FORMAT(tran_date,'%d-%b-%Y') date,
+Amount,
+description
+FROM transactions
+WHERE member_id = ?
+AND transaction_type='Saving'
+ORDER BY tran_date DESC
+`, [memberId]);
+
+res.render('member_savings', {
+savings: rows
+});
+
+}));
+
+
 
 
 
