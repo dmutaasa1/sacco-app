@@ -4568,51 +4568,11 @@ app.post('/financial_statements/generate', checkAuth, asyncHandler(async (req, r
   });
 }));
 
-//==============MEMBER LOGIN===========================
-app.get('/member-login', (req, res) => {
-res.render('member_login');
-});
 
-
-app.post('/member_login', asyncHandler(async (req, res) => {
-
-const { username, password } = req.body;
-
-const [rows] = await db.execute(`
-SELECT * FROM users
-WHERE username = ?
-AND role = 'member'
-`, [username]);
-
-if (rows.length === 0) {
-return res.render('member_login', {
-error: "Invalid login"
-});
-}
-
-const user = rows[0];
-
-const match = await bcrypt.compare(password, user.password);
-
-if (!match) {
-return res.render('member_login', {
-error: "Invalid password"
-});
-}
-
-req.session.user = {
-id: user.id,
-member_id: user.member_id,
-first_name: user.first_name,
-role: user.role
-};
-
-res.redirect('/member/dashboard');
-
-}));
 
 //==============MEMBERS DASHBOARD===========================
 app.get('/member/dashboard', checkAuth, asyncHandler(async (req, res) => {
+const db = dbConfig;
 
 const memberId = req.session.user.member_id;
 
@@ -4654,6 +4614,7 @@ outstandingLoan: loanTotal[0].total
 
 //======SAVINGS STATEMENT=====================
 app.get('/member/savings', checkAuth, asyncHandler(async (req, res) => {
+const db = dbConfig;
 
 const memberId = req.session.user.member_id;
 
