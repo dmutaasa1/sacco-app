@@ -1,6 +1,8 @@
 <%
+/* Guard against currentPage being undefined (e.g. member pages) */
+var _cp = (typeof currentPage !== 'undefined') ? currentPage : '';
 function isActive(pages) {
-    return pages.includes(currentPage) ? 'active' : '';
+    return pages.includes(_cp) ? 'active' : '';
 }
 %>
 

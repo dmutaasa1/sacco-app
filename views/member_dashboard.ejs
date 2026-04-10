@@ -541,8 +541,8 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
 
 <script>
 /* ── data from server ── */
-var monthlySavingsData = <%- JSON.stringify(monthlySavings) %>;
-var cumulativeSavings  = <%- JSON.stringify(cumulativeSavings) %>;
+var monthlySavingsData = <%- monthlySavings %>;
+var cumulativeSavings  = <%- cumulativeSavings %>;
 var donutData = {
     savings:    <%= Number(totalSavings)    %>,
     insurance:  <%= Number(insurancePaid)   %>,
