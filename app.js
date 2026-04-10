@@ -3865,26 +3865,6 @@ async function buildStatementData(db, start_date, end_date) {
 
 
 
-// ==================== ERROR HANDLING ====================
-
-
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).send('Page not found');
-});
-
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    error: process.env.NODE_ENV === 'production'
-      ? 'An error occurred'
-      : err.message
-  });
-});
-
-
 // GET: Dashboard with dynamic data
 app.get('/', checkAuth, asyncHandler(async (req, res) => {
   const db = dbConfig;
@@ -4699,6 +4679,24 @@ savings: rows
 
 
 
+
+
+// ==================== ERROR HANDLING ====================
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).send('Page not found');
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    error: process.env.NODE_ENV === 'production'
+      ? 'An error occurred'
+      : err.message
+  });
+});
 
 
 // ==================== START SERVER WITH INTEREST CALCULATION ====================
