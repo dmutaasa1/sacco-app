@@ -4656,7 +4656,6 @@ totalSavings: savingsTotal[0].total,
 outstandingLoan: loanTotal[0].total
 
 });
-
 }));
 
 //======SAVINGS STATEMENT=====================
@@ -4681,7 +4680,7 @@ ORDER BY tran_date DESC
 `, [memberId]);
 
 res.render('member_savings', {
-savings: rows
+transactions: rows
 });
 
 }));
@@ -4691,6 +4690,26 @@ savings: rows
 
 
 
+
+
+//======LOANS STATEMENT=====================
+app.get('/member/loans', checkAuth, asyncHandler(async (req, res) => {
+const db = dbConfig;
+let memberId = req.session.user.member_id;
+if (!memberId) {
+  return res.status(400).json({ error: 'Member profile not found. Please contact admin.' });
+}
+const [rows] = await db.execute(`
+SELECT id, loan_amount, balance, accumulated_interest, total_repayment,
+  monthly_payment, interest_rate, status,
+  DATE_FORMAT(disbursement_date,'%d-%b-%Y') AS disbursement_date,
+  DATE_FORMAT(maturity_date,'%d-%b-%Y') AS maturity_date
+FROM loans
+WHERE member_id = ?
+ORDER BY created_at DESC
+`, [memberId]);
+res.render('member_loans', { loans: rows });
+}));
 
 
 // ==================== ERROR HANDLING ====================

@@ -34,19 +34,23 @@
                     <tr>
                         <th>Date</th>
                         <th>Amount</th>
-                        <th>Description</th>
+                        <th>Type</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% savings.forEach(row => { %>
+                    <% if (transactions && transactions.length) { %>
+                    <% transactions.forEach(function(row) { %>
                         <tr>
-                            <td><%= row.date %></td>
-                            <td class="text-success">
-                                UGX <%= row.Amount.toLocaleString() %>
+                            <td><%= row.tran_date %></td>
+                            <td class="<%= row.Debit_Credit === 'Credit' ? 'text-success' : 'text-danger' %>">
+                                <%= row.Debit_Credit === 'Credit' ? '+' : '-' %> UGX <%= Number(row.Amount).toLocaleString() %>
                             </td>
-                            <td><%= row.description %></td>
+                            <td><%= row.transaction_type %></td>
                         </tr>
                     <% }) %>
+                    <% } else { %>
+                        <tr><td colspan="3" class="text-center text-muted">No transactions found</td></tr>
+                    <% } %>
                 </tbody>
             </table>
         </div>

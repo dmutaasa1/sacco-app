@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loans - SACCO Member Portal</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+
+    <style>
+        body { overflow-x: hidden; }
+        .sidebar { position: fixed; left: 0; top: 0; }
+        .content { margin-left: 250px; padding: 20px; }
+        .ibox { border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
+        .ibox-head { padding: 10px 15px; border-bottom: 1px solid #eaeef2; }
+        .ibox-title { font-size: 0.9rem; font-weight: 700; color: #555; }
+        .ibox-body { padding: 15px; background: #fff; }
+        .loan-card { border-left: 4px solid #e53e3e; }
+    </style>
+</head>
+<body class="bg-light">
+
+<%- include('partials/member_sidebar') %>
+
+<div class="content">
+
+    <h4 class="mb-4">Loan Statement</h4>
+
+    <% if (loans && loans.length) { %>
+        <% loans.forEach(function(loan) { %>
+        <div class="ibox loan-card">
+            <div class="ibox-head">
+                <span class="ibox-title"><i class="fa fa-money" style="color:#e53e3e;margin-right:5px;"></i>Loan #<%= loan.id %></span>
+                <span class="badge badge-<%= loan.status === 'Active' ? 'success' : 'secondary' %>"><%= loan.status %></span>
+            </div>
+            <div class="ibox-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="text-muted small">Loan Amount</div>
+                        <div class="font-weight-bold">UGX <%= Number(loan.loan_amount).toLocaleString() %></div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-muted small">Balance</div>
+                        <div class="font-weight-bold text-danger">UGX <%= Number(loan.balance).toLocaleString() %></div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-muted small">Interest Rate</div>
+                        <div class="font-weight-bold"><%= loan.interest_rate %>% p.a.</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-muted small">Monthly Payment</div>
+                        <div class="font-weight-bold">UGX <%= Number(loan.monthly_payment).toLocaleString() %></div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-muted small">Disbursement Date</div>
+                        <div class="font-weight-bold"><%= loan.disbursement_date %></div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-muted small">Maturity Date</div>
+                        <div class="font-weight-bold"><%= loan.maturity_date %></div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-muted small">Total Repayment</div>
+                        <div class="font-weight-bold">UGX <%= Number(loan.total_repayment).toLocaleString() %></div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-muted small">Accrued Interest</div>
+                        <div class="font-weight-bold text-warning">UGX <%= Number(loan.accumulated_interest).toLocaleString() %></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    <% } else { %>
+    <div class="alert alert-info">No loans on record.</div>
+    <% } %>
+
+</div>
+
+</body>
+</html>

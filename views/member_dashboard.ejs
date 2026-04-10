@@ -4,56 +4,641 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - SACCO Management System</title>
+    <title>My Dashboard - Agali Awamu SACCO</title>
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
     <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <style>
-        body { overflow-x: hidden; }
-        .sidebar { position: fixed; left: 0; top: 0; }
-        .content { margin-left: 250px; padding: 20px; }
-        .member-stat { border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
-        .member-stat .ibox-body { padding: 15px; }
-    </style>
+<style>
+/* ══════════════════════════════════════════
+   BASE LAYOUT — matches admin dashboard
+══════════════════════════════════════════ */
+body { overflow-x: hidden; font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+.page-wrapper { margin-left: 220px; margin-top: 60px; }
+body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
 
+/* ══════════════════════════════════════════
+   PAGE HEADING
+══════════════════════════════════════════ */
+.page-heading {
+    padding: 14px 22px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+}
+.page-heading h3 {
+    font-size: 1.1rem; font-weight: 700; color: #1a1f2e; margin: 0;
+}
+.page-heading .sub { font-size: .72rem; color: #a0aec0; margin-top: 2px; }
+.member-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #f0fdf9; color: #00b894; border: 1px solid #b2f5ea;
+    border-radius: 20px; padding: 4px 12px; font-size: .7rem; font-weight: 600;
+}
+
+/* ══════════════════════════════════════════
+   STAT CARDS
+══════════════════════════════════════════ */
+.stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 10px;
+}
+@media (min-width: 992px) { .stats-grid { grid-template-columns: repeat(4,1fr); gap: 10px; } }
+
+.widget-stat { margin-bottom: 0 !important; border-radius: 8px; overflow: hidden; }
+.widget-stat .ibox-body {
+    padding: 10px 12px; position: relative;
+    display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 82px;
+}
+.widget-stat-icon {
+    position: absolute; right: 8px; top: 6px;
+    font-size: 2.4rem; opacity: .15;
+}
+.widget-stat h2 {
+    font-size: clamp(.8rem,2vw,1.1rem); font-weight: 700;
+    margin: 2px 0 0; word-break: break-all; line-height: 1.15;
+    position: relative; z-index: 2;
+}
+.widget-stat-title {
+    font-size: .58rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .6px;
+    opacity: .82; position: relative; z-index: 2;
+}
+.widget-stat-footer {
+    font-size: .62rem; opacity: .78;
+    border-top: 1px solid rgba(255,255,255,.2);
+    padding-top: 4px; margin-top: 6px;
+}
+
+/* ══════════════════════════════════════════
+   TWO-COLUMN LAYOUT
+══════════════════════════════════════════ */
+.dash-cols { display: flex; flex-direction: column; gap: 10px; }
+@media (min-width: 992px) {
+    .dash-cols { flex-direction: row; align-items: flex-start; }
+    .dash-col-main { flex: 0 0 62%; min-width: 0; }
+    .dash-col-side { flex: 0 0 calc(38% - 10px); min-width: 0; }
+}
+.dash-col-main, .dash-col-side { display: flex; flex-direction: column; gap: 10px; }
+
+/* ══════════════════════════════════════════
+   SHARED CARD
+══════════════════════════════════════════ */
+.ibox { margin-bottom: 0 !important; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 6px rgba(26,31,46,.06); border: 1px solid #eaeef2; }
+.ibox-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; border-bottom: 1px solid #eaeef2; background: #fff;
+}
+.ibox-title { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #718096; }
+.ibox-body  { padding: 11px 12px; background: #fff; }
+
+/* ══════════════════════════════════════════
+   CHART TABS
+══════════════════════════════════════════ */
+.chart-tab-bar { display: flex; gap: 4px; margin-bottom: 10px; }
+.chart-tab-btn {
+    font-size: .63rem; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+    border: 1px solid #dee2e6; background: #f8f9fa; color: #666;
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.chart-tab-btn.active { background: #00b894; border-color: #00b894; color: #fff; }
+.chart-tab-btn:hover:not(.active) { background: #e9ecef; }
+.chart-wrap { position: relative; height: 190px; width: 100%; }
+.chart-wrap-sm { position: relative; height: 110px; width: 100%; flex-shrink: 0; }
+@media (max-width: 576px) { .chart-wrap { height: 155px; } .chart-wrap-sm { height: 90px; } }
+
+/* ══════════════════════════════════════════
+   SAVINGS BREAKDOWN
+══════════════════════════════════════════ */
+.split-row { display: flex; align-items: center; gap: 10px; }
+.split-legend { flex: 1; min-width: 0; }
+.sav-row {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 0; border-bottom: 1px solid #f2f2f2; font-size: .7rem;
+}
+.sav-row:last-child { border-bottom: none; }
+.sav-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.sav-name { flex: 1; color: #555; }
+.sav-val  { font-weight: 600; font-size: .68rem; text-align: right; white-space: nowrap; }
+
+/* ══════════════════════════════════════════
+   LOAN DETAILS
+══════════════════════════════════════════ */
+.loan-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid #f2f2f2;
+}
+.loan-row:last-of-type { border-bottom: none; }
+.loan-ico {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .74rem; flex-shrink: 0;
+}
+.loan-val { font-size: .92rem; font-weight: 700; line-height: 1; }
+.loan-lbl { font-size: .61rem; color: #a0aec0; margin-top: 1px; }
+
+/* ══════════════════════════════════════════
+   LOAN SCHEDULE TABLE
+══════════════════════════════════════════ */
+.txn-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.txn-table { width: 100%; border-collapse: collapse; }
+.txn-table th {
+    font-size: .6rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .4px; color: #a0aec0; padding: 6px 9px;
+    border-bottom: 2px solid #eaeef2; background: #fafbfc; white-space: nowrap;
+}
+.txn-table td {
+    font-size: .72rem; padding: 6px 9px;
+    border-bottom: 1px solid #f0f4f8; color: #444; vertical-align: middle;
+}
+.txn-table tr:last-child td { border-bottom: none; }
+@media (max-width: 600px) { .txn-table .hide-sm { display: none; } }
+
+/* status badges */
+.badge-paid     { background: #e6faf4; color: #00b894; border-radius: 10px; padding: 2px 8px; font-size: .62rem; font-weight: 600; }
+.badge-pending  { background: #fffbeb; color: #d69e2e; border-radius: 10px; padding: 2px 8px; font-size: .62rem; font-weight: 600; }
+.badge-overdue  { background: #fff5f5; color: #e53e3e; border-radius: 10px; padding: 2px 8px; font-size: .62rem; font-weight: 600; }
+
+/* ══════════════════════════════════════════
+   ACTIVITY FEED
+══════════════════════════════════════════ */
+.activity-item {
+    display: flex; gap: 10px; padding: 7px 0;
+    border-bottom: 1px solid #f7fafc;
+}
+.activity-item:last-child { border-bottom: none; }
+.act-ico {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: .72rem;
+}
+.act-title { font-size: .74rem; font-weight: 600; color: #1a1f2e; }
+.act-sub   { font-size: .66rem; color: #a0aec0; margin-top: 1px; }
+.act-amt   { margin-left: auto; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+
+/* ══════════════════════════════════════════
+   PROGRESS BARS
+══════════════════════════════════════════ */
+.prog-label { font-size: .68rem; color: #555; display: flex; justify-content: space-between; margin-bottom: 3px; }
+.prog-bar-track { height: 6px; background: #edf2f7; border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+.prog-bar-fill  { height: 100%; border-radius: 3px; transition: width .6s ease; }
+
+/* ══════════════════════════════════════════
+   LOAN REPAYMENT PROGRESS RING
+══════════════════════════════════════════ */
+.ring-wrap { display: flex; align-items: center; gap: 14px; }
+.ring-svg  { flex-shrink: 0; }
+.ring-info { flex: 1; }
+.ring-pct  { font-size: 1.3rem; font-weight: 700; color: #1a1f2e; line-height: 1; }
+.ring-sub  { font-size: .66rem; color: #a0aec0; margin-top: 2px; }
+
+/* page padding */
+.dash-body { padding: 12px 22px 24px; }
+</style>
 </head>
-<body class="bg-light">
+<body>
 
-<%- include('partials/member_sidebar') %>
+<%- include('partials/header') %>
+<%- include('partials/sidebar') %>
 
-<div class="content">
+<div class="page-wrapper">
 
-    <h3>Member Dashboard</h3>
-
-    <div class="row">
-
-        <div class="col-md-6">
-            <div class="ibox member-stat">
-                <div class="ibox-body bg-white">
-                    <h5>Total Savings</h5>
-                    <h3 class="text-success">
-                        UGX <%= totalSavings.toLocaleString() %>
-                    </h3>
-                </div>
-            </div>
+    <!-- ── Page heading ─────────────────────────────── -->
+    <div class="page-heading">
+        <div>
+            <h3>My Dashboard</h3>
+            <div class="sub">Welcome back, <strong><%= member.First_name %> <%= member.Last_Name %></strong> &nbsp;·&nbsp; Member since <%= member.date_joined %></div>
         </div>
-
-        <div class="col-md-6">
-            <div class="ibox member-stat">
-                <div class="ibox-body bg-white">
-                    <h5>Outstanding Loan</h5>
-                    <h3 class="text-danger">
-                        UGX <%= outstandingLoan.toLocaleString() %>
-                    </h3>
-                </div>
-            </div>
+        <div class="member-badge">
+            <i class="fa fa-check-circle"></i> <%= member.Status %>
         </div>
-
     </div>
 
-</div>
+    <div class="dash-body">
+
+        <!-- ── STAT CARDS ──────────────────────────── -->
+        <div class="stats-grid">
+
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#00b894,#00cec9);">
+                <div class="ibox-body">
+                    <i class="fa fa-piggy-bank widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Savings</div>
+                    <h2 style="color:#fff;">UGX <%= Number(totalSavings).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">
+                        <i class="fa fa-arrow-up"></i> <%= Number(ytdSavings).toLocaleString() %> this year
+                    </div>
+                </div>
+            </div>
+
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#e53e3e,#fc8181);">
+                <div class="ibox-body">
+                    <i class="fa fa-money widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Outstanding Loan</div>
+                    <h2 style="color:#fff;">UGX <%= Number(outstandingLoan).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">
+                        <i class="fa fa-calendar"></i> <%= overdueCount %> overdue payment<%= overdueCount !== 1 ? 's' : '' %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#4299e1,#63b3ed);">
+                <div class="ibox-body">
+                    <i class="fa fa-shield widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Insurance Cover</div>
+                    <h2 style="color:#fff;">UGX <%= Number(insurancePaid).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">
+                        <i class="fa fa-percent"></i> <%= insurancePct %>% of annual target
+                    </div>
+                </div>
+            </div>
+
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#9f7aea,#b794f4);">
+                <div class="ibox-body">
+                    <i class="fa fa-heart widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Welfare Paid</div>
+                    <h2 style="color:#fff;">UGX <%= Number(welfarePaid).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">
+                        <i class="fa fa-percent"></i> <%= welfarePct %>% of annual target
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── TWO-COLUMN ──────────────────────────── -->
+        <div class="dash-cols">
+
+            <!-- ═══ MAIN COLUMN ═══ -->
+            <div class="dash-col-main">
+
+                <!-- Savings Chart -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-bar-chart" style="color:#00b894;margin-right:5px;"></i>My Savings History</span>
+                        <div class="chart-tab-bar" style="margin:0;">
+                            <button class="chart-tab-btn active" onclick="switchChart('bar',this)">Monthly</button>
+                            <button class="chart-tab-btn"        onclick="switchChart('cumulative',this)">Cumulative</button>
+                        </div>
+                    </div>
+                    <div class="ibox-body">
+                        <div class="chart-wrap">
+                            <canvas id="savingsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loan Repayment Schedule -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-calendar-check-o" style="color:#e53e3e;margin-right:5px;"></i>Loan Repayment Schedule</span>
+                        <span style="font-size:.65rem;color:#a0aec0;">Showing latest 12</span>
+                    </div>
+                    <div class="ibox-body" style="padding:0;">
+                        <div class="txn-wrap">
+                            <table class="txn-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Due Date</th>
+                                        <th class="hide-sm">Expected</th>
+                                        <th class="hide-sm">Principal</th>
+                                        <th class="hide-sm">Interest</th>
+                                        <th>Paid</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (loanSchedule && loanSchedule.length) { %>
+                                        <% loanSchedule.forEach(function(s) { %>
+                                        <tr>
+                                            <td><%= s.payment_number %></td>
+                                            <td><%= s.due_date %></td>
+                                            <td class="hide-sm">UGX <%= Number(s.expected_payment).toLocaleString() %></td>
+                                            <td class="hide-sm">UGX <%= Number(s.expected_principal).toLocaleString() %></td>
+                                            <td class="hide-sm">UGX <%= Number(s.expected_interest).toLocaleString() %></td>
+                                            <td>UGX <%= Number(s.paid_amount || 0).toLocaleString() %></td>
+                                            <td>
+                                                <% if (s.status === 'Paid') { %>
+                                                    <span class="badge-paid">Paid</span>
+                                                <% } else if (s.status === 'Overdue') { %>
+                                                    <span class="badge-overdue">Overdue</span>
+                                                <% } else { %>
+                                                    <span class="badge-pending">Pending</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <tr><td colspan="7" style="text-align:center;color:#a0aec0;padding:18px;">No loan schedule found</td></tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-exchange" style="color:#4299e1;margin-right:5px;"></i>Recent Transactions</span>
+                    </div>
+                    <div class="ibox-body" style="padding:0;">
+                        <div class="txn-wrap">
+                            <table class="txn-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th class="hide-sm">Period</th>
+                                        <th>Amount</th>
+                                        <th>D/C</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (recentTxns && recentTxns.length) { %>
+                                        <% recentTxns.forEach(function(t) { %>
+                                        <tr>
+                                            <td><%= t.tran_date %></td>
+                                            <td><%= t.transaction_type %></td>
+                                            <td class="hide-sm"><%= t.payment_period || '—' %></td>
+                                            <td style="font-weight:600;">UGX <%= Number(t.Amount).toLocaleString() %></td>
+                                            <td>
+                                                <% if (t.Debit_Credit === 'Credit') { %>
+                                                    <span class="badge-paid">CR</span>
+                                                <% } else { %>
+                                                    <span class="badge-overdue">DR</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <tr><td colspan="5" style="text-align:center;color:#a0aec0;padding:18px;">No transactions found</td></tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- end main col -->
+
+            <!-- ═══ SIDE COLUMN ═══ -->
+            <div class="dash-col-side">
+
+                <!-- Loan Repayment Progress Ring -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-money" style="color:#e53e3e;margin-right:5px;"></i>Loan Progress</span>
+                    </div>
+                    <div class="ibox-body">
+                        <div class="ring-wrap">
+                            <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+                                <circle cx="40" cy="40" r="34" fill="none" stroke="#edf2f7" stroke-width="8"/>
+                                <circle cx="40" cy="40" r="34" fill="none" stroke="#00b894" stroke-width="8"
+                                    stroke-dasharray="213.6"
+                                    stroke-dashoffset="<%= (1 - loanRepaidPct/100) * 213.6 %>"
+                                    stroke-linecap="round"
+                                    transform="rotate(-90 40 40)"/>
+                                <text x="40" y="44" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1f2e"><%= loanRepaidPct %>%</text>
+                            </svg>
+                            <div class="ring-info">
+                                <div class="ring-pct"><%= loanRepaidPct %>% Repaid</div>
+                                <div class="ring-sub" style="margin-top:6px;">
+                                    <div style="margin-bottom:3px;">Paid: <strong>UGX <%= Number(loanTotalPaid).toLocaleString() %></strong></div>
+                                    <div style="margin-bottom:3px;">Balance: <strong style="color:#e53e3e;">UGX <%= Number(outstandingLoan).toLocaleString() %></strong></div>
+                                    <div>Accrued interest: <strong style="color:#d69e2e;">UGX <%= Number(accruedInterest).toLocaleString() %></strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (nextPayment) { %>
+                        <div style="margin-top:12px;background:#fff8f0;border-radius:8px;padding:10px 12px;border-left:3px solid #ed8936;">
+                            <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:#ed8936;letter-spacing:.5px;margin-bottom:4px;">Next Payment Due</div>
+                            <div style="font-size:.85rem;font-weight:700;color:#1a1f2e;">UGX <%= Number(nextPayment.expected_payment).toLocaleString() %></div>
+                            <div style="font-size:.68rem;color:#a0aec0;margin-top:2px;"><i class="fa fa-calendar"></i> <%= nextPayment.due_date %></div>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Annual Contribution Progress -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-tasks" style="color:#9f7aea;margin-right:5px;"></i>Annual Contributions</span>
+                        <span style="font-size:.62rem;color:#a0aec0;"><%= new Date().getFullYear() %></span>
+                    </div>
+                    <div class="ibox-body">
+                        <!-- Insurance -->
+                        <div class="prog-label">
+                            <span>Insurance Cover</span>
+                            <span style="font-weight:600;color:#4299e1;"><%= insurancePct %>%</span>
+                        </div>
+                        <div class="prog-bar-track">
+                            <div class="prog-bar-fill" style="width:<%= Math.min(insurancePct,100) %>%;background:#4299e1;"></div>
+                        </div>
+                        <!-- Welfare -->
+                        <div class="prog-label">
+                            <span>Welfare Fee</span>
+                            <span style="font-weight:600;color:#9f7aea;"><%= welfarePct %>%</span>
+                        </div>
+                        <div class="prog-bar-track">
+                            <div class="prog-bar-fill" style="width:<%= Math.min(welfarePct,100) %>%;background:#9f7aea;"></div>
+                        </div>
+                        <!-- Membership -->
+                        <div class="prog-label">
+                            <span>Membership Fee</span>
+                            <span style="font-weight:600;color:#00b894;"><%= membershipPct %>%</span>
+                        </div>
+                        <div class="prog-bar-track">
+                            <div class="prog-bar-fill" style="width:<%= Math.min(membershipPct,100) %>%;background:#00b894;"></div>
+                        </div>
+                        <!-- Savings target -->
+                        <div class="prog-label">
+                            <span>YTD Savings</span>
+                            <span style="font-weight:600;color:#ed8936;">UGX <%= Number(ytdSavings).toLocaleString() %></span>
+                        </div>
+                        <div class="prog-bar-track">
+                            <div class="prog-bar-fill" style="width:100%;background:#ed8936;opacity:.6;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Savings Breakdown Donut -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-pie-chart" style="color:#00b894;margin-right:5px;"></i>Savings Breakdown</span>
+                    </div>
+                    <div class="ibox-body">
+                        <div class="split-row">
+                            <div class="chart-wrap-sm" style="width:100px;">
+                                <canvas id="savingsDonut"></canvas>
+                            </div>
+                            <div class="split-legend">
+                                <div class="sav-row">
+                                    <span class="sav-dot" style="background:#00b894;"></span>
+                                    <span class="sav-name">Savings</span>
+                                    <span class="sav-val" style="color:#00b894;">UGX <%= Number(totalSavings).toLocaleString() %></span>
+                                </div>
+                                <div class="sav-row">
+                                    <span class="sav-dot" style="background:#4299e1;"></span>
+                                    <span class="sav-name">Insurance</span>
+                                    <span class="sav-val" style="color:#4299e1;">UGX <%= Number(insurancePaid).toLocaleString() %></span>
+                                </div>
+                                <div class="sav-row">
+                                    <span class="sav-dot" style="background:#9f7aea;"></span>
+                                    <span class="sav-name">Welfare</span>
+                                    <span class="sav-val" style="color:#9f7aea;">UGX <%= Number(welfarePaid).toLocaleString() %></span>
+                                </div>
+                                <div class="sav-row">
+                                    <span class="sav-dot" style="background:#ed8936;"></span>
+                                    <span class="sav-name">Membership</span>
+                                    <span class="sav-val" style="color:#ed8936;">UGX <%= Number(membershipPaid).toLocaleString() %></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-clock-o" style="color:#718096;margin-right:5px;"></i>Recent Activity</span>
+                    </div>
+                    <div class="ibox-body">
+                        <% if (activities && activities.length) { %>
+                            <% var actColors = ['#00b894','#4299e1','#9f7aea','#ed8936','#e53e3e']; %>
+                            <% var actIcons  = {'Saving':'fa-arrow-up','Savings Withdrawal':'fa-arrow-down','Loan Repayment':'fa-money','Loan Disbursement':'fa-bank','Membership Fee':'fa-id-card','welfare Fee':'fa-heart','Insuarance Cover':'fa-shield'}; %>
+                            <% activities.forEach(function(a, i) { %>
+                            <div class="activity-item">
+                                <div class="act-ico" style="background:<%=actColors[i%actColors.length]%>20;color:<%=actColors[i%actColors.length]%>;">
+                                    <i class="fa <%= actIcons[a.transaction_type] || 'fa-exchange' %>"></i>
+                                </div>
+                                <div>
+                                    <div class="act-title"><%= a.transaction_type %></div>
+                                    <div class="act-sub"><%= a.created_at %></div>
+                                </div>
+                                <div class="act-amt" style="color:<%= a.Debit_Credit==='Credit'?'#00b894':'#e53e3e' %>;">
+                                    <%= a.Debit_Credit==='Credit'?'+':'-' %> UGX <%= Number(a.Amount).toLocaleString() %>
+                                </div>
+                            </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div style="text-align:center;color:#a0aec0;font-size:.78rem;padding:16px;">No recent activity</div>
+                        <% } %>
+                    </div>
+                </div>
+
+            </div><!-- end side col -->
+        </div><!-- end dash-cols -->
+    </div><!-- end dash-body -->
+</div><!-- end page-wrapper -->
+
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="./assets/vendors/chart.js/dist/Chart.min.js"></script>
+<script src="assets/js/app.min.js"></script>
+
+<script>
+/* ── data from server ── */
+var monthlySavingsData = <%- JSON.stringify(monthlySavings) %>;
+var cumulativeSavings  = <%- JSON.stringify(cumulativeSavings) %>;
+var donutData = {
+    savings:    <%= Number(totalSavings)    %>,
+    insurance:  <%= Number(insurancePaid)   %>,
+    welfare:    <%= Number(welfarePaid)     %>,
+    membership: <%= Number(membershipPaid)  %>
+};
+
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/* ── Tooltip defaults ── */
+Chart.defaults.global.tooltips.backgroundColor = 'rgba(26,31,46,.88)';
+Chart.defaults.global.tooltips.cornerRadius     = 6;
+Chart.defaults.global.tooltips.titleFontSize    = 10;
+Chart.defaults.global.tooltips.bodyFontSize     = 11;
+
+/* ── SAVINGS BAR / LINE CHART ── */
+var savingsCtx  = document.getElementById('savingsChart').getContext('2d');
+var currentMode = 'bar';
+var savingsChart;
+
+function buildChart(mode) {
+    if (savingsChart) savingsChart.destroy();
+    var isBar = mode === 'bar';
+    var data  = isBar ? monthlySavingsData : cumulativeSavings;
+    var color = '#00b894';
+
+    var grad = savingsCtx.createLinearGradient(0,0,0,190);
+    grad.addColorStop(0, 'rgba(0,184,148,.25)');
+    grad.addColorStop(1, 'rgba(0,184,148,.02)');
+
+    savingsChart = new Chart(savingsCtx, {
+        type: isBar ? 'bar' : 'line',
+        data: {
+            labels: MONTHS,
+            datasets: [{
+                label: isBar ? 'Monthly Savings (UGX)' : 'Cumulative Savings (UGX)',
+                data:  data,
+                backgroundColor: isBar ? 'rgba(0,184,148,.75)' : grad,
+                borderColor: color,
+                borderWidth: isBar ? 0 : 2,
+                borderRadius: isBar ? 3 : 0,
+                pointBackgroundColor: color,
+                pointRadius: isBar ? 0 : 3,
+                fill: !isBar,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            legend: { display: false },
+            scales: {
+                xAxes: [{ gridLines: { display: false }, ticks: { fontSize: 9, fontColor: '#a0aec0' } }],
+                yAxes: [{ gridLines: { color: 'rgba(0,0,0,.04)' },
+                    ticks: {
+                        fontSize: 9, fontColor: '#a0aec0',
+                        callback: function(v) {
+                            return v >= 1000000 ? (v/1000000).toFixed(1)+'M'
+                                 : v >= 1000    ? (v/1000).toFixed(0)+'K'
+                                 : v;
+                        }
+                    }
+                }]
+            }
+        }
+    });
+}
+
+function switchChart(mode, btn) {
+    document.querySelectorAll('.chart-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentMode = mode;
+    buildChart(mode);
+}
+
+buildChart('bar');
+
+/* ── SAVINGS DONUT ── */
+new Chart(document.getElementById('savingsDonut').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Savings','Insurance','Welfare','Membership'],
+        datasets: [{
+            data: [donutData.savings, donutData.insurance, donutData.welfare, donutData.membership],
+            backgroundColor: ['#00b894','#4299e1','#9f7aea','#ed8936'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        cutoutPercentage: 68,
+        legend: { display: false },
+        animation: { animateRotate: true, duration: 800 }
+    }
+});
+</script>
 
 </body>
 </html>
