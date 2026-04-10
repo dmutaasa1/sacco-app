@@ -335,57 +335,32 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
 
 <script>
 (function () {
-    /* Wait for jQuery + metisMenu + app.min.js to all finish,
-       then re-init cleanly on our menu element only.
-       Delay of 100ms ensures app.min.js has already run. */
     function initSidebar() {
         if (typeof jQuery === 'undefined' || !jQuery.fn.metisMenu) {
-            return setTimeout(initSidebar, 50);
+            return setTimeout(initSidebar, 60);
         }
+        var $menu = jQuery('#side-menu');
+        if ($menu.data('metisMenu')) return;
 
-        jQuery(function ($) {
-            var $menu = $('#side-menu');
+        $menu.metisMenu({ toggle: true });
 
-            /* Destroy any existing metisMenu instance the theme created */
-            try {
-                if ($menu.data('metisMenu')) {
-                    $menu.metisMenu('dispose');
-                }
-            } catch (e) { /* older metisMenu versions don't have dispose */ }
-
-            /* Remove theme's collapse classes so we start fresh */
-            $menu.find('ul.nav-2-level').each(function () {
-                $(this).removeClass('in collapsing');
-            });
-
-            /* Re-init with our settings */
-            $menu.metisMenu({ toggle: true });
-
-            /* Auto-open parent of active page */
-            $menu.find('> li.active').each(function () {
-                var $sub = $(this).children('ul.nav-2-level');
-                if ($sub.length) {
-                    $sub.addClass('in').css('height', '');
-                    $(this).children('a').attr('aria-expanded', 'true');
-                }
-            });
-
-            /* Auto-open parent when a child link is active */
-            $menu.find('ul.nav-2-level a.active').each(function () {
-                var $sub = $(this).closest('ul.nav-2-level');
+        /* Auto-open active parent */
+        $menu.find('li.active').each(function () {
+            var $sub = jQuery(this).children('ul.nav-2-level');
+            if ($sub.length) {
                 $sub.addClass('in').css('height', '');
-                $sub.closest('li').children('a').attr('aria-expanded', 'true');
-            });
+                jQuery(this).children('a').attr('aria-expanded', 'true');
+            }
+        });
+        $menu.find('ul.nav-2-level a.active').each(function () {
+            var $sub = jQuery(this).closest('ul.nav-2-level');
+            $sub.addClass('in').css('height', '');
+            $sub.closest('li').children('a').attr('aria-expanded', 'true');
         });
     }
 
-    /* Run after everything else — 150ms after DOM ready */
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(initSidebar, 150);
-        });
-    } else {
-        setTimeout(initSidebar, 150);
-    }
+    document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', initSidebar)
+        : initSidebar();
 }());
 </script>
