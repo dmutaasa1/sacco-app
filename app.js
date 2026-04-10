@@ -784,7 +784,15 @@ app.post('/login', asyncHandler(async (req, res) => {
       console.error('Session save error:', err);
       return res.status(500).json({ error: 'Session error' });
     }
-    res.redirect('/');
+
+          if (user.role === 'member') {
+          return res.redirect('/member/dashboard');
+          }
+          else 
+          {
+
+          res.redirect('/');
+          }
   });
 }));
 // GET: Logout
