@@ -770,12 +770,24 @@ app.post('/login', asyncHandler(async (req, res) => {
 
   await db.execute("UPDATE users SET last_login = NOW() WHERE id = ?", [user.id]);
 
+  let memberId = null;
+  if (user.role === 'member') {
+    const [members] = await db.execute(
+      'SELECT id FROM members_mst WHERE LOWER(First_name) = LOWER(?) AND LOWER(Last_Name) = LOWER(?) LIMIT 1',
+      [user.first_name, user.last_name]
+    );
+    if (members.length > 0) {
+      memberId = members[0].id;
+    }
+  }
+
   req.session.user = {
     id: user.id,
     username: user.username,
     first_name: user.first_name,
     last_name: user.last_name,
-    role: user.role
+    role: user.role,
+    member_id: memberId
   };
 
   // ✅ Wait for session to be saved before redirecting
@@ -795,6 +807,61 @@ app.post('/login', asyncHandler(async (req, res) => {
           }
   });
 }));
+// GET: Member login page
+app.get('/member-login', (req, res) => {
+  res.render('member_login', { error: null });
+});
+
+// POST: Handle member login
+app.post('/member-login', asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+  const db = dbConfig;
+  
+  const [rows] = await db.execute('SELECT * FROM users WHERE status ="Active" and username = ?', [username]);
+
+  if (rows.length === 0) {
+    return res.status(401).json({ error: 'User not found or Disabled' });
+  }
+
+  const user = rows[0];
+  
+  if (user.role !== 'member') {
+    return res.status(401).json({ error: 'Invalid member credentials' });
+  }
+  
+  const match = await bcrypt.compare(password, user.password);
+  
+  if (!match) {
+    return res.status(401).json({ error: 'Incorrect password' });
+  }
+
+  await db.execute("UPDATE users SET last_login = NOW() WHERE id = ?", [user.id]);
+
+  const [members] = await db.execute(
+    'SELECT id FROM members_mst WHERE LOWER(First_name) = LOWER(?) AND LOWER(Last_Name) = LOWER(?) LIMIT 1',
+    [user.first_name, user.last_name]
+  );
+
+  const memberId = members.length > 0 ? members[0].id : null;
+
+  req.session.user = {
+    id: user.id,
+    username: user.username,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    role: user.role,
+    member_id: memberId
+  };
+
+  req.session.save((err) => {
+    if (err) {
+      console.error('Session save error:', err);
+      return res.status(500).json({ error: 'Session error' });
+    }
+    return res.redirect('/member/dashboard');
+  });
+}));
+
 // GET: Logout
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
@@ -4574,11 +4641,26 @@ app.post('/financial_statements/generate', checkAuth, asyncHandler(async (req, r
 app.get('/member/dashboard', checkAuth, asyncHandler(async (req, res) => {
 const db = dbConfig;
 
-const memberId = req.session.user.member_id;
+let memberId = req.session.user.member_id;
+
+if (!memberId) {
+  const [members] = await db.execute(
+    'SELECT id FROM members_mst WHERE LOWER(First_name) = LOWER(?) AND LOWER(Last_Name) = LOWER(?) LIMIT 1',
+    [req.session.user.first_name, req.session.user.last_name]
+  );
+  if (members.length > 0) {
+    memberId = members[0].id;
+  }
+}
+
+if (!memberId) {
+  return res.status(400).json({ error: 'Member profile not found. Please contact admin.' });
+}
 
 
 
 // TOTAL SAVINGS
+
 
 const [savingsTotal] = await db.execute(`
 SELECT COALESCE(SUM(Amount),0) total
@@ -4616,7 +4698,21 @@ outstandingLoan: loanTotal[0].total
 app.get('/member/savings', checkAuth, asyncHandler(async (req, res) => {
 const db = dbConfig;
 
-const memberId = req.session.user.member_id;
+let memberId = req.session.user.member_id;
+
+if (!memberId) {
+  const [members] = await db.execute(
+    'SELECT id FROM members_mst WHERE LOWER(First_name) = LOWER(?) AND LOWER(Last_Name) = LOWER(?) LIMIT 1',
+    [req.session.user.first_name, req.session.user.last_name]
+  );
+  if (members.length > 0) {
+    memberId = members[0].id;
+  }
+}
+
+if (!memberId) {
+  return res.status(400).json({ error: 'Member profile not found. Please contact admin.' });
+}
 
 const [rows] = await db.execute(`
 SELECT 
