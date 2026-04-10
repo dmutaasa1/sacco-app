@@ -8,12 +8,29 @@ const cron = require('node-cron');
 const crypto = require('crypto');
 
 const { execSync } = require('child_process');
-try {
-    execSync('pip3 install openpyxl --quiet --break-system-packages', { timeout: 60000 });
-    console.log('✓ openpyxl ready');
-} catch(e) {
-    console.log('openpyxl install skipped:', e.message);
+function installOpenpyxl() {
+    const installCommands = [
+        'python -m pip install openpyxl --quiet --break-system-packages',
+        'py -m pip install openpyxl --quiet --break-system-packages',
+        'python3 -m pip install openpyxl --quiet --break-system-packages'
+    ];
+
+    let lastError;
+    for (const cmd of installCommands) {
+        try {
+            execSync(cmd, { timeout: 60000 });
+            console.log('✓ openpyxl ready');
+            return;
+        } catch (err) {
+            lastError = err;
+        }
+    }
+
+    console.log('openpyxl install skipped:', lastError && lastError.message ? lastError.message : 'unknown error');
+    console.log('Run `python -m pip install openpyxl` or `py -m pip install openpyxl` to install manually.');
 }
+
+installOpenpyxl();
 
 const app = express();
 app.set('trust proxy', 1); 

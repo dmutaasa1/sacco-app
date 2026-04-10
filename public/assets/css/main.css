@@ -2637,6 +2637,9 @@ smaller than 560
 .p-t-20 {
   padding-top: 20px !important; }
 
+.font-12 {
+  font-size: 12px; }
+
 .font-13 {
   font-size: 13px; }
 
@@ -2660,6 +2663,15 @@ smaller than 560
 
 .font-26 {
   font-size: 26px; }
+
+.font-48 {
+  font-size: 48px; }
+
+.font-small {
+  font-size: 80%; }
+
+.font-large {
+  font-size: 1.3rem; }
 
 .font-light {
   font-weight: 300 !important; }
