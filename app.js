@@ -770,24 +770,13 @@ app.post('/login', asyncHandler(async (req, res) => {
 
   await db.execute("UPDATE users SET last_login = NOW() WHERE id = ?", [user.id]);
 
-  let memberId = null;
-  if (user.role === 'member') {
-    const [members] = await db.execute(
-      'SELECT id FROM members_mst WHERE LOWER(First_name) = LOWER(?) AND LOWER(Last_Name) = LOWER(?) LIMIT 1',
-      [user.first_name, user.last_name]
-    );
-    if (members.length > 0) {
-      memberId = members[0].id;
-    }
-  }
-
   req.session.user = {
     id: user.id,
     username: user.username,
     first_name: user.first_name,
     last_name: user.last_name,
     role: user.role,
-    member_id: memberId
+    member_id: user.member_id || null
   };
 
   // ✅ Wait for session to be saved before redirecting
@@ -837,20 +826,13 @@ app.post('/member-login', asyncHandler(async (req, res) => {
 
   await db.execute("UPDATE users SET last_login = NOW() WHERE id = ?", [user.id]);
 
-  const [members] = await db.execute(
-    'SELECT id FROM members_mst WHERE LOWER(First_name) = LOWER(?) AND LOWER(Last_Name) = LOWER(?) LIMIT 1',
-    [user.first_name, user.last_name]
-  );
-
-  const memberId = members.length > 0 ? members[0].id : null;
-
   req.session.user = {
     id: user.id,
     username: user.username,
     first_name: user.first_name,
     last_name: user.last_name,
     role: user.role,
-    member_id: memberId
+    member_id: user.member_id || null
   };
 
   req.session.save((err) => {
@@ -4644,20 +4626,8 @@ const db = dbConfig;
 let memberId = req.session.user.member_id;
 
 if (!memberId) {
-  const [members] = await db.execute(
-    'SELECT id FROM members_mst WHERE LOWER(First_name) = LOWER(?) AND LOWER(Last_Name) = LOWER(?) LIMIT 1',
-    [req.session.user.first_name, req.session.user.last_name]
-  );
-  if (members.length > 0) {
-    memberId = members[0].id;
-  }
-}
-
-if (!memberId) {
   return res.status(400).json({ error: 'Member profile not found. Please contact admin.' });
 }
-
-
 
 // TOTAL SAVINGS
 
@@ -4699,16 +4669,6 @@ app.get('/member/savings', checkAuth, asyncHandler(async (req, res) => {
 const db = dbConfig;
 
 let memberId = req.session.user.member_id;
-
-if (!memberId) {
-  const [members] = await db.execute(
-    'SELECT id FROM members_mst WHERE LOWER(First_name) = LOWER(?) AND LOWER(Last_Name) = LOWER(?) LIMIT 1',
-    [req.session.user.first_name, req.session.user.last_name]
-  );
-  if (members.length > 0) {
-    memberId = members[0].id;
-  }
-}
 
 if (!memberId) {
   return res.status(400).json({ error: 'Member profile not found. Please contact admin.' });
