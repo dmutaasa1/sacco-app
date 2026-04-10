@@ -85,9 +85,13 @@
           url: '/login',
           type: 'POST',
           data: $(form).serialize(),
-          success: function() {
-            // Redirect on successful login
-            window.location.href = '/';
+          success: function(response) {
+            // Redirect based on role
+            if (response && response.role === 'member') {
+              window.location.href = '/member/dashboard';
+            } else {
+              window.location.href = '/';
+            }
           },
           error: function(xhr) {
             // Show error as popup alert

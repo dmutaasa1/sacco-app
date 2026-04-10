@@ -786,16 +786,11 @@ app.post('/login', asyncHandler(async (req, res) => {
       return res.status(500).json({ error: 'Session error' });
     }
 
-          if (user.role === 'member') {
-          return res.redirect('/member/dashboard');
-          }
-          else 
-          {
-
-          res.redirect('/');
-          }
+    // Return role in response for client-side redirect
+    res.json({ role: user.role });
   });
 }));
+
 // GET: Member login page
 app.get('/member-login', (req, res) => {
   res.render('member_login', { error: null });
