@@ -1,33 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings - SACCO Member Portal</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+
+    <style>
+        body { overflow-x: hidden; }
+        .sidebar { position: fixed; left: 0; top: 0; }
+        .content { margin-left: 250px; padding: 20px; }
+        .ibox { border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
+        .ibox-head { padding: 10px 15px; border-bottom: 1px solid #eaeef2; }
+        .ibox-title { font-size: 0.9rem; font-weight: 700; color: #555; }
+        .ibox-body { padding: 15px; background: #fff; }
+    </style>
+</head>
+<body class="bg-light">
+
 <%- include('partials/member_sidebar') %>
 
-<h4>Savings Statement</h4>
+<div class="content">
 
+    <h4 class="mb-4">Savings Statement</h4>
 
+    <div class="ibox">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% savings.forEach(row => { %>
+                        <tr>
+                            <td><%= row.date %></td>
+                            <td class="text-success">
+                                UGX <%= row.Amount.toLocaleString() %>
+                            </td>
+                            <td><%= row.description %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<table class="table table-bordered">
+</div>
 
-<thead>
-<tr>
-<th>Date</th>
-<th>Amount</th>
-<th>Description</th>
-</tr>
-</thead>
-
-<tbody>
-
-<% savings.forEach(row => { %>
-
-<tr>
-<td><%= row.date %></td>
-<td class="text-success">
-UGX <%= row.Amount.toLocaleString() %>
-</td>
-<td><%= row.description %></td>
-</tr>
-
-<% }) %>
-
-</tbody>
-
-</table>
+</body>
+</html>
