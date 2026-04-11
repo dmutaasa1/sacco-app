@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const cron = require('node-cron');
 const crypto = require('crypto');
+const path = require('path');
 
 const { execSync } = require('child_process');
 function installOpenpyxl() {
@@ -39,8 +40,8 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static('public'));
-app.use(express.static('partials'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'partials')));
 
 // Session configuration
 
