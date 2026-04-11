@@ -2,82 +2,293 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loans - SACCO Member Portal</title>
+    <title>My Loans - Agali Awamu SACCO</title>
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
     <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+body { overflow-x:hidden; font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); }
+body.sidebar-collapsed .page-wrapper { margin-left:60px; }
+.dash-body { padding:14px 22px 28px; }
+.page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+.page-heading h3 { font-size:1.1rem; font-weight:700; color:#1a1f2e; margin:0; }
+.page-heading .sub { font-size:.72rem; color:#a0aec0; margin-top:2px; }
 
-    <style>
-        body { overflow-x: hidden; }
-        .sidebar { position: fixed; left: 0; top: 0; }
-        .content { margin-left: 250px; padding: 20px; }
-        .ibox { border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
-        .ibox-head { padding: 10px 15px; border-bottom: 1px solid #eaeef2; }
-        .ibox-title { font-size: 0.9rem; font-weight: 700; color: #555; }
-        .ibox-body { padding: 15px; background: #fff; }
-        .loan-card { border-left: 4px solid #e53e3e; }
-    </style>
+/* stat cards */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+@media(min-width:992px){ .stats-grid{ grid-template-columns:repeat(4,1fr); gap:10px; } }
+.widget-stat { border-radius:8px; overflow:hidden; margin-bottom:0!important; }
+.widget-stat .ibox-body { padding:10px 12px; position:relative; display:flex; flex-direction:column; justify-content:space-between; min-height:82px; }
+.widget-stat-icon { position:absolute; right:8px; top:6px; font-size:2.4rem; opacity:.15; }
+.widget-stat h2 { font-size:clamp(.8rem,2vw,1.1rem); font-weight:700; margin:2px 0 0; line-height:1.15; position:relative; z-index:2; }
+.widget-stat-title { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; opacity:.82; position:relative; z-index:2; }
+.widget-stat-footer { font-size:.62rem; opacity:.78; border-top:1px solid rgba(255,255,255,.2); padding-top:4px; margin-top:6px; }
+
+/* cards */
+.ibox { margin-bottom:0!important; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(26,31,46,.06); border:1px solid #eaeef2; }
+.ibox-head { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid #eaeef2; background:#fff; }
+.ibox-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#718096; }
+.ibox-body { padding:11px 12px; background:#fff; }
+
+/* loan card */
+.loan-card {
+    border:1px solid #eaeef2; border-radius:10px; overflow:hidden;
+    margin-bottom:12px; background:#fff;
+    box-shadow:0 1px 6px rgba(26,31,46,.06);
+    transition:box-shadow .15s;
+}
+.loan-card:hover { box-shadow:0 4px 18px rgba(26,31,46,.1); }
+.loan-card-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px; flex-wrap:wrap; gap:8px;
+    border-bottom:1px solid #f0f4f8;
+}
+.loan-id { font-size:.68rem; font-weight:700; color:#a0aec0; text-transform:uppercase; letter-spacing:.5px; }
+.loan-amount { font-size:1.1rem; font-weight:700; color:#1a1f2e; }
+.loan-status-badge {
+    padding:3px 10px; border-radius:20px; font-size:.65rem; font-weight:700;
+}
+.status-active   { background:#e6faf4; color:#00b894; }
+.status-completed{ background:#e8f4fd; color:#4299e1; }
+.status-overdue  { background:#fff5f5; color:#e53e3e; }
+.status-defaulted{ background:#fff5f5; color:#e53e3e; }
+
+.loan-card-body { padding:12px 16px; }
+.loan-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+@media(max-width:480px){ .loan-stats{ grid-template-columns:1fr 1fr; } }
+.loan-stat-item { text-align:center; padding:8px; background:#f7fafc; border-radius:7px; }
+.loan-stat-label { font-size:.6rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#a0aec0; }
+.loan-stat-value { font-size:.88rem; font-weight:700; color:#1a1f2e; margin-top:2px; }
+.loan-stat-value.green { color:#00b894; }
+.loan-stat-value.red   { color:#e53e3e; }
+.loan-stat-value.blue  { color:#4299e1; }
+
+/* progress bar */
+.repay-label { display:flex; justify-content:space-between; font-size:.68rem; color:#555; margin-bottom:4px; }
+.repay-track { height:7px; background:#edf2f7; border-radius:4px; overflow:hidden; }
+.repay-fill  { height:100%; border-radius:4px; background:linear-gradient(90deg,#00b894,#00cec9); transition:width .6s ease; }
+
+/* schedule table */
+.sch-wrap { overflow-x:auto; margin-top:10px; }
+.sch-table { width:100%; border-collapse:collapse; }
+.sch-table th { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#a0aec0; padding:5px 8px; border-bottom:2px solid #eaeef2; background:#fafbfc; white-space:nowrap; }
+.sch-table td { font-size:.72rem; padding:5px 8px; border-bottom:1px solid #f0f4f8; color:#444; }
+.sch-table tr:last-child td { border-bottom:none; }
+.badge-paid    { background:#e6faf4; color:#00b894; border-radius:10px; padding:2px 7px; font-size:.6rem; font-weight:600; }
+.badge-pending { background:#fffbeb; color:#d69e2e; border-radius:10px; padding:2px 7px; font-size:.6rem; font-weight:600; }
+.badge-overdue { background:#fff5f5; color:#e53e3e; border-radius:10px; padding:2px 7px; font-size:.6rem; font-weight:600; }
+
+/* toggle */
+.sch-toggle { font-size:.7rem; color:#00b894; cursor:pointer; background:none; border:none; padding:0; font-family:'DM Sans',sans-serif; font-weight:600; }
+.sch-toggle:hover { text-decoration:underline; }
+
+/* interest method pill */
+.method-pill { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:.62rem; font-weight:600; margin-left:6px; }
+.method-reducing { background:rgba(66,153,225,.1); color:#4299e1; }
+.method-simple   { background:rgba(159,122,234,.1); color:#9f7aea; }
+
+.empty-state { text-align:center; padding:40px 20px; color:#a0aec0; }
+.empty-state i { font-size:2.5rem; display:block; margin-bottom:10px; opacity:.4; }
+</style>
 </head>
-<body class="bg-light">
+<body>
 
+<%- include('partials/header') %>
 <%- include('partials/member_sidebar') %>
 
-<div class="content">
+<div class="page-wrapper">
+    <div class="page-heading">
+        <div>
+            <h3><i class="fa fa-money" style="color:#e53e3e;margin-right:8px;"></i>My Loans</h3>
+            <div class="sub"><%= user.first_name %> <%= user.last_name %> &nbsp;·&nbsp; Loan history & repayment schedule</div>
+        </div>
+    </div>
 
-    <h4 class="mb-4">Loan Statement</h4>
+    <div class="dash-body">
 
-    <% if (loans && loans.length) { %>
-        <% loans.forEach(function(loan) { %>
-        <div class="ibox loan-card">
-            <div class="ibox-head">
-                <span class="ibox-title"><i class="fa fa-money" style="color:#e53e3e;margin-right:5px;"></i>Loan #<%= loan.id %></span>
-                <span class="badge badge-<%= loan.status === 'Active' ? 'success' : 'secondary' %>"><%= loan.status %></span>
+        <!-- Summary stat cards -->
+        <% var activeLoans=loans.filter(function(l){return l.status==='Active';}); %>
+        <% var totalBorrowed=loans.reduce(function(s,l){return s+parseFloat(l.loan_amount||0);},0); %>
+        <% var totalBalance=activeLoans.reduce(function(s,l){return s+parseFloat(l.balance||0);},0); %>
+        <% var totalAccrued=activeLoans.reduce(function(s,l){return s+parseFloat(l.accumulated_interest||0);},0); %>
+
+        <div class="stats-grid">
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#4299e1,#63b3ed);">
+                <div class="ibox-body">
+                    <i class="fa fa-money widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Borrowed</div>
+                    <h2 style="color:#fff;">UGX <%= Number(totalBorrowed).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;"><%= loans.length %> loan<%= loans.length!==1?'s':'' %> total</div>
+                </div>
             </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#e53e3e,#fc8181);">
+                <div class="ibox-body">
+                    <i class="fa fa-hourglass-half widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Outstanding Balance</div>
+                    <h2 style="color:#fff;">UGX <%= Number(totalBalance).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;"><%= activeLoans.length %> active loan<%= activeLoans.length!==1?'s':'' %></div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#ed8936,#f6ad55);">
+                <div class="ibox-body">
+                    <i class="fa fa-percent widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Accrued Interest</div>
+                    <h2 style="color:#fff;">UGX <%= Number(totalAccrued).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">On active loans</div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#00b894,#00cec9);">
+                <div class="ibox-body">
+                    <i class="fa fa-check-circle widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Completed Loans</div>
+                    <h2 style="color:#fff;"><%= loans.filter(function(l){return l.status==='Completed';}).length %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Fully repaid</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loan cards -->
+        <% if (!loans.length) { %>
+        <div class="ibox">
             <div class="ibox-body">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <div class="text-muted small">Loan Amount</div>
-                        <div class="font-weight-bold">UGX <%= Number(loan.loan_amount).toLocaleString() %></div>
+                <div class="empty-state">
+                    <i class="fa fa-money"></i>
+                    <p>No loans found on your account.</p>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <% loans.forEach(function(loan, li) { %>
+        <%
+            var paid = parseFloat(loan.total_repayment||0) - parseFloat(loan.balance||0);
+            var pct  = loan.total_repayment > 0 ? Math.min(Math.round((paid / parseFloat(loan.total_repayment)) * 100), 100) : 0;
+            var statusCls = loan.status==='Active' ? 'status-active' : loan.status==='Completed' ? 'status-completed' : 'status-overdue';
+        %>
+        <div class="loan-card">
+            <div class="loan-card-head">
+                <div>
+                    <div class="loan-id">Loan #<%= loan.id %></div>
+                    <div class="loan-amount">UGX <%= Number(loan.loan_amount).toLocaleString() %>
+                        <span class="method-pill <%= loan.interest_method==='simple_interest'?'method-simple':'method-reducing' %>">
+                            <i class="fa fa-<%= loan.interest_method==='simple_interest'?'bolt':'refresh' %>"></i>
+                            <%= loan.interest_method==='simple_interest'?'Simple':'Reducing' %>
+                        </span>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="text-muted small">Balance</div>
-                        <div class="font-weight-bold text-danger">UGX <%= Number(loan.balance).toLocaleString() %></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="loan-status-badge <%= statusCls %>"><%= loan.status %></span>
+                    <button class="sch-toggle" onclick="toggleSchedule(<%= li %>)">
+                        <i class="fa fa-calendar-o"></i> Schedule
+                    </button>
+                </div>
+            </div>
+            <div class="loan-card-body">
+                <div class="loan-stats">
+                    <div class="loan-stat-item">
+                        <div class="loan-stat-label">Interest Rate</div>
+                        <div class="loan-stat-value blue"><%= loan.interest_rate %>% p.a.</div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="text-muted small">Interest Rate</div>
-                        <div class="font-weight-bold"><%= loan.interest_rate %>% p.a.</div>
+                    <div class="loan-stat-item">
+                        <div class="loan-stat-label">Monthly Payment</div>
+                        <div class="loan-stat-value">UGX <%= Number(loan.monthly_payment||0).toLocaleString() %></div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="text-muted small">Monthly Payment</div>
-                        <div class="font-weight-bold">UGX <%= Number(loan.monthly_payment).toLocaleString() %></div>
+                    <div class="loan-stat-item">
+                        <div class="loan-stat-label">Outstanding</div>
+                        <div class="loan-stat-value red">UGX <%= Number(loan.balance||0).toLocaleString() %></div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="text-muted small">Disbursement Date</div>
-                        <div class="font-weight-bold"><%= loan.disbursement_date %></div>
+                    <div class="loan-stat-item">
+                        <div class="loan-stat-label">Accrued Interest</div>
+                        <div class="loan-stat-value" style="color:#ed8936;">UGX <%= Number(loan.accumulated_interest||0).toLocaleString() %></div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="text-muted small">Maturity Date</div>
-                        <div class="font-weight-bold"><%= loan.maturity_date %></div>
+                    <div class="loan-stat-item">
+                        <div class="loan-stat-label">Disbursed</div>
+                        <div class="loan-stat-value"><%= loan.disbursement_date %></div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="text-muted small">Total Repayment</div>
-                        <div class="font-weight-bold">UGX <%= Number(loan.total_repayment).toLocaleString() %></div>
+                    <div class="loan-stat-item">
+                        <div class="loan-stat-label">Maturity</div>
+                        <div class="loan-stat-value"><%= loan.maturity_date %></div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="text-muted small">Accrued Interest</div>
-                        <div class="font-weight-bold text-warning">UGX <%= Number(loan.accumulated_interest).toLocaleString() %></div>
+                </div>
+
+                <!-- Repayment progress -->
+                <div class="repay-label">
+                    <span>Repayment Progress</span>
+                    <span style="font-weight:700;color:#00b894;"><%= pct %>%</span>
+                </div>
+                <div class="repay-track">
+                    <div class="repay-fill" style="width:<%= pct %>%;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:.65rem;color:#a0aec0;margin-top:3px;">
+                    <span>Paid: UGX <%= Number(paid).toLocaleString() %></span>
+                    <span>Total: UGX <%= Number(loan.total_repayment||0).toLocaleString() %></span>
+                </div>
+
+                <!-- Loan schedule (hidden by default) -->
+                <div id="schedule-<%= li %>" style="display:none;margin-top:12px;">
+                    <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:#718096;margin-bottom:6px;letter-spacing:.5px;">Payment Schedule</div>
+                    <% if (loan.schedule && loan.schedule.length) { %>
+                    <div class="sch-wrap">
+                        <table class="sch-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Due Date</th>
+                                    <th style="text-align:right;">Expected</th>
+                                    <th style="text-align:right;">Principal</th>
+                                    <th style="text-align:right;">Interest</th>
+                                    <th style="text-align:right;">Paid</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% loan.schedule.forEach(function(s){ %>
+                                <tr>
+                                    <td><%= s.payment_number %></td>
+                                    <td><%= s.due_date %></td>
+                                    <td style="text-align:right;"><%=Number(s.expected_payment||0).toLocaleString()%></td>
+                                    <td style="text-align:right;color:#4299e1;"><%=Number(s.expected_principal||0).toLocaleString()%></td>
+                                    <td style="text-align:right;color:#ed8936;"><%=Number(s.expected_interest||0).toLocaleString()%></td>
+                                    <td style="text-align:right;font-weight:600;"><%=Number(s.paid_amount||0).toLocaleString()%></td>
+                                    <td>
+                                        <% if(s.status==='Paid'){ %><span class="badge-paid">Paid</span>
+                                        <% }else if(s.status==='Overdue'){ %><span class="badge-overdue">Overdue</span>
+                                        <% }else{ %><span class="badge-pending">Pending</span><% } %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
                     </div>
+                    <% } else { %>
+                    <p style="font-size:.75rem;color:#a0aec0;text-align:center;padding:12px;">No schedule data available.</p>
+                    <% } %>
                 </div>
             </div>
         </div>
         <% }) %>
-    <% } else { %>
-    <div class="alert alert-info">No loans on record.</div>
-    <% } %>
 
+    </div>
 </div>
 
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="assets/js/app.min.js"></script>
+<script>
+function toggleSchedule(i) {
+    var el  = document.getElementById('schedule-' + i);
+    var btn = event.currentTarget;
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+        btn.innerHTML = '<i class="fa fa-chevron-up"></i> Hide';
+    } else {
+        el.style.display = 'none';
+        btn.innerHTML = '<i class="fa fa-calendar-o"></i> Schedule';
+    }
+}
+</script>
 </body>
 </html>

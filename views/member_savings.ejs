@@ -2,61 +2,268 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savings - SACCO Member Portal</title>
+    <title>My Savings - Agali Awamu SACCO</title>
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
     <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+body { overflow-x:hidden; font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); }
+body.sidebar-collapsed .page-wrapper { margin-left:60px; }
+.dash-body { padding:14px 22px 28px; }
 
-    <style>
-        body { overflow-x: hidden; }
-        .sidebar { position: fixed; left: 0; top: 0; }
-        .content { margin-left: 250px; padding: 20px; }
-        .ibox { border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
-        .ibox-head { padding: 10px 15px; border-bottom: 1px solid #eaeef2; }
-        .ibox-title { font-size: 0.9rem; font-weight: 700; color: #555; }
-        .ibox-body { padding: 15px; background: #fff; }
-    </style>
+/* heading */
+.page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+.page-heading h3 { font-size:1.1rem; font-weight:700; color:#1a1f2e; margin:0; }
+.page-heading .sub { font-size:.72rem; color:#a0aec0; margin-top:2px; }
+
+/* stat cards */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+@media(min-width:992px){ .stats-grid{ grid-template-columns:repeat(4,1fr); gap:10px; } }
+.widget-stat { border-radius:8px; overflow:hidden; margin-bottom:0 !important; }
+.widget-stat .ibox-body { padding:10px 12px; position:relative; display:flex; flex-direction:column; justify-content:space-between; min-height:82px; }
+.widget-stat-icon { position:absolute; right:8px; top:6px; font-size:2.4rem; opacity:.15; }
+.widget-stat h2 { font-size:clamp(.8rem,2vw,1.1rem); font-weight:700; margin:2px 0 0; line-height:1.15; position:relative; z-index:2; }
+.widget-stat-title { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; opacity:.82; position:relative; z-index:2; }
+.widget-stat-footer { font-size:.62rem; opacity:.78; border-top:1px solid rgba(255,255,255,.2); padding-top:4px; margin-top:6px; }
+
+/* shared card */
+.ibox { margin-bottom:0 !important; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(26,31,46,.06); border:1px solid #eaeef2; }
+.ibox-head { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid #eaeef2; background:#fff; }
+.ibox-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#718096; }
+.ibox-body { padding:11px 12px; background:#fff; }
+
+/* chart */
+.chart-wrap { position:relative; height:200px; }
+@media(max-width:576px){ .chart-wrap{ height:160px; } }
+
+/* table */
+.txn-wrap { overflow-x:auto; }
+.txn-table { width:100%; border-collapse:collapse; }
+.txn-table th { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#a0aec0; padding:6px 10px; border-bottom:2px solid #eaeef2; background:#fafbfc; white-space:nowrap; }
+.txn-table td { font-size:.74rem; padding:7px 10px; border-bottom:1px solid #f0f4f8; color:#444; vertical-align:middle; }
+.txn-table tr:last-child td { border-bottom:none; }
+.txn-table tr:hover td { background:#fafbfc; }
+.badge-cr { background:#e6faf4; color:#00b894; border-radius:10px; padding:2px 8px; font-size:.62rem; font-weight:600; }
+.badge-dr { background:#fff5f5; color:#e53e3e; border-radius:10px; padding:2px 8px; font-size:.62rem; font-weight:600; }
+
+/* month grid */
+.month-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
+@media(max-width:768px){ .month-grid{ grid-template-columns:repeat(3,1fr); } }
+@media(max-width:480px){ .month-grid{ grid-template-columns:repeat(2,1fr); } }
+.month-cell { background:#f7fafc; border-radius:7px; padding:8px 6px; text-align:center; border:1px solid #eaeef2; }
+.month-cell .m-name { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#a0aec0; }
+.month-cell .m-val  { font-size:.82rem; font-weight:700; color:#1a1f2e; margin-top:3px; }
+.month-cell.has-data { border-color:#b2f5ea; background:#f0fdf9; }
+.month-cell.has-data .m-val { color:#00b894; }
+
+/* filter bar */
+.filter-bar { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px; }
+.filter-bar select, .filter-bar input {
+    height:34px; border:1px solid #e2e8f0; border-radius:7px;
+    padding:0 10px; font-size:.78rem; color:#1a1f2e; font-family:'DM Sans',sans-serif;
+    background:#f8fafc; outline:none;
+}
+.filter-bar select:focus, .filter-bar input:focus { border-color:#00b894; box-shadow:0 0 0 2px rgba(0,184,148,.1); }
+.btn-filter { height:34px; padding:0 14px; border-radius:7px; border:none; background:#00b894; color:#fff; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.btn-filter:hover { background:#00a37d; }
+</style>
 </head>
-<body class="bg-light">
+<body>
 
+<%- include('partials/header') %>
 <%- include('partials/member_sidebar') %>
 
-<div class="content">
-
-    <h4 class="mb-4">Savings Statement</h4>
-
-    <div class="ibox">
-        <div class="table-responsive">
-            <table class="table table-bordered mb-0">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (transactions && transactions.length) { %>
-                    <% transactions.forEach(function(row) { %>
-                        <tr>
-                            <td><%= row.tran_date %></td>
-                            <td class="<%= row.Debit_Credit === 'Credit' ? 'text-success' : 'text-danger' %>">
-                                <%= row.Debit_Credit === 'Credit' ? '+' : '-' %> UGX <%= Number(row.Amount).toLocaleString() %>
-                            </td>
-                            <td><%= row.transaction_type %></td>
-                        </tr>
-                    <% }) %>
-                    <% } else { %>
-                        <tr><td colspan="3" class="text-center text-muted">No transactions found</td></tr>
-                    <% } %>
-                </tbody>
-            </table>
+<div class="page-wrapper">
+    <div class="page-heading">
+        <div>
+            <h3><i class="fa fa-piggy-bank" style="color:#00b894;margin-right:8px;"></i>My Savings</h3>
+            <div class="sub"><%= member ? member.First_name + ' ' + member.Last_Name : user.first_name %> &nbsp;·&nbsp; All time savings statement</div>
         </div>
     </div>
 
-</div>
+    <div class="dash-body">
 
+        <!-- Stat cards -->
+        <div class="stats-grid">
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#00b894,#00cec9);">
+                <div class="ibox-body">
+                    <i class="fa fa-piggy-bank widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Net Savings</div>
+                    <h2 style="color:#fff;">UGX <%= Number(netSavings || 0).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Deposits minus withdrawals</div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#4299e1,#63b3ed);">
+                <div class="ibox-body">
+                    <i class="fa fa-arrow-up widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Deposited</div>
+                    <h2 style="color:#fff;">UGX <%= Number(totalDeposits || 0).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;"><%= depositCount %> deposit<%= depositCount !== 1 ? 's' : '' %></div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#e53e3e,#fc8181);">
+                <div class="ibox-body">
+                    <i class="fa fa-arrow-down widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Withdrawn</div>
+                    <h2 style="color:#fff;">UGX <%= Number(totalWithdrawals || 0).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;"><%= withdrawalCount %> withdrawal<%= withdrawalCount !== 1 ? 's' : '' %></div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#9f7aea,#b794f4);">
+                <div class="ibox-body">
+                    <i class="fa fa-calendar widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">This Year</div>
+                    <h2 style="color:#fff;">UGX <%= Number(ytdSavings || 0).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">YTD savings</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly breakdown + Chart -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+
+            <div class="ibox" style="flex:1;min-width:280px;">
+                <div class="ibox-head">
+                    <span class="ibox-title"><i class="fa fa-bar-chart" style="color:#00b894;margin-right:5px;"></i>Monthly Savings (<%= new Date().getFullYear() %>)</span>
+                </div>
+                <div class="ibox-body">
+                    <div class="chart-wrap"><canvas id="savingsChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="ibox" style="flex:0 0 320px;">
+                <div class="ibox-head">
+                    <span class="ibox-title"><i class="fa fa-th" style="color:#4299e1;margin-right:5px;"></i>Month by Month</span>
+                    <span style="font-size:.65rem;color:#a0aec0;"><%= new Date().getFullYear() %></span>
+                </div>
+                <div class="ibox-body">
+                    <div class="month-grid">
+                        <% var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; %>
+                        <% months.forEach(function(m,i){ %>
+                            <% var v = monthlyArr[i] || 0; %>
+                            <div class="month-cell <%= v > 0 ? 'has-data' : '' %>">
+                                <div class="m-name"><%= m %></div>
+                                <div class="m-val"><%= v > 0 ? (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'K' : v) : '—' %></div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Filter + Transactions table -->
+        <div class="ibox">
+            <div class="ibox-head">
+                <span class="ibox-title"><i class="fa fa-list" style="color:#718096;margin-right:5px;"></i>Savings Transactions</span>
+                <span style="font-size:.65rem;color:#a0aec0;"><%= transactions.length %> record<%= transactions.length !== 1 ? 's' : '' %></span>
+            </div>
+            <div class="ibox-body" style="padding-bottom:0;">
+                <div class="filter-bar">
+                    <div>
+                        <div style="font-size:.65rem;font-weight:600;color:#718096;margin-bottom:3px;text-transform:uppercase;">Type</div>
+                        <select id="filterType" onchange="filterTable()">
+                            <option value="">All</option>
+                            <option value="Saving">Deposits</option>
+                            <option value="Savings Withdrawal">Withdrawals</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div style="font-size:.65rem;font-weight:600;color:#718096;margin-bottom:3px;text-transform:uppercase;">Search</div>
+                        <input type="text" id="filterSearch" placeholder="Search…" oninput="filterTable()" style="width:160px;" />
+                    </div>
+                </div>
+            </div>
+            <div class="txn-wrap">
+                <table class="txn-table" id="savingsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Period</th>
+                            <th style="text-align:right;">Amount (UGX)</th>
+                            <th>D/C</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% transactions.forEach(function(t, i) { %>
+                        <tr data-type="<%= t.transaction_type %>" data-desc="<%= (t.description||'').toLowerCase() %>">
+                            <td style="color:#a0aec0;"><%= i+1 %></td>
+                            <td><%= t.date %></td>
+                            <td><%= t.transaction_type %></td>
+                            <td><%= t.payment_period || '—' %></td>
+                            <td style="text-align:right;font-weight:600;"><%=Number(t.Amount).toLocaleString()%></td>
+                            <td><span class="<%= t.Debit_Credit==='Credit'?'badge-cr':'badge-dr' %>"><%= t.Debit_Credit==='Credit'?'CR':'DR' %></span></td>
+                            <td style="color:#a0aec0;font-size:.68rem;"><%= t.description || '—' %></td>
+                        </tr>
+                        <% }) %>
+                        <% if (!transactions.length) { %>
+                        <tr><td colspan="7" style="text-align:center;color:#a0aec0;padding:24px;">No savings transactions found</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- dash-body -->
+</div><!-- page-wrapper -->
+
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="./assets/vendors/chart.js/dist/Chart.min.js"></script>
+<script src="assets/js/app.min.js"></script>
+<script>
+var monthlyArr = <%- JSON.stringify(monthlyArr) %>;
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+Chart.defaults.global.tooltips.backgroundColor = 'rgba(26,31,46,.88)';
+Chart.defaults.global.tooltips.cornerRadius = 6;
+
+var ctx = document.getElementById('savingsChart').getContext('2d');
+var grad = ctx.createLinearGradient(0,0,0,200);
+grad.addColorStop(0,'rgba(0,184,148,.3)');
+grad.addColorStop(1,'rgba(0,184,148,.02)');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: MONTHS,
+        datasets: [{
+            label: 'Savings (UGX)',
+            data: monthlyArr,
+            backgroundColor: monthlyArr.map(function(v){ return v > 0 ? 'rgba(0,184,148,.75)' : 'rgba(0,184,148,.1)'; }),
+            borderRadius: 3, borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        legend: { display: false },
+        scales: {
+            xAxes: [{ gridLines:{display:false}, ticks:{fontSize:9,fontColor:'#a0aec0'} }],
+            yAxes: [{ gridLines:{color:'rgba(0,0,0,.04)'}, ticks:{fontSize:9,fontColor:'#a0aec0',
+                callback: function(v){ return v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'K':v; }
+            }}]
+        }
+    }
+});
+
+function filterTable() {
+    var type   = document.getElementById('filterType').value.toLowerCase();
+    var search = document.getElementById('filterSearch').value.toLowerCase();
+    var rows   = document.querySelectorAll('#savingsTable tbody tr');
+    rows.forEach(function(row) {
+        var rType = (row.dataset.type || '').toLowerCase();
+        var rDesc = (row.dataset.desc || '');
+        var matchType   = !type   || rType === type;
+        var matchSearch = !search || rType.includes(search) || rDesc.includes(search);
+        row.style.display = (matchType && matchSearch) ? '' : 'none';
+    });
+}
+</script>
 </body>
 </html>

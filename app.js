@@ -4858,48 +4858,116 @@ app.get('/member/dashboard', checkMemberAuth, asyncHandler(async (req, res) => {
 app.get('/member/savings', checkMemberAuth, asyncHandler(async (req, res) => {
     const db = dbConfig;
     const memberId = req.session.user.member_id;
+
+    /* All savings transactions */
     const [rows] = await db.execute(`
-        SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS date, Amount, description, Debit_Credit
+        SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS date,
+               transaction_type, payment_period,
+               Amount, Debit_Credit, description
         FROM transactions
-        WHERE member_id=? AND transaction_type='Saving'
+        WHERE member_id = ?
+          AND transaction_type IN ('Saving','Savings Withdrawal')
         ORDER BY tran_date DESC
     `, [memberId]);
-    const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
+
+    /* Aggregates */
+    const totalDeposits    = rows.filter(r => r.transaction_type==='Saving').reduce((s,r) => s+parseFloat(r.Amount),0);
+    const totalWithdrawals = rows.filter(r => r.transaction_type==='Savings Withdrawal').reduce((s,r) => s+parseFloat(r.Amount),0);
+    const netSavings       = totalDeposits - totalWithdrawals;
+    const depositCount     = rows.filter(r => r.transaction_type==='Saving').length;
+    const withdrawalCount  = rows.filter(r => r.transaction_type==='Savings Withdrawal').length;
+
+    /* YTD savings */
+    const [ytdRows] = await db.execute(`
+        SELECT COALESCE(SUM(Amount),0) AS v
+        FROM transactions
+        WHERE member_id=? AND transaction_type='Saving' AND YEAR(tran_date)=YEAR(CURDATE())
+    `, [memberId]);
+    const ytdSavings = parseFloat(ytdRows[0].v);
+
+    /* Monthly array for chart (current year deposits only) */
+    const [monthlyRows] = await db.execute(`
+        SELECT MONTH(tran_date) AS m, COALESCE(SUM(Amount),0) AS v
+        FROM transactions
+        WHERE member_id=? AND transaction_type='Saving' AND YEAR(tran_date)=YEAR(CURDATE())
+        GROUP BY MONTH(tran_date)
+    `, [memberId]);
+    const monthlyArr = new Array(12).fill(0);
+    monthlyRows.forEach(r => { monthlyArr[r.m-1] = parseFloat(r.v); });
+
+    /* Member name for heading */
+    const [mRows] = await db.execute(
+        'SELECT First_name, Last_Name FROM members_mst WHERE id=?', [memberId]
+    );
+    const member = mRows[0] || null;
+
     res.render('member_savings', {
-        currentPage:'member_savings', user:req.session.user,
-        transactions: rows, total
+        currentPage:    'member_savings',
+        user:           req.session.user,
+        member,
+        transactions:   rows,
+        totalDeposits,
+        totalWithdrawals,
+        netSavings,
+        depositCount,
+        withdrawalCount,
+        ytdSavings,
+        monthlyArr:     JSON.stringify(monthlyArr)
     });
 }));
+
+
 
 
 /* ── Loans ── */
 app.get('/member/loans', checkMemberAuth, asyncHandler(async (req, res) => {
     const db = dbConfig;
     const memberId = req.session.user.member_id;
-    const [rows] = await db.execute(`
+
+    const [loans] = await db.execute(`
         SELECT id, loan_amount, balance, accumulated_interest, total_repayment,
                monthly_payment, interest_rate, status, interest_method,
                DATE_FORMAT(disbursement_date,'%d-%b-%Y') AS disbursement_date,
                DATE_FORMAT(maturity_date,'%d-%b-%Y') AS maturity_date
         FROM loans WHERE member_id=? ORDER BY disbursement_date DESC
     `, [memberId]);
+
+    /* Attach schedule to each loan */
+    for (const loan of loans) {
+        const [sch] = await db.execute(`
+            SELECT payment_number,
+                   DATE_FORMAT(due_date,'%d-%b-%Y') AS due_date,
+                   expected_payment, expected_principal, expected_interest,
+                   COALESCE(paid_amount,0) AS paid_amount, status
+            FROM loan_schedule WHERE loan_id=? ORDER BY payment_number ASC
+        `, [loan.id]);
+        loan.schedule = sch;
+    }
+
     res.render('member_loans', {
-        currentPage:'member_loans', user:req.session.user, loans:rows
+        currentPage: 'member_loans',
+        user:        req.session.user,
+        loans
     });
 }));
-
 
 /* ── All transactions ── */
 app.get('/member/transactions', checkMemberAuth, asyncHandler(async (req, res) => {
     const db = dbConfig;
     const memberId = req.session.user.member_id;
+
     const [rows] = await db.execute(`
         SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS tran_date,
                transaction_type, payment_period, Amount, Debit_Credit, description
-        FROM transactions WHERE member_id=? ORDER BY created_at DESC LIMIT 100
+        FROM transactions
+        WHERE member_id=?
+        ORDER BY tran_date DESC, created_at DESC
     `, [memberId]);
+
     res.render('member_transactions', {
-        currentPage:'member_transactions', user:req.session.user, transactions:rows
+        currentPage:  'member_transactions',
+        user:         req.session.user,
+        transactions: rows
     });
 }));
 

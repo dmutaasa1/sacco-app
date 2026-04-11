@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Transactions - Agali Awamu SACCO</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+body { overflow-x:hidden; font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); }
+body.sidebar-collapsed .page-wrapper { margin-left:60px; }
+.dash-body { padding:14px 22px 28px; }
+.page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+.page-heading h3 { font-size:1.1rem; font-weight:700; color:#1a1f2e; margin:0; }
+.page-heading .sub { font-size:.72rem; color:#a0aec0; margin-top:2px; }
+
+/* stat cards */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+@media(min-width:992px){ .stats-grid{ grid-template-columns:repeat(4,1fr); gap:10px; } }
+.widget-stat { border-radius:8px; overflow:hidden; margin-bottom:0!important; }
+.widget-stat .ibox-body { padding:10px 12px; position:relative; display:flex; flex-direction:column; justify-content:space-between; min-height:82px; }
+.widget-stat-icon { position:absolute; right:8px; top:6px; font-size:2.4rem; opacity:.15; }
+.widget-stat h2 { font-size:clamp(.8rem,2vw,1.1rem); font-weight:700; margin:2px 0 0; line-height:1.15; position:relative; z-index:2; }
+.widget-stat-title { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; opacity:.82; z-index:2; position:relative; }
+.widget-stat-footer { font-size:.62rem; opacity:.78; border-top:1px solid rgba(255,255,255,.2); padding-top:4px; margin-top:6px; }
+
+.ibox { margin-bottom:0!important; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(26,31,46,.06); border:1px solid #eaeef2; }
+.ibox-head { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid #eaeef2; background:#fff; }
+.ibox-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#718096; }
+.ibox-body { padding:11px 12px; background:#fff; }
+
+/* filter bar */
+.filter-bar { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px; }
+.filter-label { font-size:.65rem; font-weight:600; color:#718096; margin-bottom:3px; text-transform:uppercase; }
+.filter-bar select, .filter-bar input {
+    height:34px; border:1px solid #e2e8f0; border-radius:7px;
+    padding:0 10px; font-size:.78rem; color:#1a1f2e; font-family:'DM Sans',sans-serif;
+    background:#f8fafc; outline:none;
+}
+.filter-bar select:focus, .filter-bar input:focus { border-color:#00b894; box-shadow:0 0 0 2px rgba(0,184,148,.1); }
+.btn-filter { height:34px; padding:0 14px; border-radius:7px; border:none; background:#00b894; color:#fff; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.count-pill { font-size:.68rem; color:#a0aec0; padding:2px 8px; background:#f0f4f8; border-radius:10px; }
+
+/* table */
+.txn-wrap { overflow-x:auto; }
+.txn-table { width:100%; border-collapse:collapse; }
+.txn-table th { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#a0aec0; padding:7px 10px; border-bottom:2px solid #eaeef2; background:#fafbfc; white-space:nowrap; }
+.txn-table td { font-size:.74rem; padding:8px 10px; border-bottom:1px solid #f0f4f8; color:#444; vertical-align:middle; }
+.txn-table tr:last-child td { border-bottom:none; }
+.txn-table tr:hover td { background:#fafbfc; }
+
+/* badges */
+.badge-cr { background:#e6faf4; color:#00b894; border-radius:10px; padding:2px 8px; font-size:.62rem; font-weight:600; white-space:nowrap; }
+.badge-dr { background:#fff5f5; color:#e53e3e; border-radius:10px; padding:2px 8px; font-size:.62rem; font-weight:600; white-space:nowrap; }
+
+/* type chip */
+.type-chip { display:inline-block; padding:2px 8px; border-radius:10px; font-size:.62rem; font-weight:600; white-space:nowrap; }
+.type-saving      { background:rgba(0,184,148,.1);  color:#00b894; }
+.type-withdrawal  { background:rgba(229,62,62,.08); color:#e53e3e; }
+.type-loan        { background:rgba(66,153,225,.1);  color:#4299e1; }
+.type-repayment   { background:rgba(72,187,120,.1);  color:#48bb78; }
+.type-fee         { background:rgba(237,137,54,.1);  color:#ed8936; }
+.type-other       { background:rgba(160,174,192,.1); color:#718096; }
+
+@media(max-width:600px){ .hide-sm{ display:none; } }
+
+/* pagination */
+.pager { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-top:1px solid #f0f4f8; background:#fff; font-size:.74rem; flex-wrap:wrap; gap:8px; }
+.pager-info { color:#a0aec0; }
+.pager-btns { display:flex; gap:4px; }
+.pager-btn { height:28px; min-width:28px; padding:0 8px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; color:#4a5568; font-size:.72rem; cursor:pointer; }
+.pager-btn:hover { background:#f0f4f8; }
+.pager-btn.active { background:#00b894; border-color:#00b894; color:#fff; }
+.pager-btn:disabled { opacity:.4; cursor:not-allowed; }
+</style>
+</head>
+<body>
+
+<%- include('partials/header') %>
+<%- include('partials/member_sidebar') %>
+
+<div class="page-wrapper">
+    <div class="page-heading">
+        <div>
+            <h3><i class="fa fa-exchange" style="color:#4299e1;margin-right:8px;"></i>My Transactions</h3>
+            <div class="sub"><%= user.first_name %> <%= user.last_name %> &nbsp;·&nbsp; Full transaction history</div>
+        </div>
+    </div>
+
+    <div class="dash-body">
+
+        <%
+        var totalCr = transactions.filter(function(t){return t.Debit_Credit==='Credit';}).reduce(function(s,t){return s+parseFloat(t.Amount||0);},0);
+        var totalDr = transactions.filter(function(t){return t.Debit_Credit==='Debit';}).reduce(function(s,t){return s+parseFloat(t.Amount||0);},0);
+        var savCount = transactions.filter(function(t){return t.transaction_type==='Saving';}).length;
+        var loanCount= transactions.filter(function(t){return t.transaction_type==='Loan Disbursement'||t.transaction_type==='Loan Repayment';}).length;
+        %>
+
+        <!-- Stat cards -->
+        <div class="stats-grid">
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#4299e1,#63b3ed);">
+                <div class="ibox-body">
+                    <i class="fa fa-exchange widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Transactions</div>
+                    <h2 style="color:#fff;"><%= transactions.length %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">All time</div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#00b894,#00cec9);">
+                <div class="ibox-body">
+                    <i class="fa fa-arrow-circle-down widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Credits</div>
+                    <h2 style="color:#fff;">UGX <%= Number(totalCr).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Money received</div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#e53e3e,#fc8181);">
+                <div class="ibox-body">
+                    <i class="fa fa-arrow-circle-up widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Debits</div>
+                    <h2 style="color:#fff;">UGX <%= Number(totalDr).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Money paid out</div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#9f7aea,#b794f4);">
+                <div class="ibox-body">
+                    <i class="fa fa-piggy-bank widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Savings Entries</div>
+                    <h2 style="color:#fff;"><%= savCount %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;"><%= loanCount %> loan transaction<%= loanCount!==1?'s':'' %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter bar + table -->
+        <div class="ibox">
+            <div class="ibox-head">
+                <span class="ibox-title"><i class="fa fa-list" style="color:#718096;margin-right:5px;"></i>Transaction History</span>
+                <span class="count-pill" id="visibleCount"><%= transactions.length %> records</span>
+            </div>
+            <div class="ibox-body" style="padding-bottom:0;">
+                <div class="filter-bar">
+                    <div>
+                        <div class="filter-label">Type</div>
+                        <select id="filterType" onchange="applyFilters()">
+                            <option value="">All types</option>
+                            <option value="Saving">Savings</option>
+                            <option value="Savings Withdrawal">Withdrawals</option>
+                            <option value="Loan Disbursement">Loan Disbursement</option>
+                            <option value="Loan Repayment">Loan Repayment</option>
+                            <option value="Membership Fee">Membership Fee</option>
+                            <option value="welfare Fee">Welfare Fee</option>
+                            <option value="Insuarance Cover">Insurance Cover</option>
+                            <option value="Loan Processing Fee">Processing Fee</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="filter-label">D/C</div>
+                        <select id="filterDC" onchange="applyFilters()">
+                            <option value="">All</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="filter-label">Search</div>
+                        <input type="text" id="filterSearch" placeholder="Date, type, description…" oninput="applyFilters()" style="width:200px;" />
+                    </div>
+                    <div>
+                        <div class="filter-label">&nbsp;</div>
+                        <button class="btn-filter" onclick="clearFilters()"><i class="fa fa-refresh"></i> Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="txn-wrap">
+                <table class="txn-table" id="txnTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th class="hide-sm">Period</th>
+                            <th style="text-align:right;">Amount (UGX)</th>
+                            <th>D/C</th>
+                            <th class="hide-sm">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="txnBody">
+                        <% transactions.forEach(function(t, i){ %>
+                        <%
+                        var typeClass = 'type-other';
+                        if (t.transaction_type==='Saving') typeClass='type-saving';
+                        else if (t.transaction_type==='Savings Withdrawal') typeClass='type-withdrawal';
+                        else if (t.transaction_type==='Loan Disbursement') typeClass='type-loan';
+                        else if (t.transaction_type==='Loan Repayment') typeClass='type-repayment';
+                        else if (t.transaction_type==='Membership Fee'||t.transaction_type==='welfare Fee'||t.transaction_type==='Insuarance Cover'||t.transaction_type==='Loan Processing Fee') typeClass='type-fee';
+                        %>
+                        <tr
+                            data-type="<%= t.transaction_type.toLowerCase() %>"
+                            data-dc="<%= (t.Debit_Credit||'').toLowerCase() %>"
+                            data-search="<%= (t.tran_date+' '+(t.transaction_type||'')+' '+(t.description||'')+' '+(t.payment_period||'')).toLowerCase() %>">
+                            <td style="color:#a0aec0;"><%= i+1 %></td>
+                            <td style="white-space:nowrap;"><%= t.tran_date %></td>
+                            <td><span class="type-chip <%= typeClass %>"><%= t.transaction_type %></span></td>
+                            <td class="hide-sm"><%= t.payment_period || '—' %></td>
+                            <td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums;"><%= Number(t.Amount||0).toLocaleString() %></td>
+                            <td><span class="<%= t.Debit_Credit==='Credit'?'badge-cr':'badge-dr' %>"><%= t.Debit_Credit==='Credit'?'CR':'DR' %></span></td>
+                            <td class="hide-sm" style="color:#a0aec0;font-size:.68rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= t.description || '—' %></td>
+                        </tr>
+                        <% }) %>
+                        <% if (!transactions.length) { %>
+                        <tr id="emptyRow"><td colspan="7" style="text-align:center;color:#a0aec0;padding:28px;">No transactions found</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pager">
+                <span class="pager-info" id="pagerInfo"></span>
+                <div class="pager-btns" id="pagerBtns"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="assets/js/app.min.js"></script>
+<script>
+var PAGE_SIZE = 20;
+var currentPage = 1;
+var allRows = Array.from(document.querySelectorAll('#txnBody tr[data-type]'));
+var visibleRows = allRows.slice();
+
+function applyFilters() {
+    var type   = document.getElementById('filterType').value.toLowerCase();
+    var dc     = document.getElementById('filterDC').value.toLowerCase();
+    var search = document.getElementById('filterSearch').value.toLowerCase();
+
+    visibleRows = allRows.filter(function(row) {
+        var matchType   = !type   || row.dataset.type === type;
+        var matchDC     = !dc     || row.dataset.dc   === dc;
+        var matchSearch = !search || row.dataset.search.includes(search);
+        return matchType && matchDC && matchSearch;
+    });
+
+    currentPage = 1;
+    render();
+}
+
+function clearFilters() {
+    document.getElementById('filterType').value   = '';
+    document.getElementById('filterDC').value     = '';
+    document.getElementById('filterSearch').value = '';
+    applyFilters();
+}
+
+function render() {
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var end   = start + PAGE_SIZE;
+    var pageRows = visibleRows.slice(start, end);
+    var totalPages = Math.ceil(visibleRows.length / PAGE_SIZE) || 1;
+
+    // show/hide rows
+    allRows.forEach(function(r){ r.style.display='none'; });
+    pageRows.forEach(function(r){ r.style.display=''; });
+
+    // update row numbers
+    pageRows.forEach(function(r, i){ r.cells[0].textContent = start + i + 1; });
+
+    // count pill
+    document.getElementById('visibleCount').textContent = visibleRows.length + ' record' + (visibleRows.length!==1?'s':'');
+
+    // pager info
+    document.getElementById('pagerInfo').textContent =
+        'Showing ' + (visibleRows.length ? start+1 : 0) + '–' + Math.min(end, visibleRows.length) + ' of ' + visibleRows.length;
+
+    // pager buttons
+    var btnsEl = document.getElementById('pagerBtns');
+    btnsEl.innerHTML = '';
+
+    function addBtn(label, page, disabled, active) {
+        var btn = document.createElement('button');
+        btn.className = 'pager-btn' + (active?' active':'');
+        btn.innerHTML = label;
+        btn.disabled  = disabled;
+        btn.onclick   = function(){ currentPage = page; render(); };
+        btnsEl.appendChild(btn);
+    }
+
+    addBtn('<i class="fa fa-chevron-left"></i>', currentPage-1, currentPage===1, false);
+
+    var startPage = Math.max(1, currentPage-2);
+    var endPage   = Math.min(totalPages, startPage+4);
+    for (var p = startPage; p <= endPage; p++) {
+        addBtn(p, p, false, p===currentPage);
+    }
+
+    addBtn('<i class="fa fa-chevron-right"></i>', currentPage+1, currentPage===totalPages, false);
+}
+
+// Initial render
+render();
+</script>
+</body>
+</html>
