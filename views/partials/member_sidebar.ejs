@@ -40,14 +40,6 @@ body.sidebar-collapsed #member-sidebar { width: 60px; }
     body.sidebar-collapsed #member-sidebar {
         width: min(280px, 86vw);
     }
-    body.sidebar-collapsed #member-sidebar .m-label,
-    body.sidebar-collapsed #member-sidebar ul.member-menu > li.heading,
-    body.sidebar-collapsed #member-sidebar .m-bottom-label {
-        opacity: 1;
-        width: auto;
-        height: auto;
-        overflow: visible;
-    }
 }
 
 /* scroll container */
@@ -175,6 +167,25 @@ body.sidebar-collapsed #member-sidebar .m-label { opacity: 0; width: 0; flex: 0;
 #member-sidebar .m-link.danger { color: rgba(220,80,80,.7); }
 #member-sidebar .m-link.danger:hover { background: rgba(214,48,49,.1); color: #ff7675; }
 body.sidebar-collapsed #member-sidebar .m-bottom-label { display: none; }
+
+@media (max-width: 991px) {
+    body.sidebar-collapsed #member-sidebar ul.member-menu > li.heading {
+        opacity: 1 !important;
+        padding: 12px 9px 4px !important;
+        height: auto !important;
+        display: block !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #member-sidebar .m-label {
+        opacity: 1 !important;
+        width: auto !important;
+        flex: 1 !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #member-sidebar .m-bottom-label {
+        display: inline !important;
+    }
+}
 </style>
 
 <nav id="member-sidebar">
@@ -265,9 +276,11 @@ body.sidebar-collapsed #member-sidebar .m-bottom-label { display: none; }
 
 <script>
 (function () {
-    /* Restore sidebar collapsed state */
-    if (localStorage.getItem('sidebarCollapsed') === '1') {
+    /* Restore sidebar collapsed state only on desktop */
+    if (window.innerWidth > 991 && localStorage.getItem('sidebarCollapsed') === '1') {
         document.body.classList.add('sidebar-collapsed');
+    } else {
+        document.body.classList.remove('sidebar-collapsed');
     }
 
     document.querySelectorAll('#member-sidebar a').forEach(function (link) {

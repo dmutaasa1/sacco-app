@@ -47,19 +47,6 @@ body.sidebar-collapsed #sidebar { width: 60px; }
     body.sidebar-collapsed #sidebar {
         width: min(280px, 86vw);
     }
-    body.sidebar-collapsed #sidebar .nav-label,
-    body.sidebar-collapsed #sidebar .arrow,
-    body.sidebar-collapsed #sidebar #side-menu > li.heading,
-    body.sidebar-collapsed #sidebar .sb-label {
-        opacity: 1;
-        display: block;
-        width: auto;
-        height: auto;
-        overflow: visible;
-    }
-    body.sidebar-collapsed #sidebar .arrow {
-        display: inline-block;
-    }
 }
 
 /* scroll container */
@@ -245,6 +232,34 @@ body.sidebar-collapsed #sidebar ul.nav-2-level { display: none !important; }
 #sidebar .sb-link.danger { color: rgba(220,80,80,.7); }
 #sidebar .sb-link.danger:hover { background: rgba(214,48,49,.1); color: #ff7675; }
 body.sidebar-collapsed #sidebar .sb-label { display: none; }
+
+@media (max-width: 991px) {
+    body.sidebar-collapsed #sidebar #side-menu > li.heading {
+        opacity: 1 !important;
+        padding: 12px 9px 4px !important;
+        height: auto !important;
+        display: block !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #sidebar .nav-label {
+        opacity: 1 !important;
+        width: auto !important;
+        flex: 1 !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #sidebar .arrow {
+        opacity: 1 !important;
+        width: auto !important;
+        display: inline-block !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #sidebar .sb-label {
+        display: inline !important;
+    }
+    body.sidebar-collapsed #sidebar ul.nav-2-level {
+        display: block !important;
+    }
+}
 </style>
 
 <nav id="sidebar" class="page-sidebar">
