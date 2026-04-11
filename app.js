@@ -309,7 +309,7 @@ function asyncHandler(fn) {
 
 function checkMemberAuth(req, res, next) {
     if (!req.session || !req.session.user) {
-        return res.redirect('/member-login');
+        return res.redirect('/login');
     }
     if (req.session.user.role !== 'member') {
         return res.redirect('/');

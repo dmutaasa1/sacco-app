@@ -9,13 +9,21 @@
     <link href="/assets/css/main.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
-body { overflow-x:hidden; font-family:'DM Sans',sans-serif; background:#f7fafc; }
-.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); }
+* { box-sizing:border-box; }
+html, body { width:100%; max-width:100%; overflow-x:hidden; }
+body { font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); width:calc(100% - 220px); max-width:100%; }
 body.sidebar-collapsed .page-wrapper { margin-left:60px; }
 .dash-body { padding:14px 22px 28px; }
 .page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
 .page-heading h3 { font-size:1.1rem; font-weight:700; color:#1a1f2e; margin:0; }
 .page-heading .sub { font-size:.72rem; color:#a0aec0; margin-top:2px; }
+@media(max-width:991px){
+    .page-wrapper { margin-left:0; width:100%; max-width:100%; }
+    .dash-body { padding:12px 14px 24px; }
+    .page-heading { padding:12px 14px 0; }
+    .stats-grid { grid-template-columns:1fr; }
+}
 
 /* stat cards */
 .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
@@ -72,7 +80,7 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
 .repay-fill  { height:100%; border-radius:4px; background:linear-gradient(90deg,#00b894,#00cec9); transition:width .6s ease; }
 
 /* schedule table */
-.sch-wrap { overflow-x:auto; margin-top:10px; }
+.sch-wrap { overflow-x:auto; max-width:100%; margin-top:10px; }
 .sch-table { width:100%; border-collapse:collapse; }
 .sch-table th { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#a0aec0; padding:5px 8px; border-bottom:2px solid #eaeef2; background:#fafbfc; white-space:nowrap; }
 .sch-table td { font-size:.72rem; padding:5px 8px; border-bottom:1px solid #f0f4f8; color:#444; }
