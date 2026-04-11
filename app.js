@@ -335,6 +335,10 @@ function blockMemberAccess(req, res, next) {
     next();
 }
 
+function isAdminUser(user) {
+    return String(user && user.role ? user.role : '').toLowerCase() === 'admin';
+}
+
 
 //// Add this RIGHT AFTER your middleware and BEFORE everything else
 
@@ -343,7 +347,7 @@ function blockMemberAccess(req, res, next) {
 // GET: User management page
 app.get('/users', checkAuth, asyncHandler(async (req, res) => {
   // Check if user has admin role
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).send('Access denied. Admin only.');
   }
 
@@ -386,31 +390,38 @@ app.get('/users', checkAuth, asyncHandler(async (req, res) => {
 
 // GET: Add user form
 app.get('/users/add', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).send('Access denied. Admin only.');
   }
 
+  const db = dbConfig;
+  const [members] = await db.execute(`
+    SELECT id, First_name, Last_Name, Status
+    FROM members_mst
+    WHERE UPPER(Status) = 'ACTIVE'
+    ORDER BY id DESC
+  `);
+
   res.render('user_add', { 
     currentPage: 'users', 
-    user: req.session.user 
+    user: req.session.user,
+    members
   });
 }));
 
 // POST: Create new user
 app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).json({ error: 'Access denied' });
   }
 
   const db = dbConfig;
-  const { username, password, confirm_password, first_name, last_name, role, status } = req.body;
+  let { username, password, confirm_password, first_name, last_name, role, status, member_id } = req.body;
   const errors = [];
 
   // Validations
   if (!username) errors.push("Username is required");
   if (!password) errors.push("Password is required");
-  if (!first_name) errors.push("First name is required");
-  if (!last_name) errors.push("Last name is required");
   if (!role) errors.push("Role is required");
 
   if (password && password.length < 6) {
@@ -431,6 +442,41 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
     errors.push("Username already exists");
   }
 
+  let memberRecord = null;
+  if (String(role).toLowerCase() === 'member') {
+    if (!member_id) {
+      errors.push("Member ID is required for member users");
+    } else {
+      const [members] = await db.execute(
+        `SELECT id, First_name, Last_Name, Status
+         FROM members_mst
+         WHERE id = ? AND UPPER(Status) = 'ACTIVE'`,
+        [member_id]
+      );
+
+      if (members.length === 0) {
+        errors.push("Selected member ID is invalid");
+      } else {
+        memberRecord = members[0];
+        first_name = memberRecord.First_name;
+        last_name = memberRecord.Last_Name;
+
+        const [existingMemberUser] = await db.execute(
+          'SELECT id FROM users WHERE member_id = ?',
+          [member_id]
+        );
+
+        if (existingMemberUser.length > 0) {
+          errors.push("That member already has a user account");
+        }
+      }
+    }
+  } else {
+    if (!first_name) errors.push("First name is required");
+    if (!last_name) errors.push("Last name is required");
+    member_id = null;
+  }
+
   if (errors.length > 0) {
     return res.status(400).json({ errors });
   }
@@ -441,8 +487,8 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
   // Insert user
   await db.execute(`
     INSERT INTO users 
-    (username, password, first_name, last_name, role, status, created_by, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+    (username, password, first_name, last_name, role, status, member_id, created_by, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `, [
     username, 
     hashedPassword, 
@@ -450,6 +496,7 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
     last_name, 
     role || 'user', 
     status || 'active',
+    member_id,
     req.session.user.id
   ]);
 
@@ -462,7 +509,7 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
 
 // GET: Edit user form
 app.get('/users/:id/edit', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).send('Access denied. Admin only.');
   }
 
@@ -488,7 +535,7 @@ app.get('/users/:id/edit', checkAuth, asyncHandler(async (req, res) => {
 
 // POST: Update user
 app.post('/users/:id/edit', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).json({ error: 'Access denied' });
   }
 
@@ -499,8 +546,6 @@ app.post('/users/:id/edit', checkAuth, asyncHandler(async (req, res) => {
 
   // Validations
   if (!username) errors.push("Username is required");
-  if (!first_name) errors.push("First name is required");
-  if (!last_name) errors.push("Last name is required");
   if (!role) errors.push("Role is required");
 
   // Check username uniqueness (excluding current user)
@@ -539,7 +584,7 @@ app.post('/users/:id/change-password', checkAuth, asyncHandler(async (req, res) 
 
   // Check if user is changing their own password or is admin
   const isOwnPassword = parseInt(id) === req.session.user.id;
-  const isAdmin = req.session.user.role === 'Admin';
+  const isAdmin = isAdminUser(req.session.user);
 
   if (!isOwnPassword && !isAdmin) {
     return res.status(403).json({ error: 'Access denied' });
@@ -585,7 +630,7 @@ app.post('/users/:id/change-password', checkAuth, asyncHandler(async (req, res) 
 
 // POST: Delete/Deactivate user
 app.post('/users/:id/delete', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).json({ error: 'Access denied' });
   }
 
@@ -4114,7 +4159,7 @@ app.get('/users-test', checkAuth, asyncHandler(async (req, res) => {
 // GET: User management page
 app.get('/users', checkAuth, asyncHandler(async (req, res) => {
   // Check if user has admin role
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).send('Access denied. Admin only.');
   }
 
@@ -4157,24 +4202,33 @@ app.get('/users', checkAuth, asyncHandler(async (req, res) => {
 
 // GET: Add user form
 app.get('/users/add', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).send('Access denied. Admin only.');
   }
 
+  const db = dbConfig;
+  const [members] = await db.execute(`
+    SELECT id, First_name, Last_Name, Status
+    FROM members_mst
+    WHERE UPPER(Status) = 'ACTIVE'
+    ORDER BY id DESC
+  `);
+
   res.render('user_add', { 
     currentPage: 'users', 
-    user: req.session.user 
+    user: req.session.user,
+    members
   });
 }));
 
 // POST: Create new user
 app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).json({ error: 'Access denied' });
   }
 
   const db = dbConfig;
-  const { username, password, confirm_password, first_name, last_name, role, status } = req.body;
+  let { username, password, confirm_password, first_name, last_name, role, status, member_id } = req.body;
   const errors = [];
 
   // Validations
@@ -4202,6 +4256,41 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
     errors.push("Username already exists");
   }
 
+  let memberRecord = null;
+  if (String(role).toLowerCase() === 'member') {
+    if (!member_id) {
+      errors.push("Member ID is required for member users");
+    } else {
+      const [members] = await db.execute(
+        `SELECT id, First_name, Last_Name, Status
+         FROM members_mst
+         WHERE id = ? AND UPPER(Status) = 'ACTIVE'`,
+        [member_id]
+      );
+
+      if (members.length === 0) {
+        errors.push("Selected member ID is invalid");
+      } else {
+        memberRecord = members[0];
+        first_name = memberRecord.First_name;
+        last_name = memberRecord.Last_Name;
+
+        const [existingMemberUser] = await db.execute(
+          'SELECT id FROM users WHERE member_id = ?',
+          [member_id]
+        );
+
+        if (existingMemberUser.length > 0) {
+          errors.push("That member already has a user account");
+        }
+      }
+    }
+  } else {
+    if (!first_name) errors.push("First name is required");
+    if (!last_name) errors.push("Last name is required");
+    member_id = null;
+  }
+
   if (errors.length > 0) {
     return res.status(400).json({ errors });
   }
@@ -4212,8 +4301,8 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
   // Insert user
   await db.execute(`
     INSERT INTO users 
-    (username, password, first_name, last_name, role, status, created_by, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+    (username, password, first_name, last_name, role, status, member_id, created_by, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `, [
     username, 
     hashedPassword, 
@@ -4221,6 +4310,7 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
     last_name, 
     role || 'user', 
     status || 'active',
+    member_id,
     req.session.user.id
   ]);
 
@@ -4233,7 +4323,7 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
 
 // GET: Edit user form
 app.get('/users/:id/edit', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).send('Access denied. Admin only.');
   }
 
@@ -4259,7 +4349,7 @@ app.get('/users/:id/edit', checkAuth, asyncHandler(async (req, res) => {
 
 // POST: Update user
 app.post('/users/:id/edit', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).json({ error: 'Access denied' });
   }
 
@@ -4310,7 +4400,7 @@ app.post('/users/:id/change-password', checkAuth, asyncHandler(async (req, res) 
 
   // Check if user is changing their own password or is admin
   const isOwnPassword = parseInt(id) === req.session.user.id;
-  const isAdmin = req.session.user.role === 'Admin';
+  const isAdmin = isAdminUser(req.session.user);
 
   if (!isOwnPassword && !isAdmin) {
     return res.status(403).json({ error: 'Access denied' });
@@ -4356,7 +4446,7 @@ app.post('/users/:id/change-password', checkAuth, asyncHandler(async (req, res) 
 
 // POST: Delete/Deactivate user
 app.post('/users/:id/delete', checkAuth, asyncHandler(async (req, res) => {
-  if (req.session.user.role !== 'Admin') {
+  if (!isAdminUser(req.session.user)) {
     return res.status(403).json({ error: 'Access denied' });
   }
 

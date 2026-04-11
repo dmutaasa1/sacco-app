@@ -125,7 +125,28 @@
                                                 <option value="">Select Role</option>
                                                 <option value="user">User</option>
                                                 <option value="admin">Admin</option>
+                                                <option value="member">Member</option>
                                             </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row d-none" id="memberPickerRow">
+                                        <label class="col-sm-3 col-form-label">
+                                            Member ID <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <select class="form-control" id="member_id" name="member_id">
+                                                <option value="">Select active member</option>
+                                                <% (members || []).forEach(function(member) { %>
+                                                    <option
+                                                        value="<%= member.id %>"
+                                                        data-first-name="<%= member.First_name %>"
+                                                        data-last-name="<%= member.Last_Name %>">
+                                                        <%= member.id %> - <%= member.First_name %> <%= member.Last_Name %>
+                                                    </option>
+                                                <% }); %>
+                                            </select>
+                                            <small class="form-text text-muted">Names will be pulled from the members register.</small>
                                         </div>
                                     </div>
 
@@ -171,11 +192,47 @@
     <script src="/assets/js/app.min.js"></script>
 
     <script>
+        function syncMemberMode() {
+            const isMemberRole = ($('#role').val() || '').toLowerCase() === 'member';
+            $('#memberPickerRow').toggleClass('d-none', !isMemberRole);
+            $('#member_id').prop('required', isMemberRole);
+            $('#first_name, #last_name').prop('readonly', isMemberRole);
+
+            if (!isMemberRole) {
+                $('#member_id').val('');
+                $('#first_name, #last_name').val('');
+            } else {
+                $('#member_id').trigger('change');
+            }
+        }
+
+        $('#role').on('change', syncMemberMode);
+
+        $('#member_id').on('change', function() {
+            const selected = this.options[this.selectedIndex];
+            const firstName = selected ? selected.getAttribute('data-first-name') || '' : '';
+            const lastName = selected ? selected.getAttribute('data-last-name') || '' : '';
+
+            $('#first_name').val(firstName);
+            $('#last_name').val(lastName);
+        });
+
+        syncMemberMode();
+
         $('#addUserForm').on('submit', async function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
+
+            if ((data.role || '').toLowerCase() === 'member' && !data.member_id) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please select a valid member'
+                });
+                return;
+            }
 
             // Validate passwords match
             if (data.password !== data.confirm_password) {
