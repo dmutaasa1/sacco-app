@@ -468,6 +468,8 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
         // Restore saved preference
         if (!isMobileLayout() && localStorage.getItem('sidebarCollapsed') === '1') {
             document.body.classList.add('sidebar-collapsed');
+        } else if (isMobileLayout()) {
+            document.body.classList.remove('sidebar-collapsed');
         }
         toggleBtn.addEventListener('click', function () {
             if (isMobileLayout()) {
