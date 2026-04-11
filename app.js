@@ -3474,6 +3474,102 @@ app.get('/search', checkAuth, asyncHandler(async (req, res) => {
 app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 12, 50);
     const notifications = [];
+    const isMember = req.session && req.session.user && req.session.user.role === 'member';
+    const memberId = req.session && req.session.user ? req.session.user.member_id : null;
+
+    if (isMember && memberId) {
+        try {
+            const [overdueRows] = await dbConfig.execute(`
+                SELECT ls.loan_id, ls.due_date, ls.expected_payment
+                FROM loan_schedule ls
+                JOIN loans l ON ls.loan_id = l.id
+                WHERE ls.status = 'Overdue' AND l.member_id = ?
+                ORDER BY ls.due_date ASC
+                LIMIT 5
+            `, [memberId]);
+            overdueRows.forEach(function(r) {
+                notifications.push({
+                    id:         'ov_' + r.loan_id,
+                    type:       'overdue',
+                    title:      'Overdue Payment',
+                    message:    'UGX ' + Number(r.expected_payment).toLocaleString() + ' due ' + (r.due_date ? String(r.due_date).split('T')[0] : ''),
+                    created_at: r.due_date,
+                    read:       false,
+                    status:     null
+                });
+            });
+        } catch (e) { /* skip */ }
+
+        try {
+            const [loanRows] = await dbConfig.execute(`
+                SELECT l.id, l.loan_amount, l.disbursement_date AS created_at
+                FROM loans l
+                WHERE l.member_id = ?
+                ORDER BY l.disbursement_date DESC
+                LIMIT 5
+            `, [memberId]);
+            loanRows.forEach(function(r) {
+                notifications.push({
+                    id:         'loan_' + r.id,
+                    type:       'loan',
+                    title:      'Loan Update',
+                    message:    'Loan amount UGX ' + Number(r.loan_amount).toLocaleString(),
+                    created_at: r.created_at,
+                    read:       true,
+                    status:     null
+                });
+            });
+        } catch (e) { /* skip */ }
+
+        try {
+            const [repayRows] = await dbConfig.execute(`
+                SELECT lph.id, lph.amount, lph.payment_date AS created_at
+                FROM loan_payment_history lph
+                JOIN loans l ON lph.loan_id = l.id
+                WHERE l.member_id = ?
+                ORDER BY lph.payment_date DESC
+                LIMIT 5
+            `, [memberId]);
+            repayRows.forEach(function(r) {
+                notifications.push({
+                    id:         'rep_' + r.id,
+                    type:       'repayment',
+                    title:      'Loan Repayment Received',
+                    message:    'You paid UGX ' + Number(r.amount).toLocaleString(),
+                    created_at: r.created_at,
+                    read:       true,
+                    status:     null
+                });
+            });
+        } catch (e) { /* skip */ }
+
+        try {
+            const [txnRows] = await dbConfig.execute(`
+                SELECT id, Amount AS amount, transaction_type, created_at
+                FROM transactions
+                WHERE member_id = ?
+                ORDER BY created_at DESC
+                LIMIT 5
+            `, [memberId]);
+            txnRows.forEach(function(r) {
+                notifications.push({
+                    id:         'txn_' + r.id,
+                    type:       'transaction',
+                    title:      (r.transaction_type || 'Transaction') + ' Posted',
+                    message:    'UGX ' + Number(r.amount).toLocaleString(),
+                    created_at: r.created_at,
+                    read:       true,
+                    status:     null
+                });
+            });
+        } catch (e) { /* skip */ }
+
+        notifications.sort(function(a, b) {
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        return res.json({ notifications: notifications.slice(0, limit) });
+    }
 
     /* 1. Interest calculation — from loan_daily_interest (always exists) */
     try {
