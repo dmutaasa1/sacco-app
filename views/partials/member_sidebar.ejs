@@ -27,6 +27,28 @@ function isMemberActive(pages) {
     padding: 0;
 }
 body.sidebar-collapsed #member-sidebar { width: 60px; }
+@media (max-width: 991px) {
+    #member-sidebar {
+        width: min(280px, 86vw);
+        transform: translateX(-100%);
+        transition: transform .2s ease;
+        box-shadow: 0 10px 30px rgba(15,22,35,.24);
+    }
+    body.sidebar-open #member-sidebar {
+        transform: translateX(0);
+    }
+    body.sidebar-collapsed #member-sidebar {
+        width: min(280px, 86vw);
+    }
+    body.sidebar-collapsed #member-sidebar .m-label,
+    body.sidebar-collapsed #member-sidebar ul.member-menu > li.heading,
+    body.sidebar-collapsed #member-sidebar .m-bottom-label {
+        opacity: 1;
+        width: auto;
+        height: auto;
+        overflow: visible;
+    }
+}
 
 /* scroll container */
 #member-sidebar-collapse {
@@ -247,5 +269,13 @@ body.sidebar-collapsed #member-sidebar .m-bottom-label { display: none; }
     if (localStorage.getItem('sidebarCollapsed') === '1') {
         document.body.classList.add('sidebar-collapsed');
     }
+
+    document.querySelectorAll('#member-sidebar a').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (window.innerWidth <= 991) {
+                document.body.classList.remove('sidebar-open');
+            }
+        });
+    });
 }());
 </script>

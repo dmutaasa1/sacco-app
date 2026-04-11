@@ -34,6 +34,29 @@ function isActive(pages) {
     box-shadow: none;
 }
 body.sidebar-collapsed #sidebar { width: 60px; }
+@media (max-width: 991px) {
+    #sidebar {
+        width: min(280px, 86vw);
+        transform: translateX(-100%);
+        transition: transform .2s ease;
+        box-shadow: 0 10px 30px rgba(15,22,35,.24);
+    }
+    body.sidebar-open #sidebar {
+        transform: translateX(0);
+    }
+    body.sidebar-collapsed #sidebar {
+        width: min(280px, 86vw);
+    }
+    body.sidebar-collapsed #sidebar .nav-label,
+    body.sidebar-collapsed #sidebar .arrow,
+    body.sidebar-collapsed #sidebar #side-menu > li.heading,
+    body.sidebar-collapsed #sidebar .sb-label {
+        opacity: 1;
+        width: auto;
+        height: auto;
+        overflow: visible;
+    }
+}
 
 /* scroll container */
 #sidebar-collapse {
@@ -377,6 +400,12 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
                 var $sub = $(this).closest('ul.nav-2-level');
                 $sub.addClass('in').css('height', '');
                 $sub.closest('li').children('a').attr('aria-expanded', 'true');
+            });
+
+            $menu.find('a').on('click', function () {
+                if (window.innerWidth <= 991) {
+                    document.body.classList.remove('sidebar-open');
+                }
             });
         });
     }
