@@ -4757,8 +4757,8 @@ app.get('/member/dashboard', checkMemberAuth, asyncHandler(async (req, res) => {
         insurancePaid, insurancePct, welfarePaid, welfarePct, membershipPaid, membershipPct,
         outstandingLoan, accruedInterest, loanTotalPaid, loanRepaidPct,
         overdueCount, nextPayment, loanSchedule,
-        monthlySavings:    JSON.stringify(monthlySavingsArr),
-        cumulativeSavings: JSON.stringify(cumulativeSavingsArr),
+        monthlySavings: monthlySavingsArr,
+        cumulativeSavings: cumulativeSavingsArr,
         recentTxns: txnRows, activities: actRows
     });
 }));
