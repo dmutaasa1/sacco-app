@@ -11,12 +11,20 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
 <style>
+* { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 /* ══════════════════════════════════════════
    BASE LAYOUT — matches admin dashboard
 ══════════════════════════════════════════ */
-body { overflow-x: hidden; font-family: 'DM Sans', sans-serif; background: #f7fafc; }
-.page-wrapper { margin-left: 220px; margin-top: 60px; }
-body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
+body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+.page-wrapper { margin-left: 220px; margin-top: 60px; width: calc(100% - 220px); max-width: 100%; }
+body.sidebar-collapsed .page-wrapper { margin-left: 60px; width: calc(100% - 60px); }
+@media (max-width: 991px) {
+    .page-wrapper { margin-left: 0; width: 100%; max-width: 100%; }
+    .page-heading { padding: 12px 14px 0; }
+    .dash-body { padding: 12px 14px 24px; }
+    .stats-grid { grid-template-columns: 1fr; }
+}
 
 /* ══════════════════════════════════════════
    PAGE HEADING
@@ -111,7 +119,8 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
 /* ══════════════════════════════════════════
    SAVINGS BREAKDOWN
 ══════════════════════════════════════════ */
-.split-row { display: flex; align-items: center; gap: 10px; }
+.split-row { display: flex; align-items: center; gap: 10px; max-width: 100%; }
+@media (max-width: 576px) { .split-row { flex-direction: column; align-items: stretch; } }
 .split-legend { flex: 1; min-width: 0; }
 .sav-row {
     display: flex; align-items: center; gap: 5px;
@@ -141,7 +150,7 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
 /* ══════════════════════════════════════════
    LOAN SCHEDULE TABLE
 ══════════════════════════════════════════ */
-.txn-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.txn-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 .txn-table { width: 100%; border-collapse: collapse; }
 .txn-table th {
     font-size: .6rem; font-weight: 700; text-transform: uppercase;
