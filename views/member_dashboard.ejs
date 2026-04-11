@@ -226,7 +226,7 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                     <div class="widget-stat-title" style="color:#fff;">Total Savings</div>
                     <h2 style="color:#fff;">UGX <%= Number(totalSavings).toLocaleString() %></h2>
                     <div class="widget-stat-footer" style="color:#fff;">
-                        <i class="fa fa-arrow-up"></i> <%= Number(ytdSavings).toLocaleString() %> this year
+                        <i class="fa fa-arrow-up"></i> UGX <%= Number(ytdSavings).toLocaleString() %> this year
                     </div>
                 </div>
             </div>
@@ -278,7 +278,7 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                         <span class="ibox-title"><i class="fa fa-bar-chart" style="color:#00b894;margin-right:5px;"></i>My Savings History</span>
                         <div class="chart-tab-bar" style="margin:0;">
                             <button class="chart-tab-btn active" onclick="switchChart('bar',this)">Monthly</button>
-                            <button class="chart-tab-btn"        onclick="switchChart('cumulative',this)">Cumulative</button>
+                            <button class="chart-tab-btn" onclick="switchChart('cumulative',this)">Cumulative</button>
                         </div>
                     </div>
                     <div class="ibox-body">
@@ -328,12 +328,12 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                                                 <% } %>
                                             </td>
                                         </tr>
-                                        <% }) %>
+                                        <% }); %>
                                     <% } else { %>
                                         <tr><td colspan="7" style="text-align:center;color:#a0aec0;padding:18px;">No loan schedule found</td></tr>
                                     <% } %>
                                 </tbody>
-                            </table>
+                             </table>
                         </div>
                     </div>
                 </div>
@@ -371,12 +371,12 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                                                 <% } %>
                                             </td>
                                         </tr>
-                                        <% }) %>
+                                        <% }); %>
                                     <% } else { %>
                                         <tr><td colspan="5" style="text-align:center;color:#a0aec0;padding:18px;">No transactions found</td></tr>
                                     <% } %>
                                 </tbody>
-                            </table>
+                             </table>
                         </div>
                     </div>
                 </div>
@@ -435,7 +435,7 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                             <span style="font-weight:600;color:#4299e1;"><%= insurancePct %>%</span>
                         </div>
                         <div class="prog-bar-track">
-                            <div class="prog-bar-fill" style="width:<%= Math.min(insurancePct,100) %>%;background:#4299e1;"></div>
+                            <div class="prog-bar-fill" style="width:<%= Math.min(insurancePct, 100) %>%; background:#4299e1;"></div>
                         </div>
                         <!-- Welfare -->
                         <div class="prog-label">
@@ -443,7 +443,7 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                             <span style="font-weight:600;color:#9f7aea;"><%= welfarePct %>%</span>
                         </div>
                         <div class="prog-bar-track">
-                            <div class="prog-bar-fill" style="width:<%= Math.min(welfarePct,100) %>%;background:#9f7aea;"></div>
+                            <div class="prog-bar-fill" style="width: <%= Math.min(welfarePct, 100) %>%; background: #9f7aea;"></div>
                         </div>
                         <!-- Membership -->
                         <div class="prog-label">
@@ -451,7 +451,7 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                             <span style="font-weight:600;color:#00b894;"><%= membershipPct %>%</span>
                         </div>
                         <div class="prog-bar-track">
-                            <div class="prog-bar-fill" style="width:<%= Math.min(membershipPct,100) %>%;background:#00b894;"></div>
+                            <div class="prog-bar-fill" style="width: <%= Math.min(membershipPct, 100) %>%; background: #00b894;"></div>
                         </div>
                         <!-- Savings target -->
                         <div class="prog-label">
@@ -459,7 +459,7 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                             <span style="font-weight:600;color:#ed8936;">UGX <%= Number(ytdSavings).toLocaleString() %></span>
                         </div>
                         <div class="prog-bar-track">
-                            <div class="prog-bar-fill" style="width:100%;background:#ed8936;opacity:.6;"></div>
+                            <div class="prog-bar-fill" style="width: 100%; background: #ed8936; opacity: .6;"></div>
                         </div>
                     </div>
                 </div>
@@ -508,21 +508,21 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
                     <div class="ibox-body">
                         <% if (activities && activities.length) { %>
                             <% var actColors = ['#00b894','#4299e1','#9f7aea','#ed8936','#e53e3e']; %>
-                            <% var actIcons  = {'Saving':'fa-arrow-up','Savings Withdrawal':'fa-arrow-down','Loan Repayment':'fa-money','Loan Disbursement':'fa-bank','Membership Fee':'fa-id-card','welfare Fee':'fa-heart','Insuarance Cover':'fa-shield'}; %>
+                            <% var actIcons = {'Saving':'fa-arrow-up','Savings Withdrawal':'fa-arrow-down','Loan Repayment':'fa-money','Loan Disbursement':'fa-bank','Membership Fee':'fa-id-card','welfare Fee':'fa-heart','Insuarance Cover':'fa-shield'}; %>
                             <% activities.forEach(function(a, i) { %>
                             <div class="activity-item">
-                                <div class="act-ico" style="background:<%=actColors[i%actColors.length]%>20;color:<%=actColors[i%actColors.length]%>;">
+                                <div class="act-ico" style="background:<%= actColors[i % actColors.length] %>20; color:<%= actColors[i % actColors.length] %>;">
                                     <i class="fa <%= actIcons[a.transaction_type] || 'fa-exchange' %>"></i>
                                 </div>
                                 <div>
                                     <div class="act-title"><%= a.transaction_type %></div>
                                     <div class="act-sub"><%= a.created_at %></div>
                                 </div>
-                                <div class="act-amt" style="color:<%= a.Debit_Credit==='Credit'?'#00b894':'#e53e3e' %>;">
-                                    <%= a.Debit_Credit==='Credit'?'+':'-' %> UGX <%= Number(a.Amount).toLocaleString() %>
+                                <div class="act-amt" style="color: <%= a.Debit_Credit === 'Credit' ? '#00b894' : '#e53e3e' %>;">
+                                    <%= a.Debit_Credit === 'Credit' ? '+' : '-' %> UGX <%= Number(a.Amount).toLocaleString() %>
                                 </div>
                             </div>
-                            <% }) %>
+                            <% }); %>
                         <% } else { %>
                             <div style="text-align:center;color:#a0aec0;font-size:.78rem;padding:16px;">No recent activity</div>
                         <% } %>
@@ -541,13 +541,13 @@ body.sidebar-collapsed .page-wrapper { margin-left: 60px; }
 
 <script>
 /* ── data from server ── */
-var monthlySavingsData = <%- monthlySavings %>;
-var cumulativeSavings  = <%- cumulativeSavings %>;
+var monthlySavingsData = <%- JSON.stringify(monthlySavings) %>;
+var cumulativeSavings  = <%- JSON.stringify(cumulativeSavings) %>;
 var donutData = {
-    savings:    <%= Number(totalSavings)    %>,
-    insurance:  <%= Number(insurancePaid)   %>,
-    welfare:    <%= Number(welfarePaid)     %>,
-    membership: <%= Number(membershipPaid)  %>
+    savings:    <%= Number(totalSavings) %>,
+    insurance:  <%= Number(insurancePaid) %>,
+    welfare:    <%= Number(welfarePaid) %>,
+    membership: <%= Number(membershipPaid) %>
 };
 
 var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

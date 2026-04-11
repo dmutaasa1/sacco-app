@@ -90,6 +90,7 @@
                                             <select class="form-control" id="role" name="role" required>
                                                 <option value="user" <%= editUser.role === 'user' ? 'selected' : '' %>>User</option>
                                                 <option value="admin" <%= editUser.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                                                <option value="member" <%= editUser.role === 'member' ? 'selected' : '' %>>Member</option>
                                             </select>
                                         </div>
                                     </div>
@@ -136,10 +137,10 @@
     <script src="/assets/js/app.min.js"></script>
 
     <script>
+        const userId = <%= editUser.id %>;
+        
         $('#editUserForm').on('submit', async function(e) {
             e.preventDefault();
-
-            const userId = <%= editUser.id %>;
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
