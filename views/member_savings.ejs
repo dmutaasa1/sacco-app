@@ -13,6 +13,11 @@ body { overflow-x:hidden; font-family:'DM Sans',sans-serif; background:#f7fafc; 
 .page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); }
 body.sidebar-collapsed .page-wrapper { margin-left:60px; }
 .dash-body { padding:14px 22px 28px; }
+@media(max-width:991px){
+    .page-wrapper { margin-left:0; width:100%; }
+    .dash-body { padding:12px 14px 24px; }
+    .page-heading { padding:12px 14px 0; }
+}
 
 /* heading */
 .page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
@@ -221,7 +226,8 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
 <script src="/assets/vendors/chart.js/dist/Chart.min.js"></script>
 <script src="/assets/js/app.min.js"></script>
 <script>
-var monthlyArr = <%- JSON.stringify(monthlyArr) %>;
+var rawMonthlyArr = <%- JSON.stringify(monthlyArr) %>;
+var monthlyArr = Array.isArray(rawMonthlyArr) ? rawMonthlyArr : [];
 var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 Chart.defaults.global.tooltips.backgroundColor = 'rgba(26,31,46,.88)';

@@ -4912,7 +4912,7 @@ app.get('/member/savings', checkMemberAuth, asyncHandler(async (req, res) => {
         depositCount,
         withdrawalCount,
         ytdSavings,
-        monthlyArr:     JSON.stringify(monthlyArr)
+        monthlyArr
     });
 }));
 
