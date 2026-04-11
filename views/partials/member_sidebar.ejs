@@ -1,62 +1,251 @@
-<!-- MEMBER SIDEBAR -->
+<%
+var _cp = (typeof currentPage !== 'undefined') ? currentPage : '';
+function isMemberActive(pages) {
+    return pages.includes(_cp) ? 'active' : '';
+}
+%>
 
-<div class="sidebar bg-dark text-white p-3" style="min-height:100vh; width:250px;">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-<h5 class="text-center mb-4">
-Member Portal
-</h5>
+#member-sidebar {
+    width: 220px;
+    background: #0f1623;
+    border-right: 1px solid rgba(255,255,255,.04);
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    height: calc(100vh - 60px);
+    z-index: 998;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    transition: width .22s ease;
+    margin: 0;
+    padding: 0;
+}
+body.sidebar-collapsed #member-sidebar { width: 60px; }
 
-<ul class="nav flex-column">
+/* scroll container */
+#member-sidebar-collapse {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.1) transparent;
+}
+#member-sidebar-collapse::-webkit-scrollbar       { width: 3px; }
+#member-sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
 
-<li class="nav-item mb-2">
-<a href="/member/dashboard" class="nav-link text-white">
-<i class="fa fa-home"></i>
-Dashboard
-</a>
-</li>
+/* nav list */
+#member-sidebar ul.member-menu {
+    list-style: none;
+    padding: 4px 7px 8px;
+    margin: 0;
+    flex: 1;
+    background: transparent;
+    border: none;
+}
 
-<li class="nav-item mb-2">
-<a href="/member/savings" class="nav-link text-white">
-<i class="fa fa-bank"></i>
-Savings Statement
-</a>
-</li>
+/* section heading */
+#member-sidebar ul.member-menu > li.heading {
+    font-size: .57rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.2);
+    padding: 12px 9px 4px;
+    margin: 0;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    background: transparent;
+    transition: opacity .15s, padding .15s, height .15s;
+}
+body.sidebar-collapsed #member-sidebar ul.member-menu > li.heading {
+    opacity: 0; padding: 0; height: 0; overflow: hidden;
+}
 
-<li class="nav-item mb-2">
-<a href="/member/loans" class="nav-link text-white">
-<i class="fa fa-money"></i>
-Loan Statement
-</a>
-</li>
+/* top-level links */
+#member-sidebar ul.member-menu > li > a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px;
+    padding: 8px 8px;
+    border-radius: 8px;
+    color: rgba(255,255,255,.52);
+    font-size: .78rem;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: background .13s, color .13s;
+    position: relative;
+    margin-bottom: 1px;
+    overflow: hidden;
+    background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    line-height: 1.3 !important;
+    width: 100%;
+    white-space: nowrap;
+}
+#member-sidebar ul.member-menu > li > a:hover {
+    background: rgba(255,255,255,.07) !important;
+    color: rgba(255,255,255,.9) !important;
+}
+#member-sidebar ul.member-menu > li.active > a {
+    background: rgba(0,184,148,.13) !important;
+    color: #00b894 !important;
+}
+#member-sidebar ul.member-menu > li.active > a::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14%; bottom: 14%;
+    width: 3px; border-radius: 0 3px 3px 0;
+    background: #00b894;
+}
 
-<li class="nav-item mb-2">
-<a href="/member/repayments" class="nav-link text-white">
-<i class="fa fa-list"></i>
-Loan Repayments
-</a>
-</li>
+/* icon pill */
+#member-sidebar .m-icon {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: rgba(255,255,255,.06);
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: .76rem; flex-shrink: 0;
+    color: rgba(255,255,255,.5);
+    transition: background .13s, color .13s;
+}
+#member-sidebar ul.member-menu > li > a:hover .m-icon {
+    background: rgba(255,255,255,.1); color: rgba(255,255,255,.88);
+}
+#member-sidebar ul.member-menu > li.active > a .m-icon {
+    background: rgba(0,184,148,.18); color: #00b894;
+}
 
-<li class="nav-item mb-2">
-<a href="/member/savings-graph" class="nav-link text-white">
-<i class="fa fa-line-chart"></i>
-Savings Graph
-</a>
-</li>
+/* nav label */
+#member-sidebar .m-label {
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: opacity .15s;
+}
+body.sidebar-collapsed #member-sidebar .m-label { opacity: 0; width: 0; flex: 0; overflow: hidden; }
 
-<li class="nav-item mb-2">
-<a href="/member/savings-pdf" class="nav-link text-white">
-<i class="fa fa-file-pdf-o"></i>
-Download Statement
-</a>
-</li>
+/* bottom dock */
+#member-sidebar .m-bottom {
+    padding: 7px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    display: flex; flex-direction: column; gap: 1px;
+    flex-shrink: 0; background: #0f1623; overflow: hidden;
+}
+#member-sidebar .m-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px; border-radius: 7px;
+    color: rgba(255,255,255,.38); font-size: .73rem; font-weight: 500;
+    text-decoration: none;
+    transition: background .12s, color .12s;
+    background: transparent; white-space: nowrap; overflow: hidden;
+}
+#member-sidebar .m-link:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.82); }
+#member-sidebar .m-link.danger { color: rgba(220,80,80,.7); }
+#member-sidebar .m-link.danger:hover { background: rgba(214,48,49,.1); color: #ff7675; }
+body.sidebar-collapsed #member-sidebar .m-bottom-label { display: none; }
+</style>
 
-<li class="nav-item mt-4">
-<a href="/logout" class="nav-link text-danger">
-<i class="fa fa-sign-out"></i>
-Logout
-</a>
-</li>
+<nav id="member-sidebar">
+    <div id="member-sidebar-collapse">
 
-</ul>
+        <ul id="member-menu" class="member-menu">
 
-</div>
+            <!-- Dashboard -->
+            <li class="<%= isMemberActive(['member_dashboard']) %>">
+                <a href="/member/dashboard">
+                    <i class="m-icon fa fa-home"></i>
+                    <span class="m-label">Dashboard</span>
+                </a>
+            </li>
+
+            <!-- My Account -->
+            <li class="heading">My Account</li>
+
+            <li class="<%= isMemberActive(['member_savings']) %>">
+                <a href="/member/savings">
+                    <i class="m-icon fa fa-piggy-bank"></i>
+                    <span class="m-label">My Savings</span>
+                </a>
+            </li>
+
+            <li class="<%= isMemberActive(['member_loans']) %>">
+                <a href="/member/loans">
+                    <i class="m-icon fa fa-money"></i>
+                    <span class="m-label">My Loans</span>
+                </a>
+            </li>
+
+            <li class="<%= isMemberActive(['member_transactions']) %>">
+                <a href="/member/transactions">
+                    <i class="m-icon fa fa-exchange"></i>
+                    <span class="m-label">Transactions</span>
+                </a>
+            </li>
+
+            <!-- Contributions -->
+            <li class="heading">Contributions</li>
+
+            <li class="<%= isMemberActive(['member_insurance']) %>">
+                <a href="/member/insurance">
+                    <i class="m-icon fa fa-shield"></i>
+                    <span class="m-label">Insurance Cover</span>
+                </a>
+            </li>
+
+            <li class="<%= isMemberActive(['member_welfare']) %>">
+                <a href="/member/welfare">
+                    <i class="m-icon fa fa-heart"></i>
+                    <span class="m-label">Welfare Fee</span>
+                </a>
+            </li>
+
+            <li class="<%= isMemberActive(['member_membership']) %>">
+                <a href="/member/membership">
+                    <i class="m-icon fa fa-id-card"></i>
+                    <span class="m-label">Membership Fee</span>
+                </a>
+            </li>
+
+            <!-- Support -->
+            <li class="heading">Help</li>
+
+            <li class="<%= isMemberActive(['member_profile']) %>">
+                <a href="/member/profile">
+                    <i class="m-icon fa fa-user-o"></i>
+                    <span class="m-label">My Profile</span>
+                </a>
+            </li>
+
+        </ul>
+
+        <!-- bottom dock -->
+        <div class="m-bottom">
+            <a href="/logout" class="m-link danger">
+                <span class="m-icon" style="background:rgba(214,48,49,.1);color:#ff7675;">
+                    <i class="fa fa-power-off"></i>
+                </span>
+                <span class="m-bottom-label">Sign Out</span>
+            </a>
+        </div>
+
+    </div>
+</nav>
+
+<script>
+(function () {
+    /* Restore sidebar collapsed state */
+    if (localStorage.getItem('sidebarCollapsed') === '1') {
+        document.body.classList.add('sidebar-collapsed');
+    }
+}());
+</script>

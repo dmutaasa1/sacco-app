@@ -306,6 +306,35 @@ function asyncHandler(fn) {
   };
 }
 
+function checkMemberAuth(req, res, next) {
+    if (!req.session || !req.session.user) {
+        return res.redirect('/member-login');
+    }
+    if (req.session.user.role !== 'member') {
+        return res.redirect('/');
+    }
+    if (!req.session.user.member_id) {
+        return res.status(400).send(
+            '<h2>Account not linked</h2>' +
+            '<p>Your account is not linked to a member profile. Contact admin.</p>' +
+            '<a href="/logout">Sign out</a>'
+        );
+    }
+    next();
+}
+
+function blockMemberAccess(req, res, next) {
+    if (req.session && req.session.user && req.session.user.role === 'member') {
+        return res.status(403).send(
+            '<h2>Access Denied</h2>' +
+            '<p>You do not have permission to view this page.</p>' +
+            '<a href="/member/dashboard">Go to your dashboard</a>'
+        );
+    }
+    next();
+}
+
+
 //// Add this RIGHT AFTER your middleware and BEFORE everything else
 
 // ==================== USER MANAGEMENT ROUTES ====================
@@ -848,7 +877,7 @@ app.get('/logout', (req, res) => {
 });
 
 // ==================== DASHBOARD ====================
-  app.get('/', checkAuth, asyncHandler(async (req, res) => {
+  app.get('/', checkAuth, blockMemberAccess, asyncHandler(async (req, res) => {
   const db = dbConfig;
 
   // Active members count
@@ -1076,10 +1105,11 @@ const pageRoutes = [
 ];
 
 pageRoutes.forEach(page => {
-  app.get(`/${page}`, checkAuth, (req, res) => {
-    res.render(page, { currentPage: page, user: req.session.user });
-  });
+    app.get(`/${page}`, checkAuth, blockMemberAccess, (req, res) => {
+        res.render(page, { currentPage: page, user: req.session.user });
+    });
 });
+
 
 // ==================== TRANSACTION ROUTES ====================
 
@@ -4615,189 +4645,245 @@ app.post('/financial_statements/generate', checkAuth, asyncHandler(async (req, r
 
 
 //==============MEMBERS DASHBOARD===========================
-// ==================== MEMBER DASHBOARD ====================
-// In app.js, REPLACE the existing app.get('/member/dashboard', ...) block with this entire block.
-// Find it by searching for: app.get('/member/dashboard'
-// Replace everything from that line down to the closing }));
-
-app.get('/member/dashboard', checkAuth, asyncHandler(async (req, res) => {
+app.get('/member/dashboard', checkMemberAuth, asyncHandler(async (req, res) => {
     const db       = dbConfig;
     const memberId = req.session.user.member_id;
 
-    if (!memberId) {
-        return res.status(400).send('Member profile not linked to this account. Please contact admin.');
-    }
-
-    /* ── Member basic info ── */
     const [memberRows] = await db.execute(`
         SELECT id, First_name, Last_Name, Status,
                DATE_FORMAT(date_joined, '%d %b %Y') AS date_joined
         FROM members_mst WHERE id = ?
     `, [memberId]);
-
     if (!memberRows.length) return res.status(404).send('Member not found');
     const member = memberRows[0];
 
-    /* ── Total savings (deposits minus withdrawals, all time) ── */
     const [savRows] = await db.execute(`
         SELECT
-            COALESCE(SUM(CASE WHEN transaction_type='Saving'              THEN Amount ELSE 0 END),0) AS total_in,
-            COALESCE(SUM(CASE WHEN transaction_type='Savings Withdrawal'  THEN Amount ELSE 0 END),0) AS total_out
+            COALESCE(SUM(CASE WHEN transaction_type='Saving'             THEN Amount ELSE 0 END),0) AS total_in,
+            COALESCE(SUM(CASE WHEN transaction_type='Savings Withdrawal' THEN Amount ELSE 0 END),0) AS total_out
         FROM transactions WHERE member_id = ?
     `, [memberId]);
     const totalSavings = parseFloat(savRows[0].total_in) - parseFloat(savRows[0].total_out);
 
-    /* ── YTD savings ── */
     const [ytdRows] = await db.execute(`
-        SELECT COALESCE(SUM(Amount),0) AS v
-        FROM transactions
-        WHERE member_id = ? AND transaction_type = 'Saving'
-          AND YEAR(tran_date) = YEAR(CURDATE())
+        SELECT COALESCE(SUM(Amount),0) AS v FROM transactions
+        WHERE member_id=? AND transaction_type='Saving' AND YEAR(tran_date)=YEAR(CURDATE())
     `, [memberId]);
     const ytdSavings = parseFloat(ytdRows[0].v);
 
-    /* ── Annual contributions (current year) ── */
     const [annualRows] = await db.execute(`
         SELECT
             COALESCE(SUM(CASE WHEN transaction_type='Insuarance Cover' THEN Amount ELSE 0 END),0) AS insurance,
             COALESCE(SUM(CASE WHEN transaction_type='welfare Fee'       THEN Amount ELSE 0 END),0) AS welfare,
             COALESCE(SUM(CASE WHEN transaction_type='Membership Fee'    THEN Amount ELSE 0 END),0) AS membership
-        FROM transactions
-        WHERE member_id = ? AND YEAR(tran_date) = YEAR(CURDATE())
+        FROM transactions WHERE member_id=? AND YEAR(tran_date)=YEAR(CURDATE())
     `, [memberId]);
     const insurancePaid  = parseFloat(annualRows[0].insurance);
     const welfarePaid    = parseFloat(annualRows[0].welfare);
     const membershipPaid = parseFloat(annualRows[0].membership);
+    const insurancePct   = Math.min(Math.round((insurancePaid  / 60000)  * 100), 100);
+    const welfarePct     = Math.min(Math.round((welfarePaid    / 240000) * 100), 100);
+    const membershipPct  = Math.min(Math.round((membershipPaid / 50000)  * 100), 100);
 
-    /* Annual targets — adjust to match your SACCO rules */
-    const INSURANCE_TARGET  = 60000;
-    const WELFARE_TARGET    = 240000;
-    const MEMBERSHIP_TARGET = 50000;
-    const insurancePct  = Math.min(Math.round((insurancePaid  / INSURANCE_TARGET)  * 100), 100);
-    const welfarePct    = Math.min(Math.round((welfarePaid    / WELFARE_TARGET)     * 100), 100);
-    const membershipPct = Math.min(Math.round((membershipPaid / MEMBERSHIP_TARGET)  * 100), 100);
-
-    /* ── Most recent active loan ── */
     const [loanRows] = await db.execute(`
         SELECT id, loan_amount, balance, accumulated_interest,
                total_repayment, monthly_payment, maturity_date, interest_method
-        FROM loans
-        WHERE member_id = ? AND status = 'Active'
+        FROM loans WHERE member_id=? AND status='Active'
         ORDER BY disbursement_date DESC LIMIT 1
     `, [memberId]);
     const activeLoan      = loanRows[0] || null;
-    const outstandingLoan = activeLoan ? parseFloat(activeLoan.balance)               : 0;
-    const accruedInterest = activeLoan ? parseFloat(activeLoan.accumulated_interest)  : 0;
+    const outstandingLoan = activeLoan ? parseFloat(activeLoan.balance)              : 0;
+    const accruedInterest = activeLoan ? parseFloat(activeLoan.accumulated_interest) : 0;
 
-    /* ── How much has been repaid on active loan ── */
-    let loanTotalPaid = 0;
-    let loanRepaidPct = 0;
+    let loanTotalPaid=0, loanRepaidPct=0, overdueCount=0, nextPayment=null, loanSchedule=[];
     if (activeLoan) {
         const [paidRows] = await db.execute(
-            'SELECT COALESCE(SUM(amount),0) AS v FROM loan_payment_history WHERE loan_id = ?',
+            'SELECT COALESCE(SUM(amount),0) AS v FROM loan_payment_history WHERE loan_id=?',
             [activeLoan.id]
         );
         loanTotalPaid = parseFloat(paidRows[0].v);
         const totalDue = parseFloat(activeLoan.total_repayment) || parseFloat(activeLoan.loan_amount);
-        loanRepaidPct  = totalDue > 0 ? Math.min(Math.round((loanTotalPaid / totalDue) * 100), 100) : 0;
-    }
+        loanRepaidPct  = totalDue > 0 ? Math.min(Math.round((loanTotalPaid/totalDue)*100),100) : 0;
 
-    /* ── Overdue schedule count ── */
-    let overdueCount = 0;
-    if (activeLoan) {
         const [ovRows] = await db.execute(
-            'SELECT COUNT(*) AS v FROM loan_schedule WHERE loan_id = ? AND status = ?',
+            'SELECT COUNT(*) AS v FROM loan_schedule WHERE loan_id=? AND status=?',
             [activeLoan.id, 'Overdue']
         );
         overdueCount = parseInt(ovRows[0].v);
-    }
 
-    /* ── Next payment due ── */
-    let nextPayment = null;
-    if (activeLoan) {
         const [npRows] = await db.execute(`
-            SELECT payment_number,
-                   DATE_FORMAT(due_date,'%d %b %Y') AS due_date,
-                   expected_payment
-            FROM loan_schedule
-            WHERE loan_id = ? AND status IN ('Pending','Overdue')
+            SELECT payment_number, DATE_FORMAT(due_date,'%d %b %Y') AS due_date, expected_payment
+            FROM loan_schedule WHERE loan_id=? AND status IN ('Pending','Overdue')
             ORDER BY payment_number ASC LIMIT 1
         `, [activeLoan.id]);
         nextPayment = npRows[0] || null;
-    }
 
-    /* ── Loan schedule (most recent 12 installments) ── */
-    let loanSchedule = [];
-    if (activeLoan) {
         const [schRows] = await db.execute(`
-            SELECT payment_number,
-                   DATE_FORMAT(due_date,'%d %b %Y') AS due_date,
+            SELECT payment_number, DATE_FORMAT(due_date,'%d %b %Y') AS due_date,
                    expected_payment, expected_principal, expected_interest,
                    COALESCE(paid_amount,0) AS paid_amount, status
-            FROM loan_schedule
-            WHERE loan_id = ?
-            ORDER BY payment_number DESC LIMIT 12
+            FROM loan_schedule WHERE loan_id=? ORDER BY payment_number DESC LIMIT 12
         `, [activeLoan.id]);
-        loanSchedule = schRows.reverse();   /* show oldest first */
+        loanSchedule = schRows.reverse();
     }
 
-    /* ── Monthly savings this year (for bar/line chart) ── */
     const [monthlyRows] = await db.execute(`
         SELECT MONTH(tran_date) AS m, COALESCE(SUM(Amount),0) AS v
-        FROM transactions
-        WHERE member_id = ? AND transaction_type = 'Saving'
-          AND YEAR(tran_date) = YEAR(CURDATE())
+        FROM transactions WHERE member_id=? AND transaction_type='Saving'
+          AND YEAR(tran_date)=YEAR(CURDATE())
         GROUP BY MONTH(tran_date)
     `, [memberId]);
     const monthlySavingsArr = new Array(12).fill(0);
-    monthlyRows.forEach(r => { monthlySavingsArr[r.m - 1] = parseFloat(r.v); });
+    monthlyRows.forEach(r => { monthlySavingsArr[r.m-1] = parseFloat(r.v); });
+    let run=0;
+    const cumulativeSavingsArr = monthlySavingsArr.map(v => (run += v));
 
-    /* ── Cumulative savings (running total) ── */
-    const cumulativeSavingsArr = [];
-    let running = 0;
-    monthlySavingsArr.forEach(v => { running += v; cumulativeSavingsArr.push(running); });
-
-    /* ── Recent transactions (last 10) ── */
     const [txnRows] = await db.execute(`
         SELECT DATE_FORMAT(tran_date,'%d %b %Y') AS tran_date,
                transaction_type, payment_period, Amount, Debit_Credit
-        FROM transactions
-        WHERE member_id = ?
-        ORDER BY created_at DESC LIMIT 10
+        FROM transactions WHERE member_id=? ORDER BY created_at DESC LIMIT 10
     `, [memberId]);
 
-    /* ── Recent activity feed (last 5) ── */
     const [actRows] = await db.execute(`
         SELECT transaction_type, Amount, Debit_Credit,
                DATE_FORMAT(created_at,'%d %b %Y %H:%i') AS created_at
-        FROM transactions
-        WHERE member_id = ?
-        ORDER BY created_at DESC LIMIT 5
+        FROM transactions WHERE member_id=? ORDER BY created_at DESC LIMIT 5
     `, [memberId]);
 
-    /* ── Render ── */
     res.render('member_dashboard', {
-        currentPage:        'member_dashboard',
-        user:               req.session.user,
-        member,
-        totalSavings,
-        ytdSavings,
-        insurancePaid,      insurancePct,
-        welfarePaid,        welfarePct,
-        membershipPaid,     membershipPct,
-        outstandingLoan,
-        accruedInterest,
-        loanTotalPaid,
-        loanRepaidPct,
-        overdueCount,
-        nextPayment,
-        loanSchedule,
-        monthlySavings:     JSON.stringify(monthlySavingsArr),
-        cumulativeSavings:  JSON.stringify(cumulativeSavingsArr),
-        recentTxns:         txnRows,
-        activities:         actRows
+        currentPage:'member_dashboard', user:req.session.user, member,
+        totalSavings, ytdSavings,
+        insurancePaid, insurancePct, welfarePaid, welfarePct, membershipPaid, membershipPct,
+        outstandingLoan, accruedInterest, loanTotalPaid, loanRepaidPct,
+        overdueCount, nextPayment, loanSchedule,
+        monthlySavings:    JSON.stringify(monthlySavingsArr),
+        cumulativeSavings: JSON.stringify(cumulativeSavingsArr),
+        recentTxns: txnRows, activities: actRows
     });
 }));
+
+
+/* ── Savings statement ── */
+app.get('/member/savings', checkMemberAuth, asyncHandler(async (req, res) => {
+    const db = dbConfig;
+    const memberId = req.session.user.member_id;
+    const [rows] = await db.execute(`
+        SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS date, Amount, description, Debit_Credit
+        FROM transactions
+        WHERE member_id=? AND transaction_type='Saving'
+        ORDER BY tran_date DESC
+    `, [memberId]);
+    const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
+    res.render('member_savings', {
+        currentPage:'member_savings', user:req.session.user,
+        transactions: rows, total
+    });
+}));
+
+
+/* ── Loans ── */
+app.get('/member/loans', checkMemberAuth, asyncHandler(async (req, res) => {
+    const db = dbConfig;
+    const memberId = req.session.user.member_id;
+    const [rows] = await db.execute(`
+        SELECT id, loan_amount, balance, accumulated_interest, total_repayment,
+               monthly_payment, interest_rate, status, interest_method,
+               DATE_FORMAT(disbursement_date,'%d-%b-%Y') AS disbursement_date,
+               DATE_FORMAT(maturity_date,'%d-%b-%Y') AS maturity_date
+        FROM loans WHERE member_id=? ORDER BY disbursement_date DESC
+    `, [memberId]);
+    res.render('member_loans', {
+        currentPage:'member_loans', user:req.session.user, loans:rows
+    });
+}));
+
+
+/* ── All transactions ── */
+app.get('/member/transactions', checkMemberAuth, asyncHandler(async (req, res) => {
+    const db = dbConfig;
+    const memberId = req.session.user.member_id;
+    const [rows] = await db.execute(`
+        SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS tran_date,
+               transaction_type, payment_period, Amount, Debit_Credit, description
+        FROM transactions WHERE member_id=? ORDER BY created_at DESC LIMIT 100
+    `, [memberId]);
+    res.render('member_transactions', {
+        currentPage:'member_transactions', user:req.session.user, transactions:rows
+    });
+}));
+
+
+/* ── Insurance cover ── */
+app.get('/member/insurance', checkMemberAuth, asyncHandler(async (req, res) => {
+    const db = dbConfig;
+    const memberId = req.session.user.member_id;
+    const [rows] = await db.execute(`
+        SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS tran_date,
+               Amount, payment_period, description
+        FROM transactions WHERE member_id=? AND transaction_type='Insuarance Cover'
+        ORDER BY tran_date DESC
+    `, [memberId]);
+    const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
+    res.render('member_insurance', {
+        currentPage:'member_insurance', user:req.session.user,
+        transactions:rows, total, pct: Math.min(Math.round((total/60000)*100),100)
+    });
+}));
+
+
+/* ── Welfare fee ── */
+app.get('/member/welfare', checkMemberAuth, asyncHandler(async (req, res) => {
+    const db = dbConfig;
+    const memberId = req.session.user.member_id;
+    const [rows] = await db.execute(`
+        SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS tran_date,
+               Amount, payment_period, description
+        FROM transactions WHERE member_id=? AND transaction_type='welfare Fee'
+        ORDER BY tran_date DESC
+    `, [memberId]);
+    const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
+    res.render('member_welfare', {
+        currentPage:'member_welfare', user:req.session.user,
+        transactions:rows, total, pct: Math.min(Math.round((total/240000)*100),100)
+    });
+}));
+
+
+/* ── Membership fee ── */
+app.get('/member/membership', checkMemberAuth, asyncHandler(async (req, res) => {
+    const db = dbConfig;
+    const memberId = req.session.user.member_id;
+    const [rows] = await db.execute(`
+        SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS tran_date,
+               Amount, payment_period, description
+        FROM transactions WHERE member_id=? AND transaction_type='Membership Fee'
+        ORDER BY tran_date DESC
+    `, [memberId]);
+    const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
+    res.render('member_membership', {
+        currentPage:'member_membership', user:req.session.user,
+        transactions:rows, total, pct: Math.min(Math.round((total/50000)*100),100)
+    });
+}));
+
+
+/* ── Member profile view ── */
+app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
+    const db = dbConfig;
+    const memberId = req.session.user.member_id;
+    const [rows] = await db.execute(`
+        SELECT id, First_name, Last_Name, Middle_Name, tel_no, sex,
+               national_id, village_lc1, Status,
+               DATE_FORMAT(date_of_birth,'%d-%b-%Y') AS date_of_birth,
+               DATE_FORMAT(date_joined,'%d-%b-%Y')   AS date_joined
+        FROM members_mst WHERE id=?
+    `, [memberId]);
+    if (!rows.length) return res.status(404).send('Member not found');
+    res.render('member_profile_view', {
+        currentPage:'member_profile', user:req.session.user, member:rows[0]
+    });
+}));
+
 
 
 
