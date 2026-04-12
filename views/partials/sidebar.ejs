@@ -36,12 +36,12 @@ function isActive(pages) {
 
 /* Content wrapper positioned to the right of sidebar */
 .page-wrapper .content-wrapper {
-    margin-left: 220px;
-    transition: margin-left .22s ease;
+    margin-left: 220px !important;
+    transition: margin-left .22s ease !important;
 }
 
 body.sidebar-collapsed #sidebar { width: 60px; }
-body.sidebar-collapsed .page-wrapper .content-wrapper { margin-left: 60px; }
+body.sidebar-collapsed .page-wrapper .content-wrapper { margin-left: 60px !important; }
 
 @media (max-width: 991px) {
     #sidebar {
@@ -57,7 +57,7 @@ body.sidebar-collapsed .page-wrapper .content-wrapper { margin-left: 60px; }
         width: min(280px, 86vw);
     }
     .page-wrapper .content-wrapper {
-        margin-left: 0;
+        margin-left: 0 !important;
     }
 }
 

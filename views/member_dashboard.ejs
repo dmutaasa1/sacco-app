@@ -17,10 +17,23 @@ html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
    BASE LAYOUT — matches admin dashboard
 ══════════════════════════════════════════ */
 body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
-.page-wrapper { margin-left: 220px; margin-top: 60px; width: calc(100% - 220px); max-width: 100%; }
-body.sidebar-collapsed .page-wrapper { margin-left: 60px; width: calc(100% - 60px); }
+.page-wrapper { 
+    margin-left: 220px !important;
+    margin-top: 60px; 
+    width: calc(100% - 220px) !important; 
+    max-width: 100%; 
+    transition: margin-left .22s ease, width .22s ease;
+}
+body.sidebar-collapsed .page-wrapper { 
+    margin-left: 60px !important; 
+    width: calc(100% - 60px) !important; 
+}
 @media (max-width: 991px) {
-    .page-wrapper { margin-left: 0; width: 100%; max-width: 100%; }
+    .page-wrapper { 
+        margin-left: 0 !important; 
+        width: 100% !important; 
+        max-width: 100%; 
+    }
     .page-heading { padding: 12px 14px 0; }
     .dash-body { padding: 12px 14px 24px; }
     .stats-grid { grid-template-columns: 1fr; }

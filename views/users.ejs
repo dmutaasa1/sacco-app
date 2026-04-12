@@ -9,6 +9,31 @@
     <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
     <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <style>
+        /* ════════════════════════════════════════
+           PAGE LAYOUT — align content with sidebar
+        ════════════════════════════════════════ */
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+        }
+        .page-wrapper .content-wrapper {
+            margin-left: 220px !important;
+            transition: margin-left .22s ease !important;
+            flex: 1;
+            width: auto;
+        }
+        body.sidebar-collapsed .page-wrapper .content-wrapper {
+            margin-left: 60px !important;
+        }
+        @media (max-width: 991px) {
+            .page-wrapper .content-wrapper {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="fixed-navbar">
