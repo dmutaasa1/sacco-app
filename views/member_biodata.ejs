@@ -233,10 +233,7 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
                 <div class="ibox">
                     <div class="ibox-body" style="padding:0;">
                         <div class="profile-tabs" style="padding:0 16px;">
-                            <button class="profile-tab-btn active" onclick="switchTab('overview',this)">
-                                <i class="fa fa-bar-chart"></i> Overview
-                            </button>
-                            <button class="profile-tab-btn" onclick="switchTab('biodata',this)">
+                            <button class="profile-tab-btn active" onclick="switchTab('biodata',this)">
                                 <i class="fa fa-id-card"></i> Bio Data
                             </button>
                             <button class="profile-tab-btn" onclick="switchTab('family',this)">
@@ -252,74 +249,8 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
                     </div>
                 </div>
 
-                <!-- ── TAB: OVERVIEW ── -->
-                <div class="tab-pane active" id="tab-overview">
-
-                    <!-- Recent activity -->
-                    <div class="ibox">
-                        <div class="ibox-head">
-                            <span class="ibox-title"><i class="fa fa-clock-o" style="color:#718096;"></i> Recent Activity</span>
-                        </div>
-                        <div class="ibox-body" style="padding:8px 16px;">
-                            <% if (activities && activities.length) { %>
-                            <ul class="activity-list">
-                                <% activities.forEach(function(a){ %>
-                                <li class="activity-item">
-                                    <div class="act-dot"></div>
-                                    <div>
-                                        <div class="act-type"><%= a.transaction_type %></div>
-                                        <div class="act-desc"><%= a.description || '—' %></div>
-                                    </div>
-                                    <div class="act-time"><%= a.created_at %></div>
-                                </li>
-                                <% }) %>
-                            </ul>
-                            <% } else { %>
-                            <p style="text-align:center;color:#a0aec0;font-size:.78rem;padding:16px;">No recent activity</p>
-                            <% } %>
-                        </div>
-                    </div>
-
-                    <!-- Recent transactions -->
-                    <div class="ibox">
-                        <div class="ibox-head">
-                            <span class="ibox-title"><i class="fa fa-exchange" style="color:#4299e1;"></i> Recent Transactions</span>
-                            <a href="/member/transactions" style="font-size:.68rem;color:#00b894;font-weight:600;text-decoration:none;">View all →</a>
-                        </div>
-                        <div style="overflow-x:auto;">
-                            <table class="mini-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>D/C</th>
-                                        <th style="text-align:right;">Amount</th>
-                                        <th>Period</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% if (trans && trans.length) { %>
-                                    <% trans.forEach(function(t){ %>
-                                    <tr>
-                                        <td style="white-space:nowrap;"><%= t.tran_date %></td>
-                                        <td><%= t.transaction_type %></td>
-                                        <td><span class="<%= t.Debit_Credit==='Credit'?'badge-cr':'badge-dr' %>"><%= t.Debit_Credit==='Credit'?'CR':'DR' %></span></td>
-                                        <td style="text-align:right;font-weight:600;">UGX <%= Number(t.Amount||0).toLocaleString() %></td>
-                                        <td><%= t.Payment_Period || '—' %></td>
-                                    </tr>
-                                    <% }) %>
-                                    <% } else { %>
-                                    <tr><td colspan="5" style="text-align:center;color:#a0aec0;padding:18px;">No transactions found</td></tr>
-                                    <% } %>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div><!-- end overview tab -->
-
                 <!-- ── TAB: BIO DATA ── -->
-                <div class="tab-pane" id="tab-biodata">
+                <div class="tab-pane active" id="tab-biodata">
                     <div class="ibox">
                         <div class="ibox-head">
                             <span class="ibox-title"><i class="fa fa-user" style="color:#4299e1;"></i> Personal Details</span>
