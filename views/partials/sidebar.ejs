@@ -115,8 +115,13 @@ body.sidebar-collapsed #sidebar #side-menu > li.heading {
     width: 100%;
     white-space: nowrap;
     box-shadow: none !important;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
 }
-#sidebar #side-menu > li > a:hover {
+#sidebar #side-menu > li > a:hover,
+#sidebar #side-menu > li > a:active,
+#sidebar #side-menu > li > a:focus {
     background: rgba(255,255,255,.07) !important;
     color: rgba(255,255,255,.9) !important;
 }
@@ -234,6 +239,14 @@ body.sidebar-collapsed #sidebar ul.nav-2-level { display: none !important; }
 body.sidebar-collapsed #sidebar .sb-label { display: none; }
 
 @media (max-width: 991px) {
+    #sidebar #side-menu > li > a {
+        padding: 10px 8px;
+        min-height: 44px;
+    }
+    #sidebar ul.nav-2-level > li > a {
+        padding: 8px 8px;
+        min-height: 40px;
+    }
     body.sidebar-collapsed #sidebar #side-menu > li.heading {
         opacity: 1 !important;
         padding: 12px 9px 4px !important;
@@ -389,6 +402,7 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
 
         jQuery(function ($) {
             var $menu = $('#side-menu');
+            var isMobile = window.innerWidth <= 991;
 
             /* Destroy any existing metisMenu instance the theme created */
             try {
@@ -421,10 +435,38 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
                 $sub.closest('li').children('a').attr('aria-expanded', 'true');
             });
 
-            $menu.find('a').on('click', function () {
+            /* Handle both touch and click events for parent menu items */
+            $menu.find('> li > a').on('click touchend', function (e) {
+                /* Check if this link has a dropdown */
+                var hasDropdown = $(this).siblings('ul.nav-2-level').length > 0;
+                
+                if (hasDropdown && $(this).attr('href') === 'javascript:;') {
+                    /* Allow default metisMenu handling for dropdown toggles */
+                    /* Close sidebar on mobile after any click */
+                    if (window.innerWidth <= 991) {
+                        /* Delay sidebar close slightly to allow dropdown toggle to complete */
+                        setTimeout(function () {
+                            document.body.classList.remove('sidebar-open');
+                        }, 150);
+                    }
+                } else {
+                    /* For regular links, close sidebar immediately on mobile */
+                    if (window.innerWidth <= 991) {
+                        document.body.classList.remove('sidebar-open');
+                    }
+                }
+            });
+
+            /* Handle submenu link clicks */
+            $menu.find('ul.nav-2-level > li > a').on('click', function () {
                 if (window.innerWidth <= 991) {
                     document.body.classList.remove('sidebar-open');
                 }
+            });
+
+            /* Recheck mobile status on resize */
+            $(window).on('resize', function () {
+                isMobile = window.innerWidth <= 991;
             });
         });
     }
