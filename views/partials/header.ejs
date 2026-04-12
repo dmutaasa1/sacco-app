@@ -397,17 +397,19 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
     var toggleBtn = document.getElementById('sidebarToggleBtn');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', function () {
-            var isMobile = window.innerWidth < 768;
+            var isMobile = window.innerWidth < 992;
             if (isMobile) {
                 /* Mobile: slide sidebar in as overlay */
-                if (typeof openMobileSidebar === 'function') openMobileSidebar();
+                if (typeof openMobileSidebar === 'function') {
+                    openMobileSidebar();
+                }
             } else {
                 /* Desktop/tablet: collapse to icon rail */
                 document.body.classList.toggle('sidebar-collapsed');
                 localStorage.setItem('sidebarCollapsed',
                     document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
             }
-        });
+        }, false);
     }
 
     /* ═══════════════════════════════════════════

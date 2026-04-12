@@ -273,6 +273,37 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
         display: block !important;
     }
 }
+
+/* Mobile backdrop overlay */
+.sidebar-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 997;
+    display: none;
+    opacity: 0;
+    transition: opacity .2s ease;
+    pointer-events: none;
+}
+body.sidebar-open .sidebar-backdrop {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+}
+@media (min-width: 992px) {
+    .sidebar-backdrop { display: none !important; }
+}
+
+/* Ensure content doesn't interfere with sidebar on mobile */
+@media (max-width: 991px) {
+    .content-wrapper {
+        position: relative;
+        z-index: 0;
+    }
+    body.sidebar-open .content-wrapper {
+        pointer-events: none;
+    }
+}
 </style>
 
 <nav id="sidebar" class="page-sidebar">
@@ -392,6 +423,31 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
 
 <script>
 (function () {
+    /* Mobile sidebar open/close handlers */
+    window.openMobileSidebar = function () {
+        document.body.classList.add('sidebar-open');
+    };
+    
+    window.closeMobileSidebar = function () {
+        document.body.classList.remove('sidebar-open');
+    };
+
+    /* Create and insert backdrop overlay */
+    function createBackdrop() {
+        var backdrop = document.getElementById('sidebarBackdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'sidebarBackdrop';
+            backdrop.className = 'sidebar-backdrop';
+            document.body.insertBefore(backdrop, document.body.firstChild);
+            
+            /* Close sidebar when backdrop is clicked/tapped */
+            backdrop.addEventListener('click', closeMobileSidebar, false);
+            backdrop.addEventListener('touchstart', closeMobileSidebar, false);
+        }
+        return backdrop;
+    }
+
     /* Wait for jQuery + metisMenu + app.min.js to all finish,
        then re-init cleanly on our menu element only.
        Delay of 100ms ensures app.min.js has already run. */
@@ -402,7 +458,6 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
 
         jQuery(function ($) {
             var $menu = $('#side-menu');
-            var isMobile = window.innerWidth <= 991;
 
             /* Destroy any existing metisMenu instance the theme created */
             try {
@@ -416,8 +471,11 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
                 $(this).removeClass('in collapsing');
             });
 
-            /* Re-init with our settings */
-            $menu.metisMenu({ toggle: true });
+            /* Re-init metisMenu with proper settings for touch */
+            $menu.metisMenu({ 
+                toggle: true,
+                preventDefault: false
+            });
 
             /* Auto-open parent of active page */
             $menu.find('> li.active').each(function () {
@@ -435,38 +493,44 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
                 $sub.closest('li').children('a').attr('aria-expanded', 'true');
             });
 
-            /* Handle both touch and click events for parent menu items */
-            $menu.find('> li > a').on('click touchend', function (e) {
-                /* Check if this link has a dropdown */
-                var hasDropdown = $(this).siblings('ul.nav-2-level').length > 0;
+            /* Create backdrop for mobile overlay */
+            createBackdrop();
+
+            /* Enhanced touch/click handling for parent dropdown items */
+            $menu.find('> li > a[href="javascript:;"]').on('click touchend', function (e) {
+                var $this = $(this);
+                var hasDropdown = $this.siblings('ul.nav-2-level').length > 0;
                 
-                if (hasDropdown && $(this).attr('href') === 'javascript:;') {
-                    /* Allow default metisMenu handling for dropdown toggles */
-                    /* Close sidebar on mobile after any click */
-                    if (window.innerWidth <= 991) {
-                        /* Delay sidebar close slightly to allow dropdown toggle to complete */
-                        setTimeout(function () {
-                            document.body.classList.remove('sidebar-open');
-                        }, 150);
-                    }
-                } else {
-                    /* For regular links, close sidebar immediately on mobile */
-                    if (window.innerWidth <= 991) {
-                        document.body.classList.remove('sidebar-open');
-                    }
+                if (hasDropdown) {
+                    /* Prevent default to avoid page jumps */
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    /* Let metisMenu handle the toggle */
+                    /* The toggle will happen automatically through metisMenu */
+                    
+                    /* Don't close sidebar immediately - let dropdown animation complete */
+                }
+                return false;
+            });
+
+            /* Handle regular link clicks */
+            $menu.find('> li > a:not([href="javascript:;"])').on('click', function () {
+                if (window.innerWidth <= 991) {
+                    setTimeout(closeMobileSidebar, 100);
                 }
             });
 
-            /* Handle submenu link clicks */
+            /* Handle submenu link clicks - close sidebar immediately */
             $menu.find('ul.nav-2-level > li > a').on('click', function () {
                 if (window.innerWidth <= 991) {
-                    document.body.classList.remove('sidebar-open');
+                    closeMobileSidebar();
                 }
             });
 
-            /* Recheck mobile status on resize */
-            $(window).on('resize', function () {
-                isMobile = window.innerWidth <= 991;
+            /* Prevent metisMenu from calling our custom function twice */
+            $menu.on('show.metisMenu hide.metisMenu', function(e) {
+                /* Metis is handling the toggle, don't interfere */
             });
         });
     }
@@ -479,5 +543,12 @@ body.sidebar-collapsed #sidebar .sb-label { display: none; }
     } else {
         setTimeout(initSidebar, 150);
     }
+
+    /* Handle resize - close sidebar on transition to mobile */
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 991) {
+            closeMobileSidebar();
+        }
+    }, false);
 }());
 </script>
