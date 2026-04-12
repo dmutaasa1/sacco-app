@@ -1,233 +1,213 @@
 <%
 var _cp = (typeof currentPage !== 'undefined') ? currentPage : '';
-function isMemberActive(pages) { return pages.includes(_cp) ? 'active' : ''; }
+function isMemberActive(pages) {
+    return pages.includes(_cp) ? 'active' : '';
+}
 %>
 
 <style>
-/* ── Overlay backdrop (mobile) ── */
-.sb-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.48); z-index: 997;
-    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
-    cursor: pointer;
-}
-.sb-overlay.open { display: block; }
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* ── Sidebar shell ── */
 #member-sidebar {
     width: 220px;
     background: #0f1623;
     border-right: 1px solid rgba(255,255,255,.04);
     position: fixed;
-    top: 60px; left: 0; bottom: 0;
+    top: 60px;
+    left: 0;
+    bottom: 0;
     height: calc(100vh - 60px);
     z-index: 998;
-    display: flex; flex-direction: column;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     font-family: 'DM Sans', sans-serif;
-    transition: width .22s ease, transform .22s ease;
+    transition: width .22s ease;
+    margin: 0;
+    padding: 0;
 }
-
 body.sidebar-collapsed #member-sidebar { width: 60px; }
-
-@media (min-width: 768px) and (max-width: 991px) {
-    #member-sidebar { width: 60px; }
-    .content-wrapper, .page-wrapper { margin-left: 60px !important; }
-}
-
-@media (max-width: 767px) {
+@media (max-width: 991px) {
     #member-sidebar {
-        width: 240px; top: 0; height: 100vh;
+        width: min(280px, 86vw);
         transform: translateX(-100%);
+        transition: transform .2s ease;
+        box-shadow: 0 10px 30px rgba(15,22,35,.24);
     }
-    #member-sidebar.mobile-open { transform: translateX(0); box-shadow: 6px 0 28px rgba(0,0,0,.4); }
-    .content-wrapper, .page-wrapper { margin-left: 0 !important; }
-    .sb-mobile-header { display: flex !important; }
+    body.sidebar-open #member-sidebar {
+        transform: translateX(0);
+    }
+    body.sidebar-collapsed #member-sidebar {
+        width: min(280px, 86vw);
+    }
 }
 
-/* Scroll container */
+/* scroll container */
 #member-sidebar-collapse {
-    display: flex; flex-direction: column;
-    flex: 1; min-height: 0;
-    overflow-y: auto; overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,.1) transparent;
 }
 #member-sidebar-collapse::-webkit-scrollbar       { width: 3px; }
 #member-sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
 
-/* Mobile brand */
-.sb-mobile-header {
-    display: none; align-items: center; gap: 10px;
-    padding: 14px 14px 12px; flex-shrink: 0;
-    border-bottom: 1px solid rgba(255,255,255,.07);
-}
-.sb-mobile-logo {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: linear-gradient(135deg,#00b894,#0984e3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
-}
-.sb-mobile-name { font-size: .86rem; font-weight: 700; color: #f0f4ff; }
-.sb-mobile-sub  { font-size: .58rem; font-weight: 500; color: #00b894; text-transform: uppercase; letter-spacing: .8px; }
-
-/* Nav list */
-#member-menu {
-    list-style: none; padding: 6px 7px 8px;
-    margin: 0; flex: 1; background: transparent;
+/* nav list */
+#member-sidebar ul.member-menu {
+    list-style: none;
+    padding: 4px 7px 8px;
+    margin: 0;
+    flex: 1;
+    background: transparent;
+    border: none;
 }
 
-/* Section headings */
-#member-menu > li.m-heading {
-    font-size: .56rem; font-weight: 700;
-    letter-spacing: 1.2px; text-transform: uppercase;
+/* section heading */
+#member-sidebar ul.member-menu > li.heading {
+    font-size: .57rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     color: rgba(255,255,255,.2);
-    padding: 13px 9px 4px; margin: 0;
-    pointer-events: none; user-select: none;
-    white-space: nowrap; overflow: hidden;
-    transition: opacity .15s, padding .15s, height .22s;
+    padding: 12px 9px 4px;
+    margin: 0;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    background: transparent;
+    transition: opacity .15s, padding .15s, height .15s;
 }
-body.sidebar-collapsed #member-menu > li.m-heading { opacity:0; height:0; padding:0; }
-@media (min-width:768px) and (max-width:991px) {
-    #member-menu > li.m-heading { opacity:0; height:0; padding:0; }
+body.sidebar-collapsed #member-sidebar ul.member-menu > li.heading {
+    opacity: 0; padding: 0; height: 0; overflow: hidden;
 }
 
-/* Top-level links */
-#member-menu > li > a {
-    display: flex !important; align-items: center !important;
-    gap: 9px; padding: 8px 8px; border-radius: 8px;
-    color: rgba(255,255,255,.52); font-size: .77rem; font-weight: 500;
+/* top-level links */
+#member-sidebar ul.member-menu > li > a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px;
+    padding: 8px 8px;
+    border-radius: 8px;
+    color: rgba(255,255,255,.52);
+    font-size: .78rem;
+    font-weight: 500;
     text-decoration: none !important;
     transition: background .13s, color .13s;
-    position: relative; margin-bottom: 1px; overflow: hidden;
-    background: transparent !important; border: none !important;
-    height: auto !important; line-height: 1.3;
-    width: 100%; white-space: nowrap;
+    position: relative;
+    margin-bottom: 1px;
+    overflow: hidden;
+    background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    line-height: 1.3 !important;
+    width: 100%;
+    white-space: nowrap;
 }
-#member-menu > li > a:hover { background:rgba(255,255,255,.07)!important; color:rgba(255,255,255,.9)!important; }
-#member-menu > li.active > a { background:rgba(0,184,148,.13)!important; color:#00b894!important; }
-#member-menu > li.active > a::before {
-    content: ''; position: absolute;
+#member-sidebar ul.member-menu > li > a:hover {
+    background: rgba(255,255,255,.07) !important;
+    color: rgba(255,255,255,.9) !important;
+}
+#member-sidebar ul.member-menu > li.active > a {
+    background: rgba(0,184,148,.13) !important;
+    color: #00b894 !important;
+}
+#member-sidebar ul.member-menu > li.active > a::before {
+    content: '';
+    position: absolute;
     left: 0; top: 14%; bottom: 14%;
-    width: 3px; border-radius: 0 3px 3px 0; background: #00b894;
+    width: 3px; border-radius: 0 3px 3px 0;
+    background: #00b894;
 }
 
-/* Icon */
-.m-icon {
-    width: 26px; height: 26px; border-radius: 7px;
+/* icon pill */
+#member-sidebar .m-icon {
+    width: 26px; height: 26px;
+    border-radius: 7px;
     background: rgba(255,255,255,.06);
-    display: inline-flex !important; align-items: center !important; justify-content: center !important;
-    font-size: .75rem; flex-shrink: 0;
-    color: rgba(255,255,255,.5); transition: background .13s, color .13s;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: .76rem; flex-shrink: 0;
+    color: rgba(255,255,255,.5);
+    transition: background .13s, color .13s;
 }
-#member-menu > li > a:hover .m-icon { background:rgba(255,255,255,.1); color:rgba(255,255,255,.9); }
-#member-menu > li.active > a .m-icon { background:rgba(0,184,148,.18); color:#00b894; }
-
-/* Tooltip */
-#member-menu > li { position: relative; }
-#member-menu > li:hover .m-tip { opacity:1; pointer-events:auto; }
-.m-tip {
-    position: absolute; left: calc(100% + 10px); top: 50%;
-    transform: translateY(-50%);
-    background: #1a202c; color: #fff;
-    font-size: .72rem; font-weight: 600;
-    padding: 5px 10px; border-radius: 6px;
-    white-space: nowrap; opacity: 0; pointer-events: none;
-    transition: opacity .15s; z-index: 9999;
-    box-shadow: 0 4px 14px rgba(0,0,0,.3);
+#member-sidebar ul.member-menu > li > a:hover .m-icon {
+    background: rgba(255,255,255,.1); color: rgba(255,255,255,.88);
 }
-.m-tip::before {
-    content: ''; position: absolute; right: 100%; top: 50%;
-    transform: translateY(-50%);
-    border: 5px solid transparent; border-right-color: #1a202c;
-}
-body:not(.sidebar-collapsed) #member-menu > li .m-tip { display: none; }
-@media (min-width:768px) and (max-width:991px) {
-    #member-menu > li .m-tip { display: block; }
+#member-sidebar ul.member-menu > li.active > a .m-icon {
+    background: rgba(0,184,148,.18); color: #00b894;
 }
 
-/* Label */
-.m-label {
-    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    transition: opacity .15s, width .15s;
+/* nav label */
+#member-sidebar .m-label {
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: opacity .15s;
 }
-body.sidebar-collapsed .m-label { opacity:0; width:0; flex:0; overflow:hidden; }
-@media (min-width:768px) and (max-width:991px) {
-    .m-label { opacity:0; width:0; flex:0; overflow:hidden; }
-}
+body.sidebar-collapsed #member-sidebar .m-label { opacity: 0; width: 0; flex: 0; overflow: hidden; }
 
-/* Bottom dock */
-#member-sidebar .msb-bottom {
-    padding: 7px; border-top: 1px solid rgba(255,255,255,.06);
-    display: flex; flex-direction: column; gap: 2px;
+/* bottom dock */
+#member-sidebar .m-bottom {
+    padding: 7px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    display: flex; flex-direction: column; gap: 1px;
     flex-shrink: 0; background: #0f1623; overflow: hidden;
 }
-.m-link {
+#member-sidebar .m-link {
     display: flex; align-items: center; gap: 8px;
     padding: 7px 8px; border-radius: 7px;
-    color: rgba(255,255,255,.4); font-size: .73rem; font-weight: 500;
-    text-decoration: none; transition: background .12s, color .12s;
+    color: rgba(255,255,255,.38); font-size: .73rem; font-weight: 500;
+    text-decoration: none;
+    transition: background .12s, color .12s;
     background: transparent; white-space: nowrap; overflow: hidden;
-    position: relative;
 }
-.m-link .m-ico {
-    width: 26px; height: 26px; border-radius: 7px;
-    background: rgba(255,255,255,.05);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: .74rem; flex-shrink: 0;
-}
-.m-link:hover { background:rgba(255,255,255,.06); color:rgba(255,255,255,.82); }
-.m-link.danger { color:rgba(220,80,80,.75); }
-.m-link.danger .m-ico { color:rgba(220,80,80,.75); background:rgba(214,48,49,.08); }
-.m-link.danger:hover { background:rgba(214,48,49,.1); color:#ff7675; }
-.m-link .m-lbl {
-    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    transition: opacity .15s, width .15s;
-}
-body.sidebar-collapsed .m-link .m-lbl { opacity:0; width:0; overflow:hidden; flex:0; }
-@media (min-width:768px) and (max-width:991px) {
-    .m-link .m-lbl { opacity:0; width:0; overflow:hidden; flex:0; }
-}
-.m-link { position: relative; }
-.m-link:hover .m-tip { opacity:1; pointer-events:auto; }
-body:not(.sidebar-collapsed) .m-link .m-tip { display:none; }
-@media (min-width:768px) and (max-width:991px) {
-    .m-link .m-tip { display:block; }
+#member-sidebar .m-link:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.82); }
+#member-sidebar .m-link.danger { color: rgba(220,80,80,.7); }
+#member-sidebar .m-link.danger:hover { background: rgba(214,48,49,.1); color: #ff7675; }
+body.sidebar-collapsed #member-sidebar .m-bottom-label { display: none; }
+
+@media (max-width: 991px) {
+    body.sidebar-collapsed #member-sidebar ul.member-menu > li.heading {
+        opacity: 1 !important;
+        padding: 12px 9px 4px !important;
+        height: auto !important;
+        display: block !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #member-sidebar .m-label {
+        opacity: 1 !important;
+        width: auto !important;
+        flex: 1 !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #member-sidebar .m-bottom-label {
+        display: inline !important;
+    }
 }
 </style>
-
-<!-- Overlay -->
-<div class="sb-overlay" id="sbOverlay" onclick="closeMobileSidebar()"></div>
 
 <nav id="member-sidebar">
     <div id="member-sidebar-collapse">
 
-        <!-- Mobile brand -->
-        <div class="sb-mobile-header">
-            <div class="sb-mobile-logo">AW</div>
-            <div>
-                <div class="sb-mobile-name">Agali</div>
-                <div class="sb-mobile-sub">Awamu</div>
-            </div>
-        </div>
+        <ul id="member-menu" class="member-menu">
 
-        <ul id="member-menu">
-
+            <!-- Dashboard -->
             <li class="<%= isMemberActive(['member_dashboard']) %>">
                 <a href="/member/dashboard">
                     <i class="m-icon fa fa-home"></i>
                     <span class="m-label">Dashboard</span>
-                    <span class="m-tip">Dashboard</span>
                 </a>
             </li>
 
-            <li class="m-heading">My Account</li>
+            <!-- My Account -->
+            <li class="heading">My Account</li>
 
             <li class="<%= isMemberActive(['member_savings']) %>">
                 <a href="/member/savings">
-                    <i class="m-icon fa fa-database"></i>
+                    <i class="m-icon fa fa-piggy-bank"></i>
                     <span class="m-label">My Savings</span>
-                    <span class="m-tip">My Savings</span>
                 </a>
             </li>
 
@@ -235,7 +215,6 @@ body:not(.sidebar-collapsed) .m-link .m-tip { display:none; }
                 <a href="/member/loans">
                     <i class="m-icon fa fa-money"></i>
                     <span class="m-label">My Loans</span>
-                    <span class="m-tip">My Loans</span>
                 </a>
             </li>
 
@@ -243,17 +222,16 @@ body:not(.sidebar-collapsed) .m-link .m-tip { display:none; }
                 <a href="/member/transactions">
                     <i class="m-icon fa fa-exchange"></i>
                     <span class="m-label">Transactions</span>
-                    <span class="m-tip">Transactions</span>
                 </a>
             </li>
 
-            <li class="m-heading">Contributions</li>
+            <!-- Contributions -->
+            <li class="heading">Contributions</li>
 
             <li class="<%= isMemberActive(['member_insurance']) %>">
                 <a href="/member/insurance">
                     <i class="m-icon fa fa-shield"></i>
                     <span class="m-label">Insurance Cover</span>
-                    <span class="m-tip">Insurance</span>
                 </a>
             </li>
 
@@ -261,31 +239,45 @@ body:not(.sidebar-collapsed) .m-link .m-tip { display:none; }
                 <a href="/member/welfare">
                     <i class="m-icon fa fa-heart"></i>
                     <span class="m-label">Welfare Fee</span>
-                    <span class="m-tip">Welfare</span>
                 </a>
             </li>
 
             <li class="<%= isMemberActive(['member_membership']) %>">
                 <a href="/member/membership">
-                    <i class="m-icon fa fa-id-card-o"></i>
+                    <i class="m-icon fa fa-id-card"></i>
                     <span class="m-label">Membership Fee</span>
-                    <span class="m-tip">Membership</span>
+                </a>
+            </li>
+
+             <!-- BIO DATA -->
+            <li class="heading">Personal Details</li>
+
+            <li class="<%= isMemberActive(['member_profile']) %>">
+                <a href="/member/biodata">
+                    <i class="m-icon fa fa-user-o"></i>
+                    <span class="m-label">Personal Details</span>
+                </a>
+            </li>
+
+            <!-- Support -->
+            <li class="heading">Help</li>
+
+            <li class="<%= isMemberActive(['member_profile']) %>">
+                <a href="/member/profile">
+                    <i class="m-icon fa fa-user-o"></i>
+                    <span class="m-label">My Profile</span>
                 </a>
             </li>
 
         </ul>
 
-        <!-- Bottom dock -->
-        <div class="msb-bottom">
-            <a href="/member/profile" class="m-link <%= isMemberActive(['member_profile']) %>">
-                <span class="m-ico"><i class="fa fa-user-o"></i></span>
-                <span class="m-lbl">My Profile</span>
-                <span class="m-tip">My Profile</span>
-            </a>
+        <!-- bottom dock -->
+        <div class="m-bottom">
             <a href="/logout" class="m-link danger">
-                <span class="m-ico"><i class="fa fa-power-off"></i></span>
-                <span class="m-lbl">Sign Out</span>
-                <span class="m-tip">Sign Out</span>
+                <span class="m-icon" style="background:rgba(214,48,49,.1);color:#ff7675;">
+                    <i class="fa fa-power-off"></i>
+                </span>
+                <span class="m-bottom-label">Sign Out</span>
             </a>
         </div>
 
@@ -294,34 +286,19 @@ body:not(.sidebar-collapsed) .m-link .m-tip { display:none; }
 
 <script>
 (function () {
-    function restoreState() {
-        if (window.innerWidth >= 768 && localStorage.getItem('sidebarCollapsed') === '1') {
-            document.body.classList.add('sidebar-collapsed');
-        }
+    /* Restore sidebar collapsed state only on desktop */
+    if (window.innerWidth > 991 && localStorage.getItem('sidebarCollapsed') === '1') {
+        document.body.classList.add('sidebar-collapsed');
+    } else {
+        document.body.classList.remove('sidebar-collapsed');
     }
-    function handleResize() {
-        var sb = document.getElementById('member-sidebar');
-        var overlay = document.getElementById('sbOverlay');
-        if (window.innerWidth < 768) {
-            document.body.classList.remove('sidebar-collapsed');
-            if (sb) sb.classList.remove('mobile-open');
-            if (overlay) overlay.classList.remove('open');
-        }
-    }
-    window.closeMobileSidebar = function() {
-        var sb = document.getElementById('member-sidebar');
-        var overlay = document.getElementById('sbOverlay');
-        if (sb) sb.classList.remove('mobile-open');
-        if (overlay) overlay.classList.remove('open');
-    };
-    window.openMobileSidebar = function() {
-        var sb = document.getElementById('member-sidebar');
-        var overlay = document.getElementById('sbOverlay');
-        if (sb) sb.classList.add('mobile-open');
-        if (overlay) overlay.classList.add('open');
-    };
-    window.addEventListener('resize', handleResize);
-    restoreState();
-    handleResize();
+
+    document.querySelectorAll('#member-sidebar a').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (window.innerWidth <= 991) {
+                document.body.classList.remove('sidebar-open');
+            }
+        });
+    });
 }());
 </script>

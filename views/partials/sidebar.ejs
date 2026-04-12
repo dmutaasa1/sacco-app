@@ -1,288 +1,274 @@
 <%
+/* Guard against currentPage being undefined (e.g. member pages) */
 var _cp = (typeof currentPage !== 'undefined') ? currentPage : '';
-function isActive(pages) { return pages.includes(_cp) ? 'active' : ''; }
+function isActive(pages) {
+    return pages.includes(_cp) ? 'active' : '';
+}
 %>
 
 <style>
-/* ── Overlay backdrop (mobile) ── */
-.sb-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.48); z-index: 997;
-    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
-    cursor: pointer;
-}
-.sb-overlay.open { display: block; }
+/* ═══════════════════════════════════════════════════
+   SIDEBAR — all rules scoped to #sidebar
+   so main.min.css cannot override them.
+   bg #0f1623 = identical to header .page-brand
+   width 220px | top 60px (matches header height)
+═══════════════════════════════════════════════════ */
 
-/* ── Sidebar shell ── */
 #sidebar {
     width: 220px;
     background: #0f1623;
     border-right: 1px solid rgba(255,255,255,.04);
     position: fixed;
-    top: 60px; left: 0; bottom: 0;
+    top: 60px;
+    left: 0;
+    bottom: 0;
     height: calc(100vh - 60px);
     z-index: 998;
-    display: flex; flex-direction: column;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     font-family: 'DM Sans', sans-serif;
-    transition: width .22s ease, transform .22s ease;
+    transition: width .22s ease;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
 }
-
-/* Desktop collapsed */
 body.sidebar-collapsed #sidebar { width: 60px; }
-
-/* Tablet 768–991px : auto icon-rail */
-@media (min-width: 768px) and (max-width: 991px) {
-    #sidebar { width: 60px; }
-    .content-wrapper, .page-wrapper { margin-left: 60px !important; }
-}
-
-/* Mobile < 768px : slide off-screen */
-@media (max-width: 767px) {
+@media (max-width: 991px) {
     #sidebar {
-        width: 240px;
-        top: 0; height: 100vh;
+        width: min(280px, 86vw);
         transform: translateX(-100%);
+        transition: transform .2s ease;
+        box-shadow: 0 10px 30px rgba(15,22,35,.24);
     }
-    #sidebar.mobile-open { transform: translateX(0); box-shadow: 6px 0 28px rgba(0,0,0,.4); }
-    .content-wrapper, .page-wrapper { margin-left: 0 !important; }
-    .sb-mobile-header { display: flex !important; }
+    body.sidebar-open #sidebar {
+        transform: translateX(0);
+    }
+    body.sidebar-collapsed #sidebar {
+        width: min(280px, 86vw);
+    }
 }
 
-/* Scroll container */
+/* scroll container */
 #sidebar-collapse {
-    display: flex; flex-direction: column;
-    flex: 1; min-height: 0;
-    overflow-y: auto; overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,.1) transparent;
 }
 #sidebar-collapse::-webkit-scrollbar       { width: 3px; }
 #sidebar-collapse::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
 
-/* Mobile brand header inside sidebar */
-.sb-mobile-header {
-    display: none; align-items: center; gap: 10px;
-    padding: 14px 14px 12px; flex-shrink: 0;
-    border-bottom: 1px solid rgba(255,255,255,.07);
-}
-.sb-mobile-logo {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: linear-gradient(135deg,#00b894,#0984e3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
-}
-.sb-mobile-name { font-size: .86rem; font-weight: 700; color: #f0f4ff; }
-.sb-mobile-sub  { font-size: .58rem; font-weight: 500; color: #00b894; text-transform: uppercase; letter-spacing: .8px; }
-
-/* Nav list */
-#side-menu {
+/* nav list */
+#sidebar #side-menu {
     list-style: none;
-    padding: 6px 7px 8px;
-    margin: 0; flex: 1;
-    background: transparent; border: none;
+    padding: 4px 7px 8px;
+    margin: 0;
+    flex: 1;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
-/* Section headings */
-#side-menu > li.heading {
-    font-size: .56rem; font-weight: 700;
-    letter-spacing: 1.2px; text-transform: uppercase;
+/* section headings */
+#sidebar #side-menu > li.heading {
+    font-size: .57rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     color: rgba(255,255,255,.2);
-    padding: 13px 9px 4px; margin: 0;
-    pointer-events: none; user-select: none;
-    white-space: nowrap; overflow: hidden;
-    transition: opacity .15s, padding .15s, height .22s;
+    padding: 12px 9px 4px;
+    margin: 0;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    background: transparent;
+    transition: opacity .15s, padding .15s, height .15s;
 }
-body.sidebar-collapsed #side-menu > li.heading { opacity:0; height:0; padding:0; }
-@media (min-width:768px) and (max-width:991px) {
-    #side-menu > li.heading { opacity:0; height:0; padding:0; }
+body.sidebar-collapsed #sidebar #side-menu > li.heading {
+    opacity: 0; padding: 0; height: 0; overflow: hidden;
 }
 
-/* Top-level links */
-#side-menu > li > a {
+/* top-level links */
+#sidebar #side-menu > li > a {
     display: flex !important;
     align-items: center !important;
-    gap: 9px; padding: 8px 8px;
+    gap: 9px;
+    padding: 8px 8px;
     border-radius: 8px;
     color: rgba(255,255,255,.52);
-    font-size: .77rem; font-weight: 500;
+    font-size: .78rem;
+    font-weight: 500;
     text-decoration: none !important;
     transition: background .13s, color .13s;
-    position: relative; margin-bottom: 1px;
-    overflow: hidden; background: transparent !important;
-    border: none !important; height: auto !important;
-    line-height: 1.3; width: 100%; white-space: nowrap;
+    position: relative;
+    margin-bottom: 1px;
+    overflow: hidden;
+    background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    line-height: 1.3 !important;
+    width: 100%;
+    white-space: nowrap;
+    box-shadow: none !important;
 }
-#side-menu > li > a:hover {
+#sidebar #side-menu > li > a:hover {
     background: rgba(255,255,255,.07) !important;
     color: rgba(255,255,255,.9) !important;
 }
-#side-menu > li.active > a {
+#sidebar #side-menu > li.active > a {
     background: rgba(0,184,148,.13) !important;
     color: #00b894 !important;
 }
-#side-menu > li.active > a::before {
-    content: ''; position: absolute;
+#sidebar #side-menu > li.active > a::before {
+    content: '';
+    position: absolute;
     left: 0; top: 14%; bottom: 14%;
     width: 3px; border-radius: 0 3px 3px 0;
     background: #00b894;
 }
 
-/* Icon pill */
-.sidebar-item-icon {
-    width: 26px; height: 26px; border-radius: 7px;
+/* icon pill */
+#sidebar .sidebar-item-icon {
+    width: 26px; height: 26px;
+    border-radius: 7px;
     background: rgba(255,255,255,.06);
-    display: inline-flex !important;
-    align-items: center !important; justify-content: center !important;
-    font-size: .75rem; flex-shrink: 0;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: .76rem; flex-shrink: 0;
     color: rgba(255,255,255,.5);
     transition: background .13s, color .13s;
 }
-#side-menu > li > a:hover .sidebar-item-icon { background:rgba(255,255,255,.1); color:rgba(255,255,255,.9); }
-#side-menu > li.active > a .sidebar-item-icon { background:rgba(0,184,148,.18); color:#00b894; }
-
-/* Tooltip (icon-only mode) */
-#side-menu > li { position: relative; }
-#side-menu > li:hover .sb-tip { opacity: 1; pointer-events: auto; }
-.sb-tip {
-    position: absolute; left: calc(100% + 10px); top: 50%;
-    transform: translateY(-50%);
-    background: #1a202c; color: #fff;
-    font-size: .72rem; font-weight: 600;
-    padding: 5px 10px; border-radius: 6px;
-    white-space: nowrap; opacity: 0;
-    pointer-events: none; transition: opacity .15s;
-    z-index: 9999; box-shadow: 0 4px 14px rgba(0,0,0,.3);
+#sidebar #side-menu > li > a:hover .sidebar-item-icon {
+    background: rgba(255,255,255,.1); color: rgba(255,255,255,.88);
 }
-.sb-tip::before {
-    content: ''; position: absolute;
-    right: 100%; top: 50%; transform: translateY(-50%);
-    border: 5px solid transparent;
-    border-right-color: #1a202c;
-}
-/* Only show tooltip when in icon-only mode */
-body:not(.sidebar-collapsed) #side-menu > li .sb-tip { display: none; }
-@media (min-width:768px) and (max-width:991px) {
-    #side-menu > li .sb-tip { display: block; }
+#sidebar #side-menu > li.active > a .sidebar-item-icon {
+    background: rgba(0,184,148,.18); color: #00b894;
 }
 
-/* Nav label */
-.nav-label {
-    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    transition: opacity .15s, width .15s;
+/* nav label */
+#sidebar .nav-label {
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: opacity .15s;
 }
-body.sidebar-collapsed .nav-label { opacity:0; width:0; flex:0; overflow:hidden; }
-@media (min-width:768px) and (max-width:991px) {
-    .nav-label { opacity:0; width:0; flex:0; overflow:hidden; }
-}
+body.sidebar-collapsed #sidebar .nav-label { opacity: 0; width: 0; flex: 0; overflow: hidden; }
 
-/* Chevron */
-.arrow {
-    margin-left: auto; font-size: .55rem;
+/* chevron */
+#sidebar .arrow {
+    margin-left: auto; font-size: .58rem;
     color: rgba(255,255,255,.2);
     transition: transform .18s, color .13s, opacity .15s;
     flex-shrink: 0;
 }
-body.sidebar-collapsed .arrow { opacity:0; width:0; overflow:hidden; }
-@media (min-width:768px) and (max-width:991px) {
-    .arrow { opacity:0; width:0; overflow:hidden; }
+body.sidebar-collapsed #sidebar .arrow { opacity: 0; width: 0; overflow: hidden; }
+#sidebar #side-menu > li > a[aria-expanded="true"] > .arrow {
+    transform: rotate(-90deg); color: rgba(255,255,255,.45);
 }
-#side-menu > li > a[aria-expanded="true"] > .arrow { transform:rotate(-90deg); color:rgba(255,255,255,.45); }
-#side-menu > li.active > a .arrow { color:rgba(0,184,148,.5); }
+#sidebar #side-menu > li.active > a .arrow { color: rgba(0,184,148,.5); }
 
-/* Submenu */
-#side-menu ul.nav-2-level {
-    list-style: none; padding: 1px 0 3px 12px;
-    margin: 0; background: transparent;
+/* submenu — Bootstrap/metismenu controls display, we only style */
+#sidebar ul.nav-2-level {
+    list-style: none;
+    padding: 1px 0 3px 12px;
+    margin: 0;
+    background: transparent;
 }
-body.sidebar-collapsed #side-menu ul.nav-2-level { display:none !important; }
-@media (min-width:768px) and (max-width:991px) {
-    #side-menu ul.nav-2-level { display:none !important; }
+body.sidebar-collapsed #sidebar ul.nav-2-level { display: none !important; }
+
+#sidebar ul.nav-2-level > li > a {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: rgba(255,255,255,.37);
+    font-size: .72rem; font-weight: 400;
+    text-decoration: none;
+    transition: background .12s, color .12s;
+    background: transparent; border: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    width: 100%;
 }
-#side-menu ul.nav-2-level > li > a {
-    display: flex; align-items: center; gap: 7px;
-    padding: 5px 8px; border-radius: 6px;
-    color: rgba(255,255,255,.37); font-size: .71rem; font-weight: 400;
-    text-decoration: none; transition: background .12s, color .12s;
-    background: transparent; white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis; width: 100%;
-}
-#side-menu ul.nav-2-level > li > a::before {
+#sidebar ul.nav-2-level > li > a::before {
     content: ''; width: 4px; height: 4px; border-radius: 50%;
-    background: rgba(255,255,255,.15); flex-shrink: 0;
+    background: rgba(255,255,255,.14); flex-shrink: 0;
     display: inline-block; transition: background .12s, transform .12s;
 }
-#side-menu ul.nav-2-level > li > a:hover { color:rgba(255,255,255,.82); background:rgba(255,255,255,.04); }
-#side-menu ul.nav-2-level > li > a:hover::before { background:rgba(255,255,255,.4); }
-#side-menu ul.nav-2-level > li > a.active { color:#00b894; background:rgba(0,184,148,.09); font-weight:500; }
-#side-menu ul.nav-2-level > li > a.active::before { background:#00b894; transform:scale(1.4); }
+#sidebar ul.nav-2-level > li > a:hover {
+    color: rgba(255,255,255,.82); background: rgba(255,255,255,.04);
+}
+#sidebar ul.nav-2-level > li > a:hover::before { background: rgba(255,255,255,.4); }
+#sidebar ul.nav-2-level > li > a.active {
+    color: #00b894; background: rgba(0,184,148,.09); font-weight: 500;
+}
+#sidebar ul.nav-2-level > li > a.active::before { background: #00b894; transform: scale(1.4); }
 
-/* Bottom dock */
+/* bottom dock */
 #sidebar .sb-bottom {
-    padding: 7px; border-top: 1px solid rgba(255,255,255,.06);
-    display: flex; flex-direction: column; gap: 2px;
+    padding: 7px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    display: flex; flex-direction: column; gap: 1px;
     flex-shrink: 0; background: #0f1623; overflow: hidden;
 }
-.sb-link {
+#sidebar .sb-link {
     display: flex; align-items: center; gap: 8px;
     padding: 7px 8px; border-radius: 7px;
-    color: rgba(255,255,255,.4); font-size: .73rem; font-weight: 500;
-    text-decoration: none; transition: background .12s, color .12s;
-    background: transparent; white-space: nowrap; overflow: hidden;
-    position: relative;
-}
-.sb-link .sb-ico {
-    width: 26px; height: 26px; border-radius: 7px;
-    background: rgba(255,255,255,.05);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: .74rem; flex-shrink: 0;
+    color: rgba(255,255,255,.38); font-size: .73rem; font-weight: 500;
+    text-decoration: none;
     transition: background .12s, color .12s;
+    background: transparent; white-space: nowrap; overflow: hidden;
 }
-.sb-link:hover { background:rgba(255,255,255,.06); color:rgba(255,255,255,.82); }
-.sb-link.danger { color:rgba(220,80,80,.75); }
-.sb-link.danger .sb-ico { color:rgba(220,80,80,.75); background:rgba(214,48,49,.08); }
-.sb-link.danger:hover { background:rgba(214,48,49,.1); color:#ff7675; }
-.sb-link .sb-lbl {
-    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    transition: opacity .15s, width .15s;
+#sidebar .sb-ico {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: rgba(255,255,255,.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem; flex-shrink: 0;
 }
-body.sidebar-collapsed .sb-link .sb-lbl { opacity:0; width:0; overflow:hidden; flex:0; }
-@media (min-width:768px) and (max-width:991px) {
-    .sb-link .sb-lbl { opacity:0; width:0; overflow:hidden; flex:0; }
-}
+#sidebar .sb-link:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.82); }
+#sidebar .sb-link.danger { color: rgba(220,80,80,.7); }
+#sidebar .sb-link.danger:hover { background: rgba(214,48,49,.1); color: #ff7675; }
+body.sidebar-collapsed #sidebar .sb-label { display: none; }
 
-/* Tooltip on bottom dock links in icon-only */
-.sb-link { position: relative; }
-.sb-link:hover .sb-tip { opacity:1; pointer-events:auto; }
-body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
-@media (min-width:768px) and (max-width:991px) {
-    .sb-link .sb-tip { display:block; }
+@media (max-width: 991px) {
+    body.sidebar-collapsed #sidebar #side-menu > li.heading {
+        opacity: 1 !important;
+        padding: 12px 9px 4px !important;
+        height: auto !important;
+        display: block !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #sidebar .nav-label {
+        opacity: 1 !important;
+        width: auto !important;
+        flex: 1 !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #sidebar .arrow {
+        opacity: 1 !important;
+        width: auto !important;
+        display: inline-block !important;
+        overflow: visible !important;
+    }
+    body.sidebar-collapsed #sidebar .sb-label {
+        display: inline !important;
+    }
+    body.sidebar-collapsed #sidebar ul.nav-2-level {
+        display: block !important;
+    }
 }
 </style>
-
-<!-- Overlay -->
-<div class="sb-overlay" id="sbOverlay" onclick="closeMobileSidebar()"></div>
 
 <nav id="sidebar" class="page-sidebar">
     <div id="sidebar-collapse">
 
-        <!-- Mobile brand (hidden on desktop) -->
-        <div class="sb-mobile-header">
-            <div class="sb-mobile-logo">AW</div>
-            <div>
-                <div class="sb-mobile-name">Agali</div>
-                <div class="sb-mobile-sub">Awamu</div>
-            </div>
-        </div>
-
         <ul id="side-menu" class="side-menu metismenu">
 
             <li class="<%= isActive(['home']) %>">
-                <a href="/">
-                    <i class="sidebar-item-icon fa fa-home"></i>
-                    <span class="nav-label">Dashboard</span>
-                    <span class="sb-tip">Dashboard</span>
-                </a>
+                <a href="/"><i class="sidebar-item-icon fa fa-home"></i><span class="nav-label">Dashboard</span></a>
             </li>
 
             <li class="heading">Bio Data</li>
@@ -292,7 +278,6 @@ body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
                     <i class="sidebar-item-icon fa fa-user-plus"></i>
                     <span class="nav-label">Registration</span>
                     <i class="fa fa-angle-left arrow"></i>
-                    <span class="sb-tip">Registration</span>
                 </a>
                 <ul class="nav-2-level collapse">
                     <li><a class="<%= isActive(['member_add']) %>"    href="/member_add">Add Member</a></li>
@@ -305,7 +290,6 @@ body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
                     <i class="sidebar-item-icon fa fa-users"></i>
                     <span class="nav-label">Member Lists</span>
                     <i class="fa fa-angle-left arrow"></i>
-                    <span class="sb-tip">Member Lists</span>
                 </a>
                 <ul class="nav-2-level collapse">
                     <li><a class="<%= isActive(['members']) %>"    href="/members">Members</a></li>
@@ -320,7 +304,6 @@ body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
                     <i class="sidebar-item-icon fa fa-exchange"></i>
                     <span class="nav-label">Transactions</span>
                     <i class="fa fa-angle-left arrow"></i>
-                    <span class="sb-tip">Transactions</span>
                 </a>
                 <ul class="nav-2-level collapse">
                     <li><a class="<%= isActive(['transaction']) %>"                  href="/transaction">New Member Txn</a></li>
@@ -335,7 +318,6 @@ body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
                     <i class="sidebar-item-icon fa fa-money"></i>
                     <span class="nav-label">Loans</span>
                     <i class="fa fa-angle-left arrow"></i>
-                    <span class="sb-tip">Loans</span>
                 </a>
                 <ul class="nav-2-level collapse">
                     <li><a class="<%= isActive(['loan_application']) %>" href="/loan_application">New Application</a></li>
@@ -352,7 +334,6 @@ body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
                     <i class="sidebar-item-icon fa fa-file-text-o"></i>
                     <span class="nav-label">Reports</span>
                     <i class="fa fa-angle-left arrow"></i>
-                    <span class="sb-tip">Reports</span>
                 </a>
                 <ul class="nav-2-level collapse">
                     <li><a class="<%= isActive(['membership_fee']) %>"       href="/membership_fee">Membership Fee</a></li>
@@ -372,7 +353,6 @@ body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
                     <i class="sidebar-item-icon fa fa-user-secret"></i>
                     <span class="nav-label">User Management</span>
                     <i class="fa fa-angle-left arrow"></i>
-                    <span class="sb-tip">Users</span>
                 </a>
                 <ul class="nav-2-level collapse">
                     <li><a class="<%= isActive(['users']) %>"    href="/users">User List</a></li>
@@ -382,22 +362,15 @@ body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
 
         </ul>
 
-        <!-- Bottom dock -->
         <div class="sb-bottom">
             <a href="/profile" class="sb-link">
-                <span class="sb-ico"><i class="fa fa-user-o"></i></span>
-                <span class="sb-lbl">My Profile</span>
-                <span class="sb-tip">Profile</span>
+                <span class="sb-ico"><i class="fa fa-user-o"></i></span><span class="sb-label">My Profile</span>
             </a>
             <a href="/settings" class="sb-link">
-                <span class="sb-ico"><i class="fa fa-cog"></i></span>
-                <span class="sb-lbl">Settings</span>
-                <span class="sb-tip">Settings</span>
+                <span class="sb-ico"><i class="fa fa-cog"></i></span><span class="sb-label">Settings</span>
             </a>
             <a href="/logout" class="sb-link danger">
-                <span class="sb-ico"><i class="fa fa-power-off"></i></span>
-                <span class="sb-lbl">Sign Out</span>
-                <span class="sb-tip">Sign Out</span>
+                <span class="sb-ico"><i class="fa fa-power-off"></i></span><span class="sb-label">Sign Out</span>
             </a>
         </div>
 
@@ -406,63 +379,61 @@ body:not(.sidebar-collapsed) .sb-link .sb-tip { display:none; }
 
 <script>
 (function () {
-    /* ── Metismenu init ── */
+    /* Wait for jQuery + metisMenu + app.min.js to all finish,
+       then re-init cleanly on our menu element only.
+       Delay of 100ms ensures app.min.js has already run. */
     function initSidebar() {
-        if (typeof jQuery === 'undefined' || !jQuery.fn.metisMenu) return setTimeout(initSidebar, 60);
-        var $menu = jQuery('#side-menu');
-        if ($menu.data('metisMenu')) return;
-        $menu.metisMenu({ toggle: true });
-        /* Auto-open active parent */
-        $menu.find('> li.active').each(function () {
-            var $sub = jQuery(this).children('ul.nav-2-level');
-            if ($sub.length) { $sub.addClass('in').css('height',''); jQuery(this).children('a').attr('aria-expanded','true'); }
-        });
-        $menu.find('ul.nav-2-level a.active').each(function () {
-            var $sub = jQuery(this).closest('ul.nav-2-level');
-            $sub.addClass('in').css('height','');
-            $sub.closest('li').children('a').attr('aria-expanded','true');
-        });
-    }
-
-    /* ── Restore sidebar state ── */
-    function restoreState() {
-        if (window.innerWidth >= 768 && localStorage.getItem('sidebarCollapsed') === '1') {
-            document.body.classList.add('sidebar-collapsed');
+        if (typeof jQuery === 'undefined' || !jQuery.fn.metisMenu) {
+            return setTimeout(initSidebar, 50);
         }
+
+        jQuery(function ($) {
+            var $menu = $('#side-menu');
+
+            /* Destroy any existing metisMenu instance the theme created */
+            try {
+                if ($menu.data('metisMenu')) {
+                    $menu.metisMenu('dispose');
+                }
+            } catch (e) { /* older metisMenu versions don't have dispose */ }
+
+            /* Remove theme's collapse classes so we start fresh */
+            $menu.find('ul.nav-2-level').each(function () {
+                $(this).removeClass('in collapsing');
+            });
+
+            /* Re-init with our settings */
+            $menu.metisMenu({ toggle: true });
+
+            /* Auto-open parent of active page */
+            $menu.find('> li.active').each(function () {
+                var $sub = $(this).children('ul.nav-2-level');
+                if ($sub.length) {
+                    $sub.addClass('in').css('height', '');
+                    $(this).children('a').attr('aria-expanded', 'true');
+                }
+            });
+
+            /* Auto-open parent when a child link is active */
+            $menu.find('ul.nav-2-level a.active').each(function () {
+                var $sub = $(this).closest('ul.nav-2-level');
+                $sub.addClass('in').css('height', '');
+                $sub.closest('li').children('a').attr('aria-expanded', 'true');
+            });
+
+            $menu.find('a').on('click', function () {
+                if (window.innerWidth <= 991) {
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        });
     }
 
-    /* ── Responsive auto-handler ── */
-    function handleResize() {
-        var sb = document.getElementById('sidebar');
-        var overlay = document.getElementById('sbOverlay');
-        if (window.innerWidth < 768) {
-            /* Mobile: ensure sidebar is hidden unless toggled open */
-            document.body.classList.remove('sidebar-collapsed');
-            if (sb) { sb.classList.remove('mobile-open'); }
-            if (overlay) { overlay.classList.remove('open'); }
-        }
-    }
-
-    window.closeMobileSidebar = function() {
-        var sb = document.getElementById('sidebar');
-        var overlay = document.getElementById('sbOverlay');
-        if (sb) sb.classList.remove('mobile-open');
-        if (overlay) overlay.classList.remove('open');
-    };
-
-    window.openMobileSidebar = function() {
-        var sb = document.getElementById('sidebar');
-        var overlay = document.getElementById('sbOverlay');
-        if (sb) sb.classList.add('mobile-open');
-        if (overlay) overlay.classList.add('open');
-    };
-
-    window.addEventListener('resize', handleResize);
-    restoreState();
-    handleResize();
-
+    /* Run after everything else — 150ms after DOM ready */
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() { setTimeout(initSidebar, 150); });
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(initSidebar, 150);
+        });
     } else {
         setTimeout(initSidebar, 150);
     }
