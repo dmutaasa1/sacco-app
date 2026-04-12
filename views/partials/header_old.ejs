@@ -1,5 +1,36 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+* { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+img, canvas, svg { max-width: 100%; }
+body.fixed-navbar .page-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+body.fixed-navbar .content-wrapper {
+    margin-left: 220px;
+    max-width: calc(100% - 220px);
+    padding: 16px;
+    overflow-x: hidden;
+}
+body.fixed-navbar.sidebar-collapsed .content-wrapper {
+    margin-left: 60px;
+    max-width: calc(100% - 60px);
+}
+#mobileSidebarBackdrop {
+    position: fixed;
+    inset: 60px 0 0 0;
+    background: rgba(15,22,35,.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease;
+    z-index: 997;
+}
+body.sidebar-open #mobileSidebarBackdrop {
+    opacity: 1;
+    pointer-events: auto;
+}
 
 /* ═══════════════════════════════════════════
    HEADER  —  height 60px  |  brand 220px
@@ -296,6 +327,36 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
     .hdr-search { display: none; }
     .usr-name   { display: none; }
 }
+@media (max-width: 991px) {
+    .page-brand {
+        width: 60px;
+        padding: 0;
+        justify-content: center;
+    }
+    .page-brand .link { justify-content: center; gap: 0; }
+    .brand-text { opacity: 0; width: 0; overflow: hidden; }
+    .header-toolbar { padding: 0 10px; gap: 8px; }
+    .toolbar-left, .toolbar-right { gap: 6px; min-width: 0; }
+    .hdr-search input { width: 140px; max-width: 38vw; }
+    .hdr-search input:focus { width: 160px; }
+    .hdr-search-results,
+    .notif-dropdown,
+    .usr-dropdown {
+        width: min(92vw, 360px);
+        max-width: calc(100vw - 16px);
+    }
+    .interest-status-pill { display: none !important; }
+    body.fixed-navbar .content-wrapper,
+    body.fixed-navbar.sidebar-collapsed .content-wrapper {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 12px;
+    }
+    .page-heading {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
 </style>
 
 <header class="header">
@@ -385,6 +446,7 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
         </div>
     </div>
 </header>
+<div id="mobileSidebarBackdrop"></div>
 
 <script>
 (function () {
@@ -395,20 +457,43 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
        Both header brand and sidebar respond via CSS
     ═══════════════════════════════════════════ */
     var toggleBtn = document.getElementById('sidebarToggleBtn');
+    var sidebarBackdrop = document.getElementById('mobileSidebarBackdrop');
+    function isMobileLayout() {
+        return window.innerWidth <= 991;
+    }
+    function closeMobileSidebar() {
+        document.body.classList.remove('sidebar-open');
+    }
     if (toggleBtn) {
+        // Restore saved preference
+        if (!isMobileLayout() && localStorage.getItem('sidebarCollapsed') === '1') {
+            document.body.classList.add('sidebar-collapsed');
+        } else if (isMobileLayout()) {
+            document.body.classList.remove('sidebar-collapsed');
+        }
         toggleBtn.addEventListener('click', function () {
-            var isMobile = window.innerWidth < 768;
-            if (isMobile) {
-                /* Mobile: slide sidebar in as overlay */
-                if (typeof openMobileSidebar === 'function') openMobileSidebar();
-            } else {
-                /* Desktop/tablet: collapse to icon rail */
-                document.body.classList.toggle('sidebar-collapsed');
-                localStorage.setItem('sidebarCollapsed',
-                    document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+            if (isMobileLayout()) {
+                document.body.classList.toggle('sidebar-open');
+                return;
             }
+            document.body.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed',
+                document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
         });
     }
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+    }
+    window.addEventListener('resize', function () {
+        if (isMobileLayout()) {
+            document.body.classList.remove('sidebar-collapsed');
+        } else {
+            document.body.classList.remove('sidebar-open');
+            if (localStorage.getItem('sidebarCollapsed') === '1') {
+                document.body.classList.add('sidebar-collapsed');
+            }
+        }
+    });
 
     /* ═══════════════════════════════════════════
        LIVE SEARCH
@@ -450,7 +535,7 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
                     '<div class="hsr-avatar" style="background:' + col + '">' + ini + '</div>' +
                     '<div class="hsr-info">' +
                         '<div class="hsr-name">' + (m.First_name||'') + ' ' + (m.Last_Name||'') + '</div>' +
-                        '<div class="hsr-meta">ID: ' + m.id + (m.tel_no ? ' &middot; ' + m.tel_no : '') + '</div>' +
+                        '<div class="hsr-meta">ID: ' + m.id + (m.tel_no ? ' &middot; ' + m.tel_no : '') + (m.email ? ' &middot; ' + m.email : '') + '</div>' +
                     '</div></a>';
             });
         }
