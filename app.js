@@ -5246,6 +5246,42 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
     });
 }));
 
+//==========================MEMBER BIO DATA PAGE===============
+
+app.get('/member/biodata',
+checkMember,
+asyncHandler(async (req, res) => {
+
+const memberId = req.session.user.member_id;
+
+
+// GET MEMBER
+
+const [memberRows] = await db.execute(`
+SELECT *
+FROM members
+WHERE id = ?
+`, [memberId]);
+
+
+// GET DEPENDANTS
+
+const [dependants] = await db.execute(`
+SELECT *
+FROM dependants
+WHERE member_id = ?
+`, [memberId]);
+
+
+res.render('member_biodata', {
+
+member: memberRows[0],
+dependants
+
+});
+
+}));
+
 
 
 
@@ -5266,6 +5302,8 @@ app.use((err, req, res, next) => {
       : err.message
   });
 });
+
+
 
 
 // ==================== START SERVER WITH INTEREST CALCULATION ====================
