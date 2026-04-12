@@ -5248,7 +5248,7 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
 
 //==========================MEMBER BIO DATA PAGE===============
 
-app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
+app.get('/member/biodata', checkMemberAuth, asyncHandler(async (req, res) => {
     const db       = dbConfig;
     const memberId = req.session.user.member_id;   /* always the logged-in member */
 
