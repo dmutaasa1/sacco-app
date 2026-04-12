@@ -2,22 +2,8 @@
 <%- include('partials/sidebar') %>
 
 <style>
-.fs-page { 
-    padding: 24px 28px; 
-    margin-left: 220px !important; 
-    margin-top: 60px; 
-    min-height: calc(100vh - 60px); 
-    background: #f7fafc;
-    transition: margin-left .22s ease !important;
-}
-body.sidebar-collapsed .fs-page { margin-left: 60px !important; }
-@media(max-width:991px){
-    .fs-page { margin-left: 0 !important; padding: 14px 12px 22px; }
-    .fs-filter { padding: 12px; gap: 10px; }
-    .fs-filter > div { width: 100%; }
-    .fs-filter > div[style] { display: flex !important; flex-wrap: wrap; width: 100%; }
-    .fs-btn { width: 100%; justify-content: center; }
-}
+.fs-page { padding: 24px 28px; margin-left: 220px; margin-top: 60px; min-height: calc(100vh - 60px); background: #f7fafc; }
+body.sidebar-collapsed .fs-page { margin-left: 60px; }
 
 /* ── top bar ── */
 .fs-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }

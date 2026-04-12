@@ -33,16 +33,7 @@ function isActive(pages) {
     padding: 0;
     box-shadow: none;
 }
-
-/* Content wrapper positioned to the right of sidebar */
-.page-wrapper .content-wrapper {
-    margin-left: 220px !important;
-    transition: margin-left .22s ease !important;
-}
-
 body.sidebar-collapsed #sidebar { width: 60px; }
-body.sidebar-collapsed .page-wrapper .content-wrapper { margin-left: 60px !important; }
-
 @media (max-width: 991px) {
     #sidebar {
         width: min(280px, 86vw);
@@ -55,9 +46,6 @@ body.sidebar-collapsed .page-wrapper .content-wrapper { margin-left: 60px !impor
     }
     body.sidebar-collapsed #sidebar {
         width: min(280px, 86vw);
-    }
-    .page-wrapper .content-wrapper {
-        margin-left: 0 !important;
     }
 }
 
@@ -193,12 +181,6 @@ body.sidebar-collapsed #sidebar .arrow { opacity: 0; width: 0; overflow: hidden;
     padding: 1px 0 3px 12px;
     margin: 0;
     background: transparent;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height .3s ease;
-}
-#sidebar ul.nav-2-level.in {
-    max-height: 1000px;
 }
 body.sidebar-collapsed #sidebar ul.nav-2-level { display: none !important; }
 
@@ -215,10 +197,6 @@ body.sidebar-collapsed #sidebar ul.nav-2-level { display: none !important; }
     background: transparent; border: none;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     width: 100%;
-    cursor: pointer;
-    position: relative;
-    z-index: 1;
-    pointer-events: auto;
 }
 #sidebar ul.nav-2-level > li > a::before {
     content: ''; width: 4px; height: 4px; border-radius: 50%;
@@ -325,18 +303,6 @@ body.sidebar-open .sidebar-backdrop {
     body.sidebar-open .content-wrapper {
         pointer-events: none;
     }
-}
-
-/* Ensure sidebar and its items are always clickable */
-#sidebar,
-#sidebar #side-menu,
-#sidebar #side-menu a,
-#sidebar ul.nav-2-level,
-#sidebar ul.nav-2-level a,
-#sidebar .sb-bottom,
-#sidebar .sb-link {
-    pointer-events: auto;
-    position: relative;
 }
 </style>
 
@@ -531,7 +497,7 @@ body.sidebar-open .sidebar-backdrop {
             createBackdrop();
 
             /* Enhanced touch/click handling for parent dropdown items */
-            $menu.find('> li > a[href="javascript:;"]').off('click touchend').on('click touchend', function (e) {
+            $menu.find('> li > a[href="javascript:;"]').on('click touchend', function (e) {
                 var $this = $(this);
                 var hasDropdown = $this.siblings('ul.nav-2-level').length > 0;
                 
@@ -540,42 +506,32 @@ body.sidebar-open .sidebar-backdrop {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    /* Manually trigger MetisMenu toggle */
-                    var $parent = $this.closest('li');
-                    var $submenu = $parent.children('ul.nav-2-level');
+                    /* Let metisMenu handle the toggle */
+                    /* The toggle will happen automatically through metisMenu */
                     
-                    if ($submenu.hasClass('in')) {
-                        /* Currently open, close it */
-                        $submenu.removeClass('in').slideUp(300);
-                        $this.attr('aria-expanded', 'false');
-                    } else {
-                        /* Currently closed, open it */
-                        $submenu.addClass('in').slideDown(300);
-                        $this.attr('aria-expanded', 'true');
-                    }
+                    /* Don't close sidebar immediately - let dropdown animation complete */
                 }
                 return false;
             });
 
             /* Handle regular link clicks */
-            $menu.find('> li > a:not([href="javascript:;"])').off('click').on('click', function () {
+            $menu.find('> li > a:not([href="javascript:;"])').on('click', function () {
                 if (window.innerWidth <= 991) {
                     setTimeout(closeMobileSidebar, 100);
                 }
             });
 
-            /* Handle submenu link clicks with explicit pointer-events */
-            $menu.find('ul.nav-2-level > li > a').off('click').on('click', function (e) {
-                /* Ensure this link is clickable */
-                $(this).css('pointer-events', 'auto');
-                
+            /* Handle submenu link clicks - close sidebar immediately */
+            $menu.find('ul.nav-2-level > li > a').on('click', function () {
                 if (window.innerWidth <= 991) {
                     closeMobileSidebar();
                 }
             });
 
-            /* Make sure all sidebar items are always clickable */
-            $menu.find('a').css('pointer-events', 'auto');
+            /* Prevent metisMenu from calling our custom function twice */
+            $menu.on('show.metisMenu hide.metisMenu', function(e) {
+                /* Metis is handling the toggle, don't interfere */
+            });
         });
     }
 
@@ -588,26 +544,10 @@ body.sidebar-open .sidebar-backdrop {
         setTimeout(initSidebar, 150);
     }
 
-    /* Handle resize - close sidebar on transition to mobile and reinit menu */
+    /* Handle resize - close sidebar on transition to mobile */
     window.addEventListener('resize', function () {
         if (window.innerWidth > 991) {
             closeMobileSidebar();
-        } else {
-            /* On mobile, ensure MetisMenu is properly initialized */
-            if (typeof jQuery !== 'undefined' && jQuery.fn.metisMenu) {
-                var $menu = jQuery('#side-menu');
-                if ($menu.data('metisMenu')) {
-                    try {
-                        $menu.metisMenu('dispose');
-                    } catch (e) {}
-                    setTimeout(function () {
-                        $menu.metisMenu({ 
-                            toggle: true,
-                            preventDefault: false
-                        });
-                    }, 100);
-                }
-            }
         }
     }, false);
 }());
