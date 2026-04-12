@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Agali Awamu SACCO</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ═══════ BASE ═══════ */
+body { overflow-x:hidden; font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); }
+body.sidebar-collapsed .page-wrapper { margin-left:60px; }
+.dash-body { padding:14px 22px 32px; }
+
+/* ═══════ HEADING ═══════ */
+.page-heading {
+    padding:14px 22px 0;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:8px; margin-bottom:14px;
+}
+.page-heading h3 { font-size:1.1rem; font-weight:700; color:#1a1f2e; margin:0; }
+.page-heading .sub { font-size:.72rem; color:#a0aec0; margin-top:2px; }
+.back-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 14px; border-radius:8px; font-size:.75rem; font-weight:600;
+    background:#f0fdf9; color:#00b894; border:1px solid #b2f5ea;
+    text-decoration:none; transition:background .15s;
+}
+.back-btn:hover { background:#e6faf4; text-decoration:none; color:#00b894; }
+
+/* ═══════ CARD ═══════ */
+.ibox {
+    border-radius:10px; overflow:hidden;
+    box-shadow:0 1px 6px rgba(26,31,46,.07);
+    border:1px solid #eaeef2; background:#fff;
+    margin-bottom:14px;
+}
+.ibox-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 16px; border-bottom:1px solid #eaeef2;
+}
+.ibox-title {
+    font-size:.68rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:.5px; color:#718096;
+    display:flex; align-items:center; gap:6px;
+}
+.ibox-body { padding:16px; }
+
+/* ═══════ LAYOUT ═══════ */
+.profile-layout { display:flex; gap:16px; align-items:flex-start; }
+.profile-left  { width:250px; flex-shrink:0; }
+.profile-right { flex:1; min-width:0; }
+@media(max-width:820px){
+    .profile-layout { flex-direction:column; }
+    .profile-left  { width:100%; }
+}
+
+/* ═══════ AVATAR BLOCK ═══════ */
+.avatar-block { text-align:center; padding:28px 16px 0; }
+.avatar-circle {
+    width:88px; height:88px; border-radius:50%;
+    background:linear-gradient(135deg,#00b894,#0984e3);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.9rem; font-weight:700; color:#fff;
+    margin:0 auto 12px;
+    box-shadow:0 4px 18px rgba(0,184,148,.28);
+}
+.avatar-circle img { width:88px; height:88px; border-radius:50%; object-fit:cover; }
+.avatar-name { font-size:1rem; font-weight:700; color:#1a1f2e; margin-bottom:2px; }
+.avatar-id   { font-size:.7rem; color:#a0aec0; margin-bottom:10px; }
+.status-pill {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:4px 12px; border-radius:20px; font-size:.68rem; font-weight:700;
+    margin-bottom:16px;
+}
+.status-active   { background:#e6faf4; color:#00b894; border:1px solid #b2f5ea; }
+.status-inactive { background:#fff5f5; color:#e53e3e; border:1px solid #fed7d7; }
+
+/* quick stats grid */
+.qs-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:#eaeef2; border-top:1px solid #eaeef2; }
+.qs-cell { background:#fff; padding:12px 6px; text-align:center; }
+.qs-val  { font-size:.88rem; font-weight:700; color:#1a1f2e; line-height:1.2; }
+.qs-val.green  { color:#00b894; }
+.qs-val.red    { color:#e53e3e; }
+.qs-val.blue   { color:#4299e1; }
+.qs-val.purple { color:#9f7aea; }
+.qs-lbl { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#a0aec0; margin-top:3px; }
+
+/* progress bar */
+.prog-row   { margin-bottom:11px; }
+.prog-label { display:flex; justify-content:space-between; font-size:.69rem; color:#4a5568; margin-bottom:3px; font-weight:500; }
+.prog-track { height:6px; background:#edf2f7; border-radius:4px; overflow:hidden; }
+.prog-fill  { height:100%; border-radius:4px; transition:width .7s ease; }
+
+/* member-specific action links */
+.profile-links { padding:12px; border-top:1px solid #f0f4f8; display:flex; flex-direction:column; gap:4px; }
+.profile-link {
+    display:flex; align-items:center; gap:9px;
+    padding:7px 10px; border-radius:7px; font-size:.76rem; font-weight:500;
+    color:#4a5568; text-decoration:none; transition:background .12s;
+}
+.profile-link:hover { background:#f7fafc; color:#1a1f2e; text-decoration:none; }
+.profile-link i { width:16px; text-align:center; color:#a0aec0; }
+.profile-link.danger { color:#e53e3e; }
+.profile-link.danger i { color:#e53e3e; }
+.profile-link.danger:hover { background:rgba(229,62,62,.06); }
+
+/* ═══════ TABS ═══════ */
+.tab-bar { display:flex; border-bottom:2px solid #eaeef2; padding:0 2px; }
+.tab-btn {
+    padding:10px 16px; font-size:.77rem; font-weight:600; color:#718096;
+    background:none; border:none; border-bottom:2px solid transparent;
+    cursor:pointer; font-family:'DM Sans',sans-serif;
+    margin-bottom:-2px; transition:color .15s, border-color .15s;
+    display:flex; align-items:center; gap:6px; white-space:nowrap;
+}
+.tab-btn.active { color:#00b894; border-bottom-color:#00b894; }
+.tab-btn:hover:not(.active) { color:#1a1f2e; }
+.tab-pane { display:none; padding:16px; }
+.tab-pane.active { display:block; }
+
+/* ═══════ DETAIL ROWS ═══════ */
+.section-label {
+    font-size:.6rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:.8px; color:#a0aec0; padding-bottom:8px;
+    border-bottom:1px solid #f0f4f8; margin-bottom:12px;
+    display:flex; align-items:center; gap:6px;
+}
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin-bottom:16px; }
+@media(max-width:576px){ .detail-grid{ grid-template-columns:1fr; } }
+.d-label { font-size:.62rem; font-weight:600; text-transform:uppercase; letter-spacing:.4px; color:#a0aec0; margin-bottom:2px; }
+.d-value { font-size:.8rem; font-weight:500; color:#1a1f2e; }
+.d-value.empty { color:#cbd5e0; font-style:italic; font-weight:400; }
+
+/* two-column card grid */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(max-width:640px){ .two-col{ grid-template-columns:1fr; } }
+
+/* ═══════ ACTIVITY ═══════ */
+.act-list { list-style:none; padding:0; margin:0; }
+.act-item { display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid #f7fafc; }
+.act-item:last-child { border-bottom:none; }
+.act-ico { width:30px; height:30px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.72rem; }
+.act-body { flex:1; min-width:0; }
+.act-type { font-size:.75rem; font-weight:600; color:#1a1f2e; }
+.act-desc { font-size:.67rem; color:#a0aec0; margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.act-time { font-size:.62rem; color:#cbd5e0; white-space:nowrap; flex-shrink:0; margin-top:2px; }
+
+/* ═══════ TXN TABLE ═══════ */
+.mini-wrap { overflow-x:auto; }
+.mini-tbl  { width:100%; border-collapse:collapse; }
+.mini-tbl th { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#a0aec0; padding:5px 10px; border-bottom:2px solid #eaeef2; background:#fafbfc; white-space:nowrap; }
+.mini-tbl td { font-size:.73rem; padding:7px 10px; border-bottom:1px solid #f0f4f8; color:#444; vertical-align:middle; }
+.mini-tbl tr:last-child td { border-bottom:none; }
+.mini-tbl tr:hover td { background:#fafbfc; }
+.cr { background:#e6faf4; color:#00b894; border-radius:8px; padding:2px 7px; font-size:.6rem; font-weight:600; }
+.dr { background:#fff5f5; color:#e53e3e; border-radius:8px; padding:2px 7px; font-size:.6rem; font-weight:600; }
+
+/* ═══════ DEPENDANTS ═══════ */
+.dep-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #f7fafc; }
+.dep-item:last-child { border-bottom:none; }
+.dep-av { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:700; color:#fff; flex-shrink:0; }
+.dep-name { font-size:.8rem; font-weight:600; color:#1a1f2e; }
+.dep-dob  { font-size:.66rem; color:#a0aec0; margin-top:2px; }
+.dep-num  { margin-left:auto; font-size:.68rem; font-weight:700; color:#a0aec0; }
+</style>
+</head>
+<body>
+
+<%- include('partials/header') %>
+<%- include('partials/member_sidebar') %>
+
+<div class="page-wrapper">
+
+    <div class="page-heading">
+        <div>
+            <h3><i class="fa fa-user-circle-o" style="color:#00b894;margin-right:8px;"></i>My Profile</h3>
+            <div class="sub">Welcome, <strong><%= member.First_name %> <%= member.Last_Name %></strong> &nbsp;·&nbsp; Member since <%= member.date_joined %></div>
+        </div>
+        <a href="/member/dashboard" class="back-btn"><i class="fa fa-home"></i> Dashboard</a>
+    </div>
+
+    <div class="dash-body">
+        <div class="profile-layout">
+
+            <!-- ══════════════ LEFT PANEL ══════════════ -->
+            <div class="profile-left">
+                <div class="ibox">
+
+                    <!-- Avatar -->
+                    <div class="avatar-block">
+                        <% if (typeof photoBase64 !== 'undefined' && photoBase64) { %>
+                            <div class="avatar-circle" style="background:none;box-shadow:none;">
+                                <img src="data:image/jpeg;base64,<%= photoBase64 %>" alt="Profile" />
+                            </div>
+                        <% } else { %>
+                            <div class="avatar-circle">
+                                <%= (member.First_name||'U').charAt(0).toUpperCase() %><%= (member.Last_Name||'').charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+                        <div class="avatar-name"><%= member.First_name %> <%= member.Last_Name %></div>
+                        <div class="avatar-id">Member ID #<%= member.id %></div>
+                        <span class="status-pill <%= (member.Status||'').toLowerCase()==='active' ? 'status-active' : 'status-inactive' %>">
+                            <i class="fa fa-circle" style="font-size:.5rem;"></i>
+                            <%= member.Status %>
+                        </span>
+                    </div>
+
+                    <!-- Quick stats -->
+                    <div class="qs-grid">
+                        <div class="qs-cell">
+                            <div class="qs-val green" style="font-size:.78rem;">
+                                UGX <%= Number(member.total_savings_credit||0).toLocaleString() %>
+                            </div>
+                            <div class="qs-lbl">Savings</div>
+                        </div>
+                        <div class="qs-cell">
+                            <div class="qs-val red" style="font-size:.78rem;">
+                                UGX <%= Number(member.total_loan||0).toLocaleString() %>
+                            </div>
+                            <div class="qs-lbl">Loan Bal.</div>
+                        </div>
+                        <div class="qs-cell">
+                            <div class="qs-val blue" style="font-size:.78rem;">
+                                UGX <%= Number(member.total_Insuarance_cover||0).toLocaleString() %>
+                            </div>
+                            <div class="qs-lbl">Insurance</div>
+                        </div>
+                        <div class="qs-cell">
+                            <div class="qs-val purple"><%= member.total_dependants||0 %></div>
+                            <div class="qs-lbl">Dependants</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick links -->
+                    <div class="profile-links">
+                        <a href="/member/savings"      class="profile-link"><i class="fa fa-piggy-bank"></i> My Savings</a>
+                        <a href="/member/loans"         class="profile-link"><i class="fa fa-money"></i> My Loans</a>
+                        <a href="/member/transactions"  class="profile-link"><i class="fa fa-exchange"></i> Transactions</a>
+                        <a href="/member/insurance"     class="profile-link"><i class="fa fa-shield"></i> Insurance</a>
+                        <a href="/member/welfare"       class="profile-link"><i class="fa fa-heart"></i> Welfare</a>
+                        <a href="/logout"               class="profile-link danger"><i class="fa fa-power-off"></i> Sign Out</a>
+                    </div>
+                </div>
+
+                <!-- Annual contributions -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-tasks" style="color:#9f7aea;"></i> Contributions <%= new Date().getFullYear() %></span>
+                    </div>
+                    <div class="ibox-body">
+                        <div class="prog-row">
+                            <div class="prog-label">
+                                <span>Insurance Cover</span>
+                                <span style="color:#4299e1;font-weight:700;"><%= parseFloat(finance.year_percentage_insurance_payment||0).toFixed(0) %>%</span>
+                            </div>
+                            <div class="prog-track"><div class="prog-fill" style="width:<%= Math.min(parseFloat(finance.year_percentage_insurance_payment||0),100) %>%;background:#4299e1;"></div></div>
+                            <div style="font-size:.63rem;color:#a0aec0;">UGX <%= Number(finance.total_Insuarance_cover||0).toLocaleString() %> of 60,000</div>
+                        </div>
+                        <div class="prog-row">
+                            <div class="prog-label">
+                                <span>Welfare Fee</span>
+                                <span style="color:#9f7aea;font-weight:700;"><%= parseFloat(finance.year_percentage_welfare_fee||0).toFixed(0) %>%</span>
+                            </div>
+                            <div class="prog-track"><div class="prog-fill" style="width:<%= Math.min(parseFloat(finance.year_percentage_welfare_fee||0),100) %>%;background:#9f7aea;"></div></div>
+                            <div style="font-size:.63rem;color:#a0aec0;">UGX <%= Number(finance.total_welfare_fee||0).toLocaleString() %> of 240,000</div>
+                        </div>
+                        <div class="prog-row" style="margin-bottom:0;">
+                            <div class="prog-label">
+                                <span>Loan Repayment</span>
+                                <span style="color:#00b894;font-weight:700;"><%= parseFloat(finance.year_percentage_loan_repayment||0).toFixed(0) %>%</span>
+                            </div>
+                            <div class="prog-track"><div class="prog-fill" style="width:<%= Math.min(parseFloat(finance.year_percentage_loan_repayment||0),100) %>%;background:#00b894;"></div></div>
+                            <div style="font-size:.63rem;color:#a0aec0;">UGX <%= Number(finance.year_total_loan_repayment||0).toLocaleString() %> paid</div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- end left -->
+
+            <!-- ══════════════ RIGHT PANEL ══════════════ -->
+            <div class="profile-right">
+
+                <!-- Tab bar -->
+                <div class="ibox" style="margin-bottom:14px;">
+                    <div class="tab-bar">
+                        <button class="tab-btn active" onclick="switchTab('overview',this)">
+                            <i class="fa fa-home"></i> Overview
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('biodata',this)">
+                            <i class="fa fa-id-card-o"></i> Bio Data
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('family',this)">
+                            <i class="fa fa-users"></i> Family
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('dependants',this)">
+                            <i class="fa fa-child"></i> Dependants
+                            <% if ((member.total_dependants||0)>0) { %>
+                            <span style="background:#00b894;color:#fff;border-radius:10px;padding:1px 6px;font-size:.58rem;margin-left:2px;"><%= member.total_dependants %></span>
+                            <% } %>
+                        </button>
+                    </div>
+
+                    <!-- ── OVERVIEW ── -->
+                    <div class="tab-pane active" id="tab-overview">
+
+                        <!-- Activity -->
+                        <div class="section-label"><i class="fa fa-clock-o"></i> Recent Activity</div>
+                        <% if (activities && activities.length) { %>
+                        <% var actColors=['#00b894','#4299e1','#9f7aea','#ed8936','#e53e3e']; %>
+                        <% var actIcons={'Saving':'fa-arrow-up','Savings Withdrawal':'fa-arrow-down','Loan Repayment':'fa-check','Loan Disbursement':'fa-money','Membership Fee':'fa-id-card','welfare Fee':'fa-heart','Insuarance Cover':'fa-shield'}; %>
+                        <ul class="act-list" style="margin-bottom:16px;">
+                            <% activities.forEach(function(a,i){ %>
+                            <li class="act-item">
+                                <div class="act-ico" style="background:<%= actColors[i%actColors.length] %>18;color:<%= actColors[i%actColors.length] %>;">
+                                    <i class="fa <%= actIcons[a.transaction_type]||'fa-exchange' %>"></i>
+                                </div>
+                                <div class="act-body">
+                                    <div class="act-type"><%= a.transaction_type %></div>
+                                    <div class="act-desc"><%= a.description || 'No description' %></div>
+                                </div>
+                                <div class="act-time"><%= a.created_at %></div>
+                            </li>
+                            <% }) %>
+                        </ul>
+                        <% } else { %>
+                        <p style="color:#a0aec0;font-size:.78rem;text-align:center;padding:12px;">No recent activity</p>
+                        <% } %>
+
+                        <!-- Transactions -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                            <div class="section-label" style="margin-bottom:0;border:none;padding:0;"><i class="fa fa-exchange"></i> Recent Transactions</div>
+                            <a href="/member/transactions" style="font-size:.7rem;color:#00b894;font-weight:600;text-decoration:none;">View all →</a>
+                        </div>
+                        <div class="mini-wrap">
+                            <table class="mini-tbl">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Period</th>
+                                        <th style="text-align:right;">Amount (UGX)</th>
+                                        <th>D/C</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (trans && trans.length) { %>
+                                    <% trans.forEach(function(t){ %>
+                                    <tr>
+                                        <td style="white-space:nowrap;"><%= t.tran_date %></td>
+                                        <td><%= t.transaction_type %></td>
+                                        <td><%= t.Payment_Period || '—' %></td>
+                                        <td style="text-align:right;font-weight:600;font-variant-numeric:tabular-nums;"><%= Number(t.Amount||0).toLocaleString() %></td>
+                                        <td><span class="<%= t.Debit_Credit==='Credit'?'cr':'dr' %>"><%= t.Debit_Credit==='Credit'?'CR':'DR' %></span></td>
+                                    </tr>
+                                    <% }) %>
+                                    <% } else { %>
+                                    <tr><td colspan="5" style="text-align:center;color:#a0aec0;padding:20px;">No transactions yet</td></tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ── BIO DATA ── -->
+                    <div class="tab-pane" id="tab-biodata">
+                        <div class="section-label"><i class="fa fa-user"></i> Personal Details</div>
+                        <div class="detail-grid">
+                            <div>
+                                <div class="d-label">First Name</div>
+                                <div class="d-value"><%= member.First_name || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Middle Name</div>
+                                <div class="d-value <%= !member.Middle_Name?'empty':'' %>"><%= member.Middle_Name || 'Not provided' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Last Name</div>
+                                <div class="d-value"><%= member.Last_Name || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">National ID</div>
+                                <div class="d-value <%= !member.national_id?'empty':'' %>"><%= member.national_id || 'Not provided' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Date of Birth</div>
+                                <div class="d-value"><%= member.Date_of_Birth || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Gender</div>
+                                <div class="d-value"><%= member.sex || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Marital Status</div>
+                                <div class="d-value"><%= member.marital_status || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Occupation</div>
+                                <div class="d-value"><%= member.occupation || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Mobile Number</div>
+                                <div class="d-value"><%= member.tel_no || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Date Joined</div>
+                                <div class="d-value"><%= member.date_joined || '—' %></div>
+                            </div>
+                        </div>
+
+                        <div class="section-label" style="margin-top:4px;"><i class="fa fa-map-marker"></i> Address</div>
+                        <div class="detail-grid">
+                            <div>
+                                <div class="d-label">Village / LC1</div>
+                                <div class="d-value"><%= member.village_lc1 || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Parish</div>
+                                <div class="d-value"><%= member.Parish || member.parish || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Sub-County</div>
+                                <div class="d-value"><%= member.sub_county || '—' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Place of Birth</div>
+                                <div class="d-value <%= !member.place_of_birth?'empty':'' %>"><%= member.place_of_birth || 'Not provided' %></div>
+                            </div>
+                        </div>
+
+                        <div class="section-label" style="margin-top:4px;"><i class="fa fa-phone"></i> Next of Kin</div>
+                        <div class="detail-grid">
+                            <div>
+                                <div class="d-label">Full Name</div>
+                                <div class="d-value">
+                                    <%= (member.next_of_kin_First_name||'') + ' ' + (member.next_of_kin_Last_name||'') || '—' %>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-label">Mobile</div>
+                                <div class="d-value <%= !member.next_of_kin_tel?'empty':'' %>"><%= member.next_of_kin_tel || 'Not provided' %></div>
+                            </div>
+                            <div>
+                                <div class="d-label">Address</div>
+                                <div class="d-value <%= !member.next_of_kin_address?'empty':'' %>"><%= member.next_of_kin_address || 'Not provided' %></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── FAMILY ── -->
+                    <div class="tab-pane" id="tab-family">
+                        <div class="two-col">
+
+                            <!-- Father -->
+                            <div>
+                                <div class="section-label"><i class="fa fa-male" style="color:#4299e1;"></i> Father</div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Full Name</div>
+                                    <div class="d-value"><%= (member.Father_First_name||'') + ' ' + (member.Father_Last_name||'') || '—' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Mobile</div>
+                                    <div class="d-value <%= !member.father_tel?'empty':'' %>"><%= member.father_tel || 'Not provided' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Status</div>
+                                    <div class="d-value"><%= member.father_status || '—' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Village</div>
+                                    <div class="d-value"><%= member.father_village || '—' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Parish</div>
+                                    <div class="d-value"><%= member.father_parish || '—' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Sub-County</div>
+                                    <div class="d-value"><%= member.father_subcounty || '—' %></div>
+                                </div>
+                                <div>
+                                    <div class="d-label">District</div>
+                                    <div class="d-value"><%= member.father_district || '—' %></div>
+                                </div>
+                            </div>
+
+                            <!-- Mother -->
+                            <div>
+                                <div class="section-label"><i class="fa fa-female" style="color:#e53e3e;"></i> Mother</div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Full Name</div>
+                                    <div class="d-value"><%= (member.mother_First_name||'') + ' ' + (member.mother_Last_name||'') || '—' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Mobile</div>
+                                    <div class="d-value <%= !member.mother_tel?'empty':'' %>"><%= member.mother_tel || 'Not provided' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Status</div>
+                                    <div class="d-value"><%= member.mother_status || '—' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Village</div>
+                                    <div class="d-value"><%= member.mother_village || '—' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Parish</div>
+                                    <div class="d-value"><%= member.mother_parish || '—' %></div>
+                                </div>
+                                <div style="margin-bottom:10px;">
+                                    <div class="d-label">Sub-County</div>
+                                    <div class="d-value"><%= member.mother_subcounty || '—' %></div>
+                                </div>
+                                <div>
+                                    <div class="d-label">District</div>
+                                    <div class="d-value"><%= member.mother_district || '—' %></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <% if (member.comments) { %>
+                        <div style="margin-top:16px;background:#f7fafc;border-radius:8px;padding:12px 14px;border-left:3px solid #00b894;">
+                            <div class="d-label" style="margin-bottom:4px;"><i class="fa fa-comment-o"></i> Notes</div>
+                            <p style="font-size:.8rem;color:#4a5568;margin:0;font-style:italic;">"<%= member.comments %>"</p>
+                        </div>
+                        <% } %>
+                    </div>
+
+                    <!-- ── DEPENDANTS ── -->
+                    <div class="tab-pane" id="tab-dependants">
+                        <div class="section-label"><i class="fa fa-child"></i> My Dependants &nbsp;<span style="background:#f0f4f8;color:#718096;padding:1px 8px;border-radius:10px;font-size:.65rem;"><%= dependants ? dependants.length : 0 %></span></div>
+                        <% var depColors=['#00b894','#4299e1','#9f7aea','#ed8936','#e53e3e','#00cec9','#48bb78']; %>
+                        <% if (dependants && dependants.length) { %>
+                            <% dependants.forEach(function(d,i){ %>
+                            <div class="dep-item">
+                                <div class="dep-av" style="background:<%= depColors[i%depColors.length] %>;">
+                                    <%= (d.First_name||'?').charAt(0).toUpperCase() %><%= (d.Last_Name||'').charAt(0).toUpperCase() %>
+                                </div>
+                                <div>
+                                    <div class="dep-name"><%= d.First_name %> <%= d.Last_Name %></div>
+                                    <div class="dep-dob"><i class="fa fa-calendar-o" style="margin-right:3px;font-size:.6rem;"></i><%= d.child_date_of_birth || 'DOB not recorded' %></div>
+                                </div>
+                                <div class="dep-num">#<%= i+1 %></div>
+                            </div>
+                            <% }) %>
+                        <% } else { %>
+                        <div style="text-align:center;padding:32px;color:#a0aec0;">
+                            <i class="fa fa-child" style="font-size:2.2rem;display:block;margin-bottom:10px;opacity:.3;"></i>
+                            <p style="font-size:.8rem;margin:0;">No dependants registered on your account.</p>
+                            <p style="font-size:.72rem;color:#cbd5e0;margin-top:4px;">Contact your SACCO administrator to add dependants.</p>
+                        </div>
+                        <% } %>
+                    </div>
+
+                </div><!-- ibox -->
+            </div><!-- right panel -->
+        </div><!-- profile-layout -->
+    </div><!-- dash-body -->
+</div><!-- page-wrapper -->
+
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+<script src="assets/js/app.min.js"></script>
+<script>
+function switchTab(id, btn) {
+    document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
+</body>
+</html>
