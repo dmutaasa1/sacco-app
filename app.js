@@ -5248,39 +5248,157 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
 
 //==========================MEMBER BIO DATA PAGE===============
 
-app.get('/member/biodata',
-checkMember,
-asyncHandler(async (req, res) => {
+app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
+    const db       = dbConfig;
+    const memberId = req.session.user.member_id;   /* always the logged-in member */
 
-const memberId = req.session.user.member_id;
+    /* ── Full member record with lifetime totals ── */
+    const [rows] = await db.execute(`
+        SELECT
+            a.*,
+            DATE_FORMAT(a.Date_of_Birth, '%d-%b-%Y') AS Date_of_Birth,
+            DATE_FORMAT(a.date_joined,   '%d-%b-%Y') AS date_joined,
+            COALESCE(t.total_savings_credit,  0) AS total_savings_credit,
+            COALESCE(t.total_insurance_cover, 0) AS total_Insuarance_cover,
+            COALESCE(t.total_membership_fee,  0) AS total_Membership_Fee,
+            COALESCE(t.total_loan,            0) AS total_loan,
+            COALESCE(d.dependants_count,      0) AS total_dependants
+        FROM members_mst a
+        LEFT JOIN (
+            SELECT
+                member_id,
+                SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Saving'
+                         THEN Amount ELSE 0 END) AS total_savings_credit,
+                SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Insuarance Cover'
+                         THEN Amount ELSE 0 END) AS total_insurance_cover,
+                SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Membership Fee'
+                         THEN Amount ELSE 0 END) AS total_membership_fee,
+                SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Loan Disbursement'
+                         THEN Amount ELSE 0 END) -
+                SUM(CASE WHEN Debit_Credit='Debit'  AND transaction_type='Loan Repayment'
+                         THEN Amount ELSE 0 END) AS total_loan
+            FROM transactions
+            GROUP BY member_id
+        ) t ON a.id = t.member_id
+        LEFT JOIN (
+            SELECT person_id, COUNT(*) AS dependants_count
+            FROM dependants GROUP BY person_id
+        ) d ON a.id = d.person_id
+        WHERE a.id = ?
+    `, [memberId]);
 
+    if (!rows.length) return res.status(404).send('Member record not found.');
+    const member = rows[0];
 
-// GET MEMBER
+    /* ── Passport photo ── */
+    let photoBase64 = null;
+    if (member.Passport_Photo) {
+        photoBase64 = member.Passport_Photo.toString('base64');
+    }
 
-const [memberRows] = await db.execute(`
-SELECT *
-FROM members
-WHERE id = ?
-`, [memberId]);
+    /* ── Recent transactions (last 10) ── */
+    const [trans] = await db.execute(`
+        SELECT
+            id,
+            DATE_FORMAT(tran_date, '%d-%b-%Y') AS tran_date,
+            transaction_type,
+            Debit_Credit,
+            Payment_Period,
+            Amount,
+            description
+        FROM transactions
+        WHERE member_id = ?
+        ORDER BY id DESC
+        LIMIT 10
+    `, [memberId]);
 
+    /* ── Recent activity (last 5) ── */
+    const [activities] = await db.execute(`
+        SELECT
+            transaction_type,
+            description,
+            DATE_FORMAT(created_at, '%d-%b-%Y %H:%i') AS created_at
+        FROM transactions
+        WHERE member_id = ?
+        ORDER BY id DESC
+        LIMIT 5
+    `, [memberId]);
 
-// GET DEPENDANTS
+    /* ── Dependants ── */
+    const [dependants] = await db.execute(`
+        SELECT
+            First_name,
+            Last_Name,
+            DATE_FORMAT(child_date_of_birth, '%d-%b-%Y') AS child_date_of_birth
+        FROM dependants
+        WHERE person_id = ?
+        ORDER BY id ASC
+    `, [memberId]);
 
-const [dependants] = await db.execute(`
-SELECT *
-FROM dependants
-WHERE member_id = ?
-`, [memberId]);
+    /* ── Annual financial summary (current year) ── */
+    const [finances] = await db.execute(`
+        SELECT
+            a.id AS member_id,
+            YEAR(CURDATE()) AS payment_year,
+            COALESCE(t.year_total_savings_credit,  0) AS total_savings_credit,
+            COALESCE(t.year_total_insurance_cover, 0) AS total_Insuarance_cover,
+            COALESCE(t.year_total_welfare_fee,      0) AS total_welfare_fee,
+            COALESCE(t.year_total_loan_received,    0) AS year_total_loan_receieved,
+            COALESCE(t.year_total_loan_repayment,   0) AS year_total_loan_repayment,
+            COALESCE(
+                (t.year_total_loan_repayment / NULLIF(t.year_total_loan_received,0)) * 100,
+                0
+            ) AS year_percentage_loan_repayment,
+            COALESCE((t.year_total_insurance_cover / 60000)  * 100, 0) AS year_percentage_insurance_payment,
+            COALESCE((t.year_total_welfare_fee     / 240000) * 100, 0) AS year_percentage_welfare_fee
+        FROM members_mst a
+        LEFT JOIN (
+            SELECT
+                member_id,
+                SUM(CASE WHEN Debit_Credit='Credit' AND YEAR(tran_date)=YEAR(CURDATE())
+                         AND transaction_type='Saving'
+                         THEN Amount ELSE 0 END) AS year_total_savings_credit,
+                SUM(CASE WHEN Debit_Credit='Credit' AND YEAR(tran_date)=YEAR(CURDATE())
+                         AND transaction_type='Insuarance Cover'
+                         THEN Amount ELSE 0 END) AS year_total_insurance_cover,
+                SUM(CASE WHEN Debit_Credit='Credit' AND YEAR(tran_date)=YEAR(CURDATE())
+                         AND transaction_type='welfare Fee'
+                         THEN Amount ELSE 0 END) AS year_total_welfare_fee,
+                SUM(CASE WHEN Debit_Credit='Credit'
+                         AND transaction_type='Loan Disbursement'
+                         THEN Amount ELSE 0 END) AS year_total_loan_received,
+                SUM(CASE WHEN Debit_Credit='Debit'
+                         AND transaction_type='Loan Repayment'
+                         THEN Amount ELSE 0 END) AS year_total_loan_repayment
+            FROM transactions
+            GROUP BY member_id
+        ) t ON a.id = t.member_id
+        WHERE a.id = ?
+    `, [memberId]);
 
+    const finance = finances[0] || {
+        total_savings_credit:          0,
+        total_Insuarance_cover:        0,
+        total_welfare_fee:             0,
+        year_total_loan_receieved:     0,
+        year_total_loan_repayment:     0,
+        year_percentage_loan_repayment:      0,
+        year_percentage_insurance_payment:   0,
+        year_percentage_welfare_fee:         0
+    };
 
-res.render('member_biodata', {
-
-member: memberRows[0],
-dependants
-
-});
-
+    res.render('member_biodata', {
+        currentPage: 'member_profile',
+        user:        req.session.user,
+        member,
+        photoBase64,
+        trans,
+        activities,
+        dependants,
+        finance
+    });
 }));
+
 
 
 
