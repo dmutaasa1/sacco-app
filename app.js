@@ -686,26 +686,47 @@ app.get('/profile', checkAuth, asyncHandler(async (req, res) => {
 
 // POST: Update profile
 app.post('/profile/update', checkAuth, asyncHandler(async (req, res) => {
-  const { first_name, last_name } = req.body;
+  const { first_name, last_name, username } = req.body;
   const db = dbConfig;
   const errors = [];
 
   if (!first_name) errors.push("First name is required");
   if (!last_name) errors.push("Last name is required");
+  if (!username) errors.push("Username is required");
+  
+  // Validate username format
+  if (username && !/^[a-zA-Z0-9_-]+$/.test(username)) {
+    errors.push("Username can only contain letters, numbers, underscores, and hyphens");
+  }
+  
+  if (username && username.length < 3) {
+    errors.push("Username must be at least 3 characters");
+  }
 
   if (errors.length > 0) {
     return res.status(400).json({ errors });
   }
 
+  // Check if new username is already in use by another user
+  const [existingUser] = await db.execute(
+    'SELECT id FROM users WHERE username = ? AND id != ?',
+    [username, req.session.user.id]
+  );
+
+  if (existingUser.length > 0) {
+    return res.status(400).json({ errors: ['Username already in use'] });
+  }
+
   await db.execute(`
     UPDATE users 
-    SET first_name = ?, last_name = ?
+    SET first_name = ?, last_name = ?, username = ?
     WHERE id = ?
-  `, [first_name, last_name, req.session.user.id]);
+  `, [first_name, last_name, username, req.session.user.id]);
 
   // Update session
   req.session.user.first_name = first_name;
   req.session.user.last_name = last_name;
+  req.session.user.username = username;
 
   res.json({
     success: true,

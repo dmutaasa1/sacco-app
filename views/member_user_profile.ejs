@@ -93,9 +93,10 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label>Username</label>
-                                        <input type="text" class="form-control" value="<%= userDetails.username %>" disabled>
-                                        <small class="form-text text-muted">Username cannot be changed</small>
+                                        <label>Username <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="username" name="username" 
+                                               value="<%= userDetails.username %>" required>
+                                        <small class="form-text text-muted">Can contain letters, numbers, underscores, and hyphens. Minimum 3 characters.</small>
                                     </div>
                                     <button type="submit" class="btn btn-primary" id="updateProfileBtn">
                                         <i class="fa fa-save"></i> Update Profile
@@ -125,9 +126,18 @@
                                         <label>Confirm New Password <span class="text-danger">*</span></label>
                                         <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                                     </div>
-                                    <button type="submit" class="btn btn-warning" id="changePasswordBtn">
-                                        <i class="fa fa-key"></i> Change Password
-                                    </button>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-warning" id="changePasswordBtn" style="width: 100%;">
+                                                <i class="fa fa-key"></i> Change Password
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <a href="/forgot-password" class="btn btn-outline-secondary" style="width: 100%;">
+                                                <i class="fa fa-question-circle"></i> Forgot Password?
+                                            </a>
+                                        </div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
