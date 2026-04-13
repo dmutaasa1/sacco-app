@@ -3790,95 +3790,113 @@ app.post('/financial_statements/export', checkAuth, asyncHandler(async (req, res
         return res.status(400).json({ error: 'Dates required' });
     }
 
-    const db   = dbConfig;
-    const data = await buildStatementData(db, start_date, end_date);
-
-    const { spawn } = require('child_process');
-    const path = require('path');
-    const fs   = require('fs');
-    const os   = require('os');
-
-    // Use proper cross-platform paths
-    const scriptPath = path.join(__dirname, 'finstatements', 'build_excel.py');
-    const outPath    = path.join(os.tmpdir(), `fs_${Date.now()}.xlsx`);
-
-    // Check if Python script exists
-    if (!fs.existsSync(scriptPath)) {
-        console.error('Python script not found at:', scriptPath);
-        return res.status(500).json({ error: 'Python script not found', path: scriptPath });
-    }
-
-    // Build Python command using proper paths
-    const pythonCode = `
-import sys, json, os
-sys.path.insert(0, '${path.join(__dirname, 'finstatements').replace(/\\/g, '\\\\')}')
-import build_excel
-data = json.loads(sys.stdin.read())
-build_excel.write_excel(data, '${outPath.replace(/\\/g, '\\\\')}')
-`;
-
-    const python = spawn('python', ['-c', pythonCode], { 
-        encoding: 'utf-8',
-        timeout: 30000
-    });
-
-    python.stdin.write(JSON.stringify(data));
-    python.stdin.end();
-
-    let stderr = '';
-    let stdout = '';
-    
-    python.stderr.on('data', d => { stderr += d.toString(); });
-    python.stdout.on('data', d => { stdout += d.toString(); });
-
-    python.on('error', (err) => {
-        console.error('Python spawn error:', err);
-        return res.status(500).json({ error: 'Failed to spawn Python process', detail: err.message });
-    });
-
-    python.on('close', code => {
-        console.log(`Python process exited with code ${code}`);
-        if (stderr) console.error('Python stderr:', stderr);
-        if (stdout) console.log('Python stdout:', stdout);
-
-        if (code !== 0 || !fs.existsSync(outPath)) {
-            console.error('Excel build failed. Output exists:', fs.existsSync(outPath));
-            return res.status(500).json({ 
-                error: 'Failed to generate Excel file', 
-                detail: stderr || 'Unknown error',
-                code: code 
-            });
+    try {
+        const db = dbConfig;
+        const data = await buildStatementData(db, start_date, end_date);
+        
+        // Try to use xlsx if available, otherwise use CSV
+        let useXlsx = false;
+        try {
+            require.resolve('xlsx');
+            useXlsx = true;
+        } catch(e) {
+            console.log('xlsx not installed, falling back to CSV');
         }
 
-        try {
+        if (useXlsx) {
+            // Generate XLSX using xlsx library
+            const XLSX = require('xlsx');
+            
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Sheet 1: Income & Expenditure
+            const ie_data = [
+                [data.sacco_name.toUpperCase()],
+                ['INCOME & EXPENDITURE STATEMENT'],
+                [`For the period ${data.start_date} to ${data.end_date}`],
+                [],
+                ['Description', '', '', 'Amount (UGX)']
+            ];
+            
+            data.income_items.forEach(item => ie_data.push([item.label, '', '', item.amount]));
+            ie_data.push(['Total Income', '', '', data.income_items.reduce((s, i) => s + i.amount, 0)]);
+            ie_data.push([]);
+            data.expense_items.forEach(item => ie_data.push([item.label, '', '', item.amount]));
+            ie_data.push(['Total Expenditure', '', '', data.expense_items.reduce((s, i) => s + i.amount, 0)]);
+            
+            const ws1 = XLSX.utils.aoa_to_sheet(ie_data);
+            ws1['!cols'] = [{wch: 30}, {wch: 10}, {wch: 10}, {wch: 18}];
+            XLSX.utils.book_append_sheet(wb, ws1, 'Income & Expenditure');
+            
+            // Sheet 2: Balance Sheet
+            const bs_data = [
+                [data.sacco_name.toUpperCase()],
+                ['BALANCE SHEET'],
+                [`As at ${data.end_date}`],
+                [],
+                ['Description', '', '', 'Amount (UGX)']
+            ];
+            
+            data.assets_items.forEach(item => bs_data.push([item.label, '', '', item.amount]));
+            bs_data.push(['Total Assets', '', '', data.assets_items.reduce((s, i) => s + i.amount, 0)]);
+            bs_data.push([]);
+            data.liabilities_items.forEach(item => bs_data.push([item.label, '', '', item.amount]));
+            
+            const ws2 = XLSX.utils.aoa_to_sheet(bs_data);
+            ws2['!cols'] = [{wch: 30}, {wch: 10}, {wch: 10}, {wch: 18}];
+            XLSX.utils.book_append_sheet(wb, ws2, 'Balance Sheet');
+            
+            // Sheet 3: Loan Portfolio
+            const lp_data = [
+                [data.sacco_name.toUpperCase()],
+                ['LOAN PORTFOLIO SUMMARY'],
+                [`As at ${data.end_date}`],
+                [],
+                ['Description', '', '', 'Amount (UGX)']
+            ];
+            
+            data.loan_items.forEach(item => lp_data.push([item.label, '', '', item.amount]));
+            
+            const ws3 = XLSX.utils.aoa_to_sheet(lp_data);
+            ws3['!cols'] = [{wch: 30}, {wch: 10}, {wch: 10}, {wch: 18}];
+            XLSX.utils.book_append_sheet(wb, ws3, 'Loan Portfolio');
+            
+            // Generate buffer and send
+            const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+            
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', `attachment; filename=Financial_Statements_${start_date}_${end_date}.xlsx`);
-            const stream = fs.createReadStream(outPath);
+            res.send(buffer);
             
-            stream.pipe(res);
+        } else {
+            // Fallback: Generate CSV
+            let csv = `${data.sacco_name}\nFINANCIAL STATEMENTS (${start_date} to ${end_date})\n\n`;
+            csv += 'INCOME & EXPENDITURE\n';
+            csv += 'Description,Amount (UGX)\n';
+            data.income_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
+            csv += `Total Income,${data.income_items.reduce((s, i) => s + i.amount, 0)}\n\n`;
             
-            stream.on('end', () => { 
-                try { 
-                    fs.unlinkSync(outPath); 
-                    console.log('Temp file cleaned up:', outPath);
-                } catch(e){ 
-                    console.warn('Could not delete temp file:', e.message);
-                } 
-            });
+            data.expense_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
+            csv += `Total Expenditure,${data.expense_items.reduce((s, i) => s + i.amount, 0)}\n\n`;
             
-            stream.on('error', (err) => {
-                console.error('Stream error:', err);
-                if (!res.headersSent) {
-                    res.status(500).json({ error: 'Error streaming file' });
-                }
-            });
-        } catch (err) {
-            console.error('Error sending file:', err);
-            if (!res.headersSent) {
-                res.status(500).json({ error: 'Error sending file', detail: err.message });
-            }
+            csv += 'BALANCE SHEET\n';
+            csv += 'Description,Amount (UGX)\n';
+            data.assets_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
+            csv += `Total Assets,${data.assets_items.reduce((s, i) => s + i.amount, 0)}\n\n`;
+            
+            csv += 'LOAN PORTFOLIO\n';
+            csv += 'Description,Amount (UGX)\n';
+            data.loan_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
+            
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', `attachment; filename=Financial_Statements_${start_date}_${end_date}.csv`);
+            res.send(csv);
         }
-    });
+    } catch (err) {
+        console.error('Export error:', err);
+        res.status(500).json({ error: 'Export failed', detail: err.message });
+    }
 }));
 
 
