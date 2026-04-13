@@ -3796,33 +3796,88 @@ app.post('/financial_statements/export', checkAuth, asyncHandler(async (req, res
     const { spawn } = require('child_process');
     const path = require('path');
     const fs   = require('fs');
+    const os   = require('os');
 
-    const scriptPath = '/home/claude/finstatements/build_excel.py';
-    const outPath    = `/tmp/fs_${Date.now()}.xlsx`;
+    // Use proper cross-platform paths
+    const scriptPath = path.join(__dirname, 'finstatements', 'build_excel.py');
+    const outPath    = path.join(os.tmpdir(), `fs_${Date.now()}.xlsx`);
 
-    // Write a temp script that outputs to the right path
-    const python = spawn('python3', ['-c', `
-import sys, json, subprocess, os
-os.environ['OUTPATH'] = '${outPath}'
-exec(open('${scriptPath}').read().replace('/mnt/user-data/outputs/financial_statements.xlsx', '${outPath}'))
-`]);
+    // Check if Python script exists
+    if (!fs.existsSync(scriptPath)) {
+        console.error('Python script not found at:', scriptPath);
+        return res.status(500).json({ error: 'Python script not found', path: scriptPath });
+    }
+
+    // Build Python command using proper paths
+    const pythonCode = `
+import sys, json, os
+sys.path.insert(0, '${path.join(__dirname, 'finstatements').replace(/\\/g, '\\\\')}')
+import build_excel
+data = json.loads(sys.stdin.read())
+build_excel.write_excel(data, '${outPath.replace(/\\/g, '\\\\')}')
+`;
+
+    const python = spawn('python', ['-c', pythonCode], { 
+        encoding: 'utf-8',
+        timeout: 30000
+    });
 
     python.stdin.write(JSON.stringify(data));
     python.stdin.end();
 
     let stderr = '';
+    let stdout = '';
+    
     python.stderr.on('data', d => { stderr += d.toString(); });
+    python.stdout.on('data', d => { stdout += d.toString(); });
+
+    python.on('error', (err) => {
+        console.error('Python spawn error:', err);
+        return res.status(500).json({ error: 'Failed to spawn Python process', detail: err.message });
+    });
 
     python.on('close', code => {
+        console.log(`Python process exited with code ${code}`);
+        if (stderr) console.error('Python stderr:', stderr);
+        if (stdout) console.log('Python stdout:', stdout);
+
         if (code !== 0 || !fs.existsSync(outPath)) {
-            console.error('Excel build error:', stderr);
-            return res.status(500).json({ error: 'Failed to generate Excel', detail: stderr });
+            console.error('Excel build failed. Output exists:', fs.existsSync(outPath));
+            return res.status(500).json({ 
+                error: 'Failed to generate Excel file', 
+                detail: stderr || 'Unknown error',
+                code: code 
+            });
         }
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', `attachment; filename=Financial_Statements_${start_date}_${end_date}.xlsx`);
-        const stream = fs.createReadStream(outPath);
-        stream.pipe(res);
-        stream.on('end', () => { try { fs.unlinkSync(outPath); } catch(e){} });
+
+        try {
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename=Financial_Statements_${start_date}_${end_date}.xlsx`);
+            const stream = fs.createReadStream(outPath);
+            
+            stream.pipe(res);
+            
+            stream.on('end', () => { 
+                try { 
+                    fs.unlinkSync(outPath); 
+                    console.log('Temp file cleaned up:', outPath);
+                } catch(e){ 
+                    console.warn('Could not delete temp file:', e.message);
+                } 
+            });
+            
+            stream.on('error', (err) => {
+                console.error('Stream error:', err);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: 'Error streaming file' });
+                }
+            });
+        } catch (err) {
+            console.error('Error sending file:', err);
+            if (!res.headersSent) {
+                res.status(500).json({ error: 'Error sending file', detail: err.message });
+            }
+        }
     });
 }));
 

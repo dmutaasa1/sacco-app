@@ -1,11 +1,7 @@
-import sys, json
+import sys, json, os
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, numbers
 from openpyxl.utils import get_column_letter
-
-data = json.loads(sys.stdin.read())
-
-wb = Workbook()
 
 # ── colours ──────────────────────────────────────────────────────────
 C_DARK   = "0F1623"   # sidebar dark
@@ -81,10 +77,15 @@ def col_widths(ws, widths):
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
-# ════════════════════════════════════════════════════════════════
-#  SHEET 1 — INCOME & EXPENDITURE STATEMENT
-# ════════════════════════════════════════════════════════════════
-ws1 = wb.active
+def write_excel(data, output_path):
+    """Generate Excel financial statements from data dict"""
+    try:
+        wb = Workbook()
+        
+        # ════════════════════════════════════════════════════════════════
+        #  SHEET 1 — INCOME & EXPENDITURE STATEMENT
+        # ════════════════════════════════════════════════════════════════
+        ws1 = wb.active
 ws1.title = "Income & Expenditure"
 col_widths(ws1, [28, 4, 4, 18])
 
@@ -282,5 +283,32 @@ ia_start = r
 for i, item in enumerate(data["interest_items"]):
     data_row(ws3, r, item["label"], item["amount"], zebra=(i%2==0)); r += 1
 
-wb.save("/mnt/user-data/outputs/financial_statements.xlsx")
+        # Save to specified path
+        wb.save(output_path)
+        print(f"Excel file saved: {output_path}", file=sys.stderr)
+        return True
+        
+    except Exception as e:
+        print(f"Error generating Excel: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
+# ────────────────────────────────────────────────────────────────
+# Main execution: Read from stdin if called directly
+# ────────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    try:
+        # Read JSON data from stdin
+        input_data = sys.stdin.read()
+        data = json.loads(input_data)
+        
+        # Determine output path
+        output_path = os.environ.get('OUTPATH', '/tmp/financial_statements.xlsx')
+        
+        # Generate Excel
+        write_excel(data, output_path)
+        print(f"Success: {output_path}")
+        
+    except Exception as e:
+        print(f"Error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 print("OK")
