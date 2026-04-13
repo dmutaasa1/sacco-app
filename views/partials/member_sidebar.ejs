@@ -204,6 +204,13 @@ body.sidebar-collapsed #member-sidebar .m-bottom-label { display: none; }
             <!-- My Account -->
             <li class="heading">My Account</li>
 
+            <li class="<%= isMemberActive(['member_account']) %>">
+                <a href="/member/account">
+                    <i class="m-icon fa fa-cog"></i>
+                    <span class="m-label">Account Settings</span>
+                </a>
+            </li>
+
             <li class="<%= isMemberActive(['member_savings']) %>">
                 <a href="/member/savings">
                     <i class="m-icon fa fa-piggy-bank"></i>

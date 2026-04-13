@@ -5267,6 +5267,36 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
     });
 }));
 
+//==========================MEMBER ACCOUNT SETTINGS PAGE===============
+
+app.get('/member/account', checkMemberAuth, asyncHandler(async (req, res) => {
+  const db = dbConfig;
+  
+  const [userDetails] = await db.execute(`
+    SELECT 
+      id, 
+      username, 
+      first_name, 
+      last_name, 
+      role, 
+      status,
+      DATE_FORMAT(last_login, '%d-%b-%Y %H:%i') AS last_login,
+      DATE_FORMAT(created_at, '%d-%b-%Y') AS created_at
+    FROM users 
+    WHERE id = ?
+  `, [req.session.user.id]);
+
+  if (userDetails.length === 0) {
+    return res.status(404).send('User account not found');
+  }
+
+  res.render('member_user_profile', { 
+    currentPage: 'member_account', 
+    user: req.session.user,
+    userDetails: userDetails[0]
+  });
+}));
+
 //==========================MEMBER BIO DATA PAGE===============
 
 app.get('/member/biodata', checkMemberAuth, asyncHandler(async (req, res) => {
