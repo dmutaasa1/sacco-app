@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welfare Fee - Agali Awamu SACCO</title>
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing:border-box; }
+html, body { width:100%; max-width:100%; overflow-x:hidden; }
+body { font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); width:calc(100% - 220px); max-width:100%; }
+body.sidebar-collapsed .page-wrapper { margin-left:60px; }
+.dash-body { padding:14px 22px 28px; }
+@media(max-width:991px){
+    .page-wrapper { margin-left:0; width:100%; max-width:100%; }
+    .dash-body { padding:12px 14px 24px; }
+    .page-heading { padding:12px 14px 0; }
+    .stats-grid { grid-template-columns:1fr; }
+}
+
+/* heading */
+.page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+.page-heading h3 { font-size:1.1rem; font-weight:700; color:#1a1f2e; margin:0; }
+.page-heading .sub { font-size:.72rem; color:#a0aec0; margin-top:2px; }
+
+/* stat cards */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+@media(min-width:992px){ .stats-grid{ grid-template-columns:repeat(4,1fr); gap:10px; } }
+.widget-stat { border-radius:8px; overflow:hidden; margin-bottom:0 !important; }
+.widget-stat .ibox-body { padding:10px 12px; position:relative; display:flex; flex-direction:column; justify-content:space-between; min-height:82px; }
+.widget-stat-icon { position:absolute; right:8px; top:6px; font-size:2.4rem; opacity:.15; }
+.widget-stat h2 { font-size:clamp(.8rem,2vw,1.1rem); font-weight:700; margin:2px 0 0; line-height:1.15; position:relative; z-index:2; }
+.widget-stat-title { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; opacity:.82; position:relative; z-index:2; }
+.widget-stat-footer { font-size:.62rem; opacity:.78; border-top:1px solid rgba(255,255,255,.2); padding-top:4px; margin-top:6px; }
+
+/* shared card */
+.ibox { margin-bottom:0 !important; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(26,31,46,.06); border:1px solid #eaeef2; }
+.ibox-head { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid #eaeef2; background:#fff; }
+.ibox-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#718096; }
+.ibox-body { padding:11px 12px; background:#fff; }
+
+/* progress bar */
+.progress-wrap { margin-bottom:14px; }
+.progress-label { display:flex; justify-content:space-between; font-size:.72rem; color:#718096; margin-bottom:4px; font-weight:600; }
+.progress-bar-wrap { height:8px; background:#edf2f7; border-radius:10px; overflow:hidden; }
+.progress-bar-fill { height:100%; background:linear-gradient(135deg,#9f7aea,#b794f4); border-radius:10px; transition:width .6s ease; }
+
+/* table */
+.txn-wrap { overflow-x:auto; max-width:100%; }
+.txn-table { width:100%; border-collapse:collapse; }
+.txn-table th { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#a0aec0; padding:6px 10px; border-bottom:2px solid #eaeef2; background:#fafbfc; white-space:nowrap; }
+.txn-table td { font-size:.74rem; padding:7px 10px; border-bottom:1px solid #f0f4f8; color:#444; vertical-align:middle; }
+.txn-table tr:last-child td { border-bottom:none; }
+.txn-table tr:hover td { background:#fafbfc; }
+
+/* filter bar */
+.filter-bar { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px; }
+.filter-bar select, .filter-bar input {
+    height:34px; border:1px solid #e2e8f0; border-radius:7px;
+    padding:0 10px; font-size:.78rem; color:#1a1f2e; font-family:'DM Sans',sans-serif;
+    background:#f8fafc; outline:none;
+}
+.filter-bar select:focus, .filter-bar input:focus { border-color:#9f7aea; box-shadow:0 0 0 2px rgba(159,122,234,.1); }
+.btn-filter { height:34px; padding:0 14px; border-radius:7px; border:none; background:#9f7aea; color:#fff; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.btn-filter:hover { background:#8c6ba5; }
+
+/* badges */
+.badge-paid { background:#e6faf4; color:#00b894; border-radius:6px; padding:2px 8px; font-size:.6rem; font-weight:600; }
+</style>
+</head>
+<body>
+
+<%- include('partials/member_header') %>
+<%- include('partials/member_sidebar') %>
+
+<div class="page-wrapper">
+    <div class="page-heading">
+        <div>
+            <h3><i class="fa fa-heart" style="color:#9f7aea;margin-right:8px;"></i>Welfare Fund</h3>
+            <div class="sub"><%= user ? user.first_name : 'Member' %> &nbsp;·&nbsp; Annual welfare fee payments</div>
+        </div>
+    </div>
+
+    <div class="dash-body">
+
+        <!-- Stat cards -->
+        <div class="stats-grid">
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#9f7aea,#b794f4);">
+                <div class="ibox-body">
+                    <i class="fa fa-heart widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Paid</div>
+                    <h2 style="color:#fff;">UGX <%= Number(total || 0).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">All time welfare payments</div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#48bb78,#68d391);">
+                <div class="ibox-body">
+                    <i class="fa fa-check-circle widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Completion</div>
+                    <h2 style="color:#fff;"><%= pct %>%</h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Target: UGX 240,000/year</div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#ed8936,#f6ad55);">
+                <div class="ibox-body">
+                    <i class="fa fa-calendar widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Payment Count</div>
+                    <h2 style="color:#fff;"><%= transactions.length %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Total transaction<%= transactions.length !== 1 ? 's' : '' %></div>
+                </div>
+            </div>
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#c05621,#dd6b20);">
+                <div class="ibox-body">
+                    <i class="fa fa-info-circle widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Annual Target</div>
+                    <h2 style="color:#fff;">UGX 240,000</h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Expected contribution</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="ibox" style="margin-bottom:12px;">
+            <div class="ibox-head">
+                <span class="ibox-title"><i class="fa fa-tasks" style="color:#9f7aea;margin-right:5px;"></i>Annual Progress</span>
+                <span style="font-size:.65rem;color:#a0aec0;"><%= new Date().getFullYear() %></span>
+            </div>
+            <div class="ibox-body">
+                <div class="progress-wrap">
+                    <div class="progress-label">
+                        <span>Welfare Fund Target</span>
+                        <span style="color:#9f7aea;font-weight:700;"><%= pct %>%</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" style="width:<%= Math.min(pct, 100) %>%;background:linear-gradient(135deg,#9f7aea,#b794f4);"></div>
+                    </div>
+                    <div style="font-size:.65rem;color:#a0aec0;margin-top:3px;">UGX <%= Number(total || 0).toLocaleString() %> of UGX 240,000</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter + Transactions table -->
+        <div class="ibox">
+            <div class="ibox-head">
+                <span class="ibox-title"><i class="fa fa-list" style="color:#718096;margin-right:5px;"></i>Welfare Transactions</span>
+                <span style="font-size:.65rem;color:#a0aec0;"><%= transactions.length %> record<%= transactions.length !== 1 ? 's' : '' %></span>
+            </div>
+            <div class="ibox-body" style="padding-bottom:0;">
+                <div class="filter-bar">
+                    <div>
+                        <div style="font-size:.65rem;font-weight:600;color:#718096;margin-bottom:3px;text-transform:uppercase;">Year</div>
+                        <select id="filterYear" onchange="filterTable()">
+                            <option value="">All Years</option>
+                            <% 
+                            var years = new Set();
+                            transactions.forEach(function(t){ 
+                                if(t.payment_period) years.add(t.payment_period);
+                            });
+                            Array.from(years).sort().reverse().forEach(function(y){
+                            %>
+                            <option value="<%= y %>"><%= y %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div>
+                        <div style="font-size:.65rem;font-weight:600;color:#718096;margin-bottom:3px;text-transform:uppercase;">Search</div>
+                        <input type="text" id="filterSearch" placeholder="Search…" oninput="filterTable()" style="width:160px;" />
+                    </div>
+                </div>
+            </div>
+            <div class="txn-wrap">
+                <table class="txn-table" id="welfareTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Period</th>
+                            <th style="text-align:right;">Amount (UGX)</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% transactions.forEach(function(t, i) { %>
+                        <tr data-year="<%= t.payment_period %>" data-desc="<%= (t.description||'').toLowerCase() %>">
+                            <td style="color:#a0aec0;"><%= i+1 %></td>
+                            <td><%= t.tran_date %></td>
+                            <td><span class="badge-paid"><%= t.payment_period || '—' %></span></td>
+                            <td style="text-align:right;font-weight:600;color:#1a1f2e;">UGX <%= Number(t.Amount).toLocaleString() %></td>
+                            <td style="color:#a0aec0;font-size:.68rem;"><%= t.description || 'Welfare fund payment' %></td>
+                        </tr>
+                        <% }) %>
+                        <% if (!transactions.length) { %>
+                        <tr><td colspan="5" style="text-align:center;color:#a0aec0;padding:24px;">No welfare payments found</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- dash-body -->
+</div><!-- page-wrapper -->
+
+<script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+<script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+<script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="/assets/js/app.min.js"></script>
+<script>
+function filterTable() {
+    var year   = document.getElementById('filterYear').value;
+    var search = document.getElementById('filterSearch').value.toLowerCase();
+    var rows   = document.querySelectorAll('#welfareTable tbody tr');
+    rows.forEach(function(row) {
+        var rYear = (row.dataset.year || '');
+        var rDesc = (row.dataset.desc || '');
+        var matchYear   = !year   || rYear === year;
+        var matchSearch = !search || rDesc.includes(search);
+        row.style.display = (matchYear && matchSearch) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>
