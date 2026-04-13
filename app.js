@@ -3822,8 +3822,8 @@ app.post('/financial_statements/export', checkAuth, asyncHandler(async (req, res
             data.income_items.forEach(item => ie_data.push([item.label, '', '', item.amount]));
             ie_data.push(['Total Income', '', '', data.income_items.reduce((s, i) => s + i.amount, 0)]);
             ie_data.push([]);
-            data.expense_items.forEach(item => ie_data.push([item.label, '', '', item.amount]));
-            ie_data.push(['Total Expenditure', '', '', data.expense_items.reduce((s, i) => s + i.amount, 0)]);
+            data.expenditure_items.forEach(item => ie_data.push([item.label, '', '', item.amount]));
+            ie_data.push(['Total Expenditure', '', '', data.expenditure_items.reduce((s, i) => s + i.amount, 0)]);
             
             const ws1 = XLSX.utils.aoa_to_sheet(ie_data);
             ws1['!cols'] = [{wch: 30}, {wch: 10}, {wch: 10}, {wch: 18}];
@@ -3838,10 +3838,10 @@ app.post('/financial_statements/export', checkAuth, asyncHandler(async (req, res
                 ['Description', '', '', 'Amount (UGX)']
             ];
             
-            data.assets_items.forEach(item => bs_data.push([item.label, '', '', item.amount]));
-            bs_data.push(['Total Assets', '', '', data.assets_items.reduce((s, i) => s + i.amount, 0)]);
+            data.asset_items.forEach(item => bs_data.push([item.label, '', '', item.amount]));
+            bs_data.push(['Total Assets', '', '', data.asset_items.reduce((s, i) => s + i.amount, 0)]);
             bs_data.push([]);
-            data.liabilities_items.forEach(item => bs_data.push([item.label, '', '', item.amount]));
+            data.liability_items.forEach(item => bs_data.push([item.label, '', '', item.amount]));
             
             const ws2 = XLSX.utils.aoa_to_sheet(bs_data);
             ws2['!cols'] = [{wch: 30}, {wch: 10}, {wch: 10}, {wch: 18}];
@@ -3877,13 +3877,13 @@ app.post('/financial_statements/export', checkAuth, asyncHandler(async (req, res
             data.income_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
             csv += `Total Income,${data.income_items.reduce((s, i) => s + i.amount, 0)}\n\n`;
             
-            data.expense_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
-            csv += `Total Expenditure,${data.expense_items.reduce((s, i) => s + i.amount, 0)}\n\n`;
+            data.expenditure_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
+            csv += `Total Expenditure,${data.expenditure_items.reduce((s, i) => s + i.amount, 0)}\n\n`;
             
             csv += 'BALANCE SHEET\n';
             csv += 'Description,Amount (UGX)\n';
-            data.assets_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
-            csv += `Total Assets,${data.assets_items.reduce((s, i) => s + i.amount, 0)}\n\n`;
+            data.asset_items.forEach(i => csv += `"${i.label}",${i.amount}\n`);
+            csv += `Total Assets,${data.asset_items.reduce((s, i) => s + i.amount, 0)}\n\n`;
             
             csv += 'LOAN PORTFOLIO\n';
             csv += 'Description,Amount (UGX)\n';
