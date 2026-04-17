@@ -2,11 +2,11 @@
 <html lang="en">
 
 <head>
-     <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>Savings</title>
-    <!-- GLOBAL MAINLY STYLES-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register New Dependant</title>
+    <!-- GLOBAL STYLES-->
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
@@ -17,39 +17,336 @@
     <link href="/assets/vendors/jquery-minicolors/jquery.minicolors.css" rel="stylesheet" />
     <!-- THEME STYLES-->
     <link href="/assets/css/main.min.css" rel="stylesheet" />
-
-    <!-- THEME STYLES-->
-    <link href="/assets/css/main.min.css" rel="stylesheet" />
-    <!-- PAGE LEVEL STYLES-->
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     
     <style>
-        .validation-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .member-valid {
-            border-color: #28a745 !important;
-            background-color: #f0fff4;
-        }
-        
-        .member-invalid {
-            border-color: #dc3545 !important;
-            background-color: #fff5f5;
-        }
+/* ═══════════════════════════════════════════
+   MODERN DASHBOARD THEME
+═══════════════════════════════════════════ */
+* { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+
+body { 
+    font-family: 'DM Sans', sans-serif; 
+    background: #f7fafc;
+    color: #1a1f2e;
+}
+
+.page-wrapper { 
+    margin-left: 220px !important;
+    margin-top: 60px; 
+    width: calc(100% - 220px) !important; 
+    max-width: 100%; 
+    transition: margin-left .22s ease, width .22s ease;
+}
+
+body.sidebar-collapsed .page-wrapper { 
+    margin-left: 60px !important; 
+    width: calc(100% - 60px) !important; 
+}
+
+@media (max-width: 991px) {
+    .page-wrapper { 
+        margin-left: 0 !important; 
+        width: 100% !important; 
+        max-width: 100%; 
+    }
+}
+
+/* ═══════════════════════════════════════════
+   PAGE HEADING
+═══════════════════════════════════════════ */
+.page-heading {
+    padding: 14px 12px 0;
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    flex-wrap: wrap; 
+    gap: 8px;
+}
+
+.page-heading .page-title {
+    font-size: 1.2rem; 
+    font-weight: 700; 
+    color: #1a1f2e; 
+    margin: 0;
+}
+
+.page-heading .breadcrumb {
+    margin: 8px 0 0;
+    font-size: .75rem;
+}
+
+.page-heading .breadcrumb-item {
+    color: #a0aec0;
+}
+
+.page-heading .breadcrumb-item a {
+    color: #00b894;
+    text-decoration: none;
+}
+
+/* ═══════════════════════════════════════════
+   PAGE CONTENT
+═══════════════════════════════════════════ */
+.page-content {
+    padding: 16px 12px 24px;
+    max-width: 100%;
+}
+
+/* ═══════════════════════════════════════════
+   IBOX CARDS
+═══════════════════════════════════════════ */
+.ibox {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    border: 1px solid #e9ecef;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.ibox-head {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f1f3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ibox-title {
+    font-size: .82rem;
+    font-weight: 700;
+    color: #1a1f2e;
+    margin: 0;
+}
+
+.ibox-body {
+    padding: 12px 14px;
+}
+
+.ibox-tools {
+    display: flex;
+    gap: 6px;
+}
+
+.ibox-tools a {
+    cursor: pointer;
+    color: #a0aec0;
+    transition: color .15s;
+}
+
+.ibox-tools a:hover {
+    color: #00b894;
+}
+
+/* ═══════════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════════ */
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    font-size: .7rem;
+    font-weight: 600;
+    color: #495057;
+    display: block;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.form-control, 
+.form-control-sm,
+select.form-control-sm,
+select.form-control {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .78rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: #f8f9fa;
+    color: #212529;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.form-control:focus, 
+.form-control-sm:focus,
+select.form-control-sm:focus,
+select.form-control:focus {
+    border-color: #00b894;
+    box-shadow: 0 0 0 3px rgba(0, 184, 148, .08);
+    outline: none;
+    background: #fff;
+}
+
+.form-control::placeholder {
+    color: #a0aec0;
+}
+
+textarea.form-control,
+textarea.form-control-sm {
+    padding: 8px;
+    min-height: 80px;
+}
+
+/* Select styling */
+select.form-control,
+select.form-control-sm {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23495057' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+    cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .75rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all .12s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-success,
+.btn-info {
+    background: #00b894;
+    color: #fff;
+    border: 1px solid #00b894;
+}
+
+.btn-success:hover,
+.btn-info:hover {
+    background: #00a37d;
+    box-shadow: 0 2px 6px rgba(0, 184, 148, .25);
+    border-color: #00a37d;
+}
+
+.btn-secondary {
+    background: #e9ecef;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.btn-secondary:hover {
+    background: #dde0e3;
+    border-color: #adb5bd;
+}
+
+.btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════
+   FORM LAYOUT
+═══════════════════════════════════════════ */
+.form-group.row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.form-group.row > div {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-group.row > label.col-form-label {
+    flex-basis: auto;
+    min-width: auto;
+}
+
+@media (max-width: 768px) {
+    .form-group.row {
+        flex-direction: column;
+    }
+    
+    .form-group.row > div {
+        min-width: auto;
+        flex: 1 1 100%;
+    }
+    
+    .form-group.row > label {
+        margin-bottom: 4px;
+    }
+}
+
+/* ═══════════════════════════════════════════
+   GRID
+═══════════════════════════════════════════ */
+.row {
+    margin-bottom: 10px;
+}
+
+.col-md-12 {
+    margin-bottom: 10px;
+}
+
+@media (min-width: 768px) {
+    .col-md-12 {
+        margin-bottom: 0;
+    }
+}
+
+/* ═══════════════════════════════════════════
+   VALIDATION FEEDBACK
+═══════════════════════════════════════════ */
+.validation-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #e9ecef;
+    border-top: 2px solid #00b894;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 6px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.member-valid {
+    border-color: #00b894 !important;
+    background-color: #f0fdf9 !important;
+}
+
+.member-invalid {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5 !important;
+}
+
+.form-text {
+    font-size: .65rem;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Hover effect */
+.ibox:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
     </style>
-</head>
 
 <body class="fixed-navbar">
     <div class="page-wrapper">
@@ -63,154 +360,155 @@
         <div class="content-wrapper">
             <!-- START PAGE CONTENT-->
             <div class="page-heading">
-                <h1 class="page-title">Register New Dependant</h1>
+                <h1 class="page-title"><i class="fa fa-plus-circle" style="margin-right:8px;"></i>Register New Dependant</h1>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="/"><i class="la la-home font-20"></i></a>
+                        <a href="/"><i class="fa fa-home"></i></a>
                     </li>
-                    <li class="breadcrumb-item">Register New Dependant</li>
+                    <li class="breadcrumb-item active">Add Dependant</li>
                 </ol>
             </div>
             
             <div class="page-content fade-in-up">                
                 <div class="ibox">
                     <div class="ibox-head">
-                        <div class="ibox-title">Add Dependant</div>
+                        <div class="ibox-title">New Dependant Registration</div>
                         <div class="ibox-tools">
                             <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
                         </div>
                     </div>
                     
                     <div class="ibox-body">
-                        <form class="mt-1" id="dependantadd">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="ibox ibox-primary">
-                                        <div class="ibox-head">
-                                            <div class="ibox-title">Personal Details</div>
+                        <form id="dependantadd">
+                            <!-- Personal Details Section -->
+                            <div class="ibox">
+                                <div class="ibox-head">
+                                    <div class="ibox-title"><i class="fa fa-user-o" style="margin-right:6px;"></i>Personal Details</div>
+                                    <div class="ibox-tools">
+                                        <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                                    </div>
+                                </div>
+                                <div class="ibox-body">
+                                    
+                                    <!-- Member Validation Section -->
+                                    <div class="form-group row">
+                                        <div class="col-md-6">
+                                            <label for="person_id">
+                                                <b>Member No <span class="text-danger">*</span></b>
+                                            </label>
+                                            <input 
+                                                type="number" 
+                                                id="person_id" 
+                                                name="person_id" 
+                                                class="form-control" 
+                                                required
+                                                placeholder="Enter member number"
+                                            >
+                                            <small id="memberFeedback" class="form-text"></small>
                                         </div>
-                                        <div class="ibox-body">
-                                            
-                                            <!-- Member Validation Section -->
-                                            <div class="form-group row">
-                                                <label for="person_id" class="col-sm-2 col-form-label">
-                                                    <b>Member No: <span class="text-danger">*</span></b>
-                                                </label>
-                                                <div class="col-sm-4">
-                                                    <input 
-                                                        type="number" 
-                                                        id="person_id" 
-                                                        name="person_id" 
-                                                        class="form-control" 
-                                                        required
-                                                        placeholder="Enter member number"
-                                                    >
-                                                    <small id="memberFeedback" class="form-text"></small>
-                                                </div>
-                                                
-                                                <label for="full_name" class="col-sm-2 col-form-label">
-                                                    <b>Full Name:</b>
-                                                </label>
-                                                <div class="col-sm-4">
-                                                    <input 
-                                                        type="text" 
-                                                        id="full_name" 
-                                                        class="form-control" 
-                                                        readonly
-                                                        placeholder="Member name will appear here"
-                                                    >
-                                                </div>
-                                            </div>
-
-                                            <hr>
-
-                                            <!-- Dependant Details -->
-                                            <div class="form-group row">
-                                                <label for="First_name" class="col-sm-2 col-form-label">
-                                                    <b>First Name: <span class="text-danger">*</span></b>
-                                                </label>
-                                                <div class="col-sm-4">
-                                                    <input 
-                                                        type="text" 
-                                                        id="First_name" 
-                                                        name="First_name" 
-                                                        class="form-control" 
-                                                        required
-                                                    >
-                                                </div>
-                                                
-                                                <label for="Middle_Name" class="col-sm-2 col-form-label">
-                                                    <b>Middle Name:</b>
-                                                </label>
-                                                <div class="col-sm-4">
-                                                    <input 
-                                                        type="text" 
-                                                        id="Middle_Name" 
-                                                        name="Middle_Name" 
-                                                        class="form-control"
-                                                    >
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group row">
-                                                <label for="Last_Name" class="col-sm-2 col-form-label">
-                                                    <b>Last Name: <span class="text-danger">*</span></b>
-                                                </label>
-                                                <div class="col-sm-4">
-                                                    <input 
-                                                        type="text" 
-                                                        id="Last_Name" 
-                                                        name="Last_Name" 
-                                                        class="form-control" 
-                                                        required
-                                                    >
-                                                </div>
-
-                                                <label for="child_date_of_birth" class="col-sm-2 col-form-label">
-                                                    <b>Birth Date: <span class="text-danger">*</span></b>
-                                                </label>
-                                                <div class="col-sm-4">
-                                                    <input 
-                                                        type="date" 
-                                                        id="child_date_of_birth" 
-                                                        name="date_of_birth" 
-                                                        class="form-control" 
-                                                        required
-                                                    >
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group row">
-                                                <label for="Gender" class="col-sm-2 col-form-label">
-                                                    <b>Gender: <span class="text-danger">*</span></b>
-                                                </label>
-                                                <div class="col-sm-4">
-                                                    <select name="Gender" id="Gender" class="form-control" required>
-                                                        <option value="">Select Gender</option>
-                                                        <option value="Male">Male</option>
-                                                        <option value="Female">Female</option>
-                                                    </select>
-                                                </div>
-
-                                                <label for="status" class="col-sm-2 col-form-label">
-                                                    <b>Status: <span class="text-danger">*</span></b>
-                                                </label>
-                                                <div class="col-sm-4">
-                                                    <select name="status" id="status" class="form-control" required>
-                                                        <option value="Active">Active</option>
-                                                        <option value="Disabled">Disabled</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
+                                        
+                                        <div class="col-md-6">
+                                            <label for="full_name">
+                                                <b>Member Name</b>
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="full_name" 
+                                                class="form-control" 
+                                                readonly
+                                                placeholder="Member name will appear here"
+                                            >
                                         </div>
                                     </div>
+
+                                    <hr style="margin: 12px 0; border-color: #e9ecef;">
+
+                                    <!-- Dependant Details -->
+                                    <div class="form-group row">
+                                        <div class="col-md-6">
+                                            <label for="First_name">
+                                                <b>First Name <span class="text-danger">*</span></b>
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="First_name" 
+                                                name="First_name" 
+                                                class="form-control" 
+                                                required
+                                            >
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="Middle_Name">
+                                                <b>Middle Name</b>
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="Middle_Name" 
+                                                name="Middle_Name" 
+                                                class="form-control"
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-6">
+                                            <label for="Last_Name">
+                                                <b>Last Name <span class="text-danger">*</span></b>
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="Last_Name" 
+                                                name="Last_Name" 
+                                                class="form-control" 
+                                                required
+                                            >
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="child_date_of_birth">
+                                                <b>Birth Date <span class="text-danger">*</span></b>
+                                            </label>
+                                            <input 
+                                                type="date" 
+                                                id="child_date_of_birth" 
+                                                name="date_of_birth" 
+                                                class="form-control" 
+                                                required
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-6">
+                                            <label for="Gender">
+                                                <b>Gender <span class="text-danger">*</span></b>
+                                            </label>
+                                            <select name="Gender" id="Gender" class="form-control" required>
+                                                <option value="">Select Gender</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="status">
+                                                <b>Status <span class="text-danger">*</span></b>
+                                            </label>
+                                            <select name="status" id="status" class="form-control" required>
+                                                <option value="Active">Active</option>
+                                                <option value="Disabled">Disabled</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             
-                            <div class="form-group">
+                            <!-- Form Actions -->
+                            <div class="form-actions" style="margin-top:20px; display:flex; gap:8px; padding-top:16px; border-top:1px solid #e9ecef;">
                                 <button type="submit" class="btn btn-success" id="submitBtn">
-                                    <i class="fa fa-check"></i> Submit Dependant
+                                    <i class="fa fa-save"></i> Submit Dependant
                                 </button>
                                 <a href="/dependants" class="btn btn-secondary">
                                     <i class="fa fa-times"></i> Cancel
