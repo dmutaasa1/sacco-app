@@ -5328,7 +5328,7 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
 
     const finance = finances[0] || {};
 
-    res.render('member_profile_view', {
+    res.render('member_profile', {
         currentPage: 'member_profile',
         user:        req.session.user,
         member,
