@@ -5220,6 +5220,7 @@ app.get('/member/membership', checkMemberAuth, asyncHandler(async (req, res) => 
 app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
     const db       = dbConfig;
     const memberId = req.session.user.member_id;
+    return res.redirect('/member/account');
 
     /* Full member record */
     const [rows] = await db.execute(`
@@ -5512,7 +5513,7 @@ app.get('/member/biodata', checkMemberAuth, asyncHandler(async (req, res) => {
     };
 
     res.render('member_biodata', {
-        currentPage: 'member_profile',
+        currentPage: 'member_biodata',
         user:        req.session.user,
         member,
         photoBase64,

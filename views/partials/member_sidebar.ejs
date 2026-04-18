@@ -259,7 +259,7 @@ body.sidebar-collapsed #member-sidebar .m-bottom-label { display: none; }
              <!-- BIO DATA -->
             <li class="heading">Personal Details</li>
 
-            <li class="<%= isMemberActive(['member_profile']) %>">
+            <li class="<%= isMemberActive(['member_biodata']) %>">
                 <a href="/member/biodata">
                     <i class="m-icon fa fa-user-o"></i>
                     <span class="m-label">Personal Details</span>
@@ -269,10 +269,10 @@ body.sidebar-collapsed #member-sidebar .m-bottom-label { display: none; }
             <!-- Support -->
             <li class="heading">Help</li>
 
-            <li class="<%= isMemberActive(['member_profile']) %>">
-                <a href="/member/profile">
-                    <i class="m-icon fa fa-user-o"></i>
-                    <span class="m-label">My Profile</span>
+            <li class="<%= isMemberActive(['member_account']) %>">
+                <a href="/member/account">
+                    <i class="m-icon fa fa-cog"></i>
+                    <span class="m-label">Account Settings</span>
                 </a>
             </li>
 
