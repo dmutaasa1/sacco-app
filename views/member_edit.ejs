@@ -191,13 +191,13 @@ body.sidebar-collapsed .page-wrapper {
 }
 .photo-preview img {
     max-width: 100%;
-    max-height: 300px;
+    max-height: 150px;
     border-radius: 6px;
     margin-bottom: 8px;
 }
 .photo-placeholder {
     width: 100%;
-    height: 200px;
+    height: 120px;
     background: #e9ecef;
     border-radius: 6px;
     display: flex;
@@ -400,6 +400,94 @@ body.sidebar-collapsed .page-wrapper {
                             <div class="form-group">
                                 <label for="next_of_kin_address">Address</label>
                                 <input type="text" id="next_of_kin_address" name="next_of_kin_address" class="form-control" value="<%= member.next_of_kin_address || '' %>">
+                            </div>
+                        </div>
+
+                        <!-- Father Details -->
+                        <div class="section-title" style="margin-top: 18px;">
+                            <i class="fa fa-male"></i> Father's Details
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="Father_First_name">First Name</label>
+                                <input type="text" id="Father_First_name" name="Father_First_name" class="form-control" value="<%= member.Father_First_name || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="Father_Last_name">Last Name</label>
+                                <input type="text" id="Father_Last_name" name="Father_Last_name" class="form-control" value="<%= member.Father_Last_name || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="father_tel">Phone</label>
+                                <input type="tel" id="father_tel" name="father_tel" class="form-control" value="<%= member.father_tel || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="father_status">Status</label>
+                                <select id="father_status" name="father_status" class="form-select">
+                                    <option value="">Select Status</option>
+                                    <option value="Alive" <%= member.father_status === 'Alive' ? 'selected' : '' %>>Alive</option>
+                                    <option value="Deceased" <%= member.father_status === 'Deceased' ? 'selected' : '' %>>Deceased</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="father_village">Village</label>
+                                <input type="text" id="father_village" name="father_village" class="form-control" value="<%= member.father_village || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="father_parish">Parish</label>
+                                <input type="text" id="father_parish" name="father_parish" class="form-control" value="<%= member.father_parish || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="father_subcounty">Sub-County</label>
+                                <input type="text" id="father_subcounty" name="father_subcounty" class="form-control" value="<%= member.father_subcounty || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="father_district">District</label>
+                                <input type="text" id="father_district" name="father_district" class="form-control" value="<%= member.father_district || '' %>">
+                            </div>
+                        </div>
+
+                        <!-- Mother Details -->
+                        <div class="section-title" style="margin-top: 18px;">
+                            <i class="fa fa-female"></i> Mother's Details
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="mother_First_name">First Name</label>
+                                <input type="text" id="mother_First_name" name="mother_First_name" class="form-control" value="<%= member.mother_First_name || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="mother_Last_name">Last Name</label>
+                                <input type="text" id="mother_Last_name" name="mother_Last_name" class="form-control" value="<%= member.mother_Last_name || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="mother_tel">Phone</label>
+                                <input type="tel" id="mother_tel" name="mother_tel" class="form-control" value="<%= member.mother_tel || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="mother_status">Status</label>
+                                <select id="mother_status" name="mother_status" class="form-select">
+                                    <option value="">Select Status</option>
+                                    <option value="Alive" <%= member.mother_status === 'Alive' ? 'selected' : '' %>>Alive</option>
+                                    <option value="Deceased" <%= member.mother_status === 'Deceased' ? 'selected' : '' %>>Deceased</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mother_village">Village</label>
+                                <input type="text" id="mother_village" name="mother_village" class="form-control" value="<%= member.mother_village || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="mother_parish">Parish</label>
+                                <input type="text" id="mother_parish" name="mother_parish" class="form-control" value="<%= member.mother_parish || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="mother_subcounty">Sub-County</label>
+                                <input type="text" id="mother_subcounty" name="mother_subcounty" class="form-control" value="<%= member.mother_subcounty || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="mother_district">District</label>
+                                <input type="text" id="mother_district" name="mother_district" class="form-control" value="<%= member.mother_district || '' %>">
                             </div>
                         </div>
 
