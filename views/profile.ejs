@@ -3,267 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - Agali Awamu SACCO</title>
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/assets/css/main.min.css" rel="stylesheet" />
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing:border-box; }
+html, body { width:100%; max-width:100%; overflow-x:hidden; }
+body { font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); width:calc(100% - 220px); max-width:100%; }
+body.sidebar-collapsed .page-wrapper { margin-left:60px; }
+.dash-body { padding:14px 22px 28px; }
+@media(max-width:991px){
+    .page-wrapper { margin-left:0; width:100%; max-width:100%; }
+    .dash-body { padding:12px 14px 24px; }
+    .page-heading { padding:12px 14px 0; }
+}
 
-<body class="fixed-navbar">
-    <div class="page-wrapper">
-        <%- include('partials/header') %>
-        <%- include('partials/sidebar') %>
-        
-        <div class="content-wrapper">
-            <div class="page-heading">
-                <h1 class="page-title">My Profile</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
-                    <li class="breadcrumb-item">Profile</li>
-                </ol>
-            </div>
+/* heading */
+.page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+.page-heading h3 { font-size:1.1rem; font-weight:700; color:#1a1f2e; margin:0; }
+.page-heading .sub { font-size:.72rem; color:#a0aec0; margin-top:2px; }
+
+/* cards */
+.ibox { margin-bottom:0 !important; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(26,31,46,.06); border:1px solid #eaeef2; }
+.ibox-head { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #eaeef2; background:#fff; }
+.ibox-title { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#718096; }
+.ibox-body { padding:16px; background:#fff; }
+
+/* form styling */
+.form-group { margin-bottom:14px; }
+.form-group label { font-size:.78rem; font-weight:600; color:#1a1f2e; margin-bottom:5px; text-transform:uppercase; letter-spacing:.3px; }
+.form-group label .required { color:#e53e3e; }
+.form-control { 
+    border:1px solid #e2e8f0; border-radius:7px; padding:8px 12px; 
+    font-size:.78rem; color:#1a1f2e; font-family:'DM Sans',sans-serif; background:#f8fafc;
+}
+.form-control:focus { border-color:#00b894; box-shadow:0 0 0 2px rgba(0,184,148,.1); background:#fff; }
+.form-text { font-size:.68rem; color:#a0aec0; margin-top:3px; }
+
+/* buttons */
+.btn-save { background:#00b894; color:#fff; border:none; border-radius:7px; padding:8px 16px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.btn-save:hover { background:#00a37d; }
+.btn-change-pwd { background:#4299e1; color:#fff; border:none; border-radius:7px; padding:8px 16px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.btn-change-pwd:hover { background:#3182ce; }
+.btn-secondary-link { background:#f0f4f8; color:#718096; border:none; border-radius:7px; padding:8px 16px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; text-decoration:none; display:inline-block; }
+.btn-secondary-link:hover { background:#e2e8f0; color:#4a5568; }
+
+/* layout */
+.settings-cols { display:flex; gap:12px; flex-wrap:wrap; }
+.settings-col { flex:1; min-width:300px; }
+.settings-col.profile-info { flex:0 0 280px; }
+@media(max-width:768px){ .settings-cols { flex-direction:column; } .settings-col.profile-info { flex:1; } }
+
+/* profile card */
+.profile-card { text-align:center; padding:16px; }
+.profile-avatar { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#00b894,#00cec9); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#fff; font-size:2rem; }
+.profile-name { font-size:.92rem; font-weight:700; color:#1a1f2e; margin:8px 0; }
+.profile-username { font-size:.72rem; color:#a0aec0; margin-bottom:12px; }
+.profile-badges { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-bottom:10px; }
+.badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:.62rem; font-weight:600; }
+.badge-info { background:#e8f4fd; color:#4299e1; }
+.badge-success { background:#e6faf4; color:#00b894; }
+
+/* info row */
+.info-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f4f8; font-size:.78rem; }
+.info-row:last-child { border-bottom:none; }
+.info-label { color:#718096; font-weight:600; }
+.info-value { color:#1a1f2e; font-weight:700; }
+
+/* responsive */
+@media(max-width:768px){ 
+    .form-cols { display:flex; flex-direction:column; gap:12px; }
+}
+</style>
+</head>
+<body>
+
+<%- include('partials/member_header') %>
+<%- include('partials/member_sidebar') %>
+
+<div class="page-wrapper">
+    <div class="page-heading">
+        <div>
+            <h3><i class="fa fa-cog" style="color:#4299e1;margin-right:8px;"></i>Account Settings</h3>
+            <div class="sub">Manage your profile information and security</div>
+        </div>
+    </div>
+
+    <div class="dash-body">
+
+        <div class="settings-cols">
             
-            <div class="page-content fade-in-up">
-                <div class="row">
-                    <!-- Profile Information -->
-                    <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-body text-center">
-                                <div class="m-t-20">
-                                    <img class="img-circle" src="/assets/img/admin-avatar.png" style="width: 120px; height: 120px;" />
-                                </div>
-                                <h5 class="font-strong m-b-10 m-t-10"><%= userDetails.first_name %> <%= userDetails.last_name %></h5>
-                                <div class="m-b-20 text-muted">@<%= userDetails.username %></div>
-                                <div class="m-b-20">
-                                    <span class="badge badge-<%= userDetails.role === 'admin' ? 'danger' : 'info' %>">
-                                        <%= userDetails.role.toUpperCase() %>
-                                    </span>
-                                    <span class="badge badge-<%= userDetails.status === 'active' ? 'success' : 'secondary' %>">
-                                        <%= userDetails.status.toUpperCase() %>
-                                    </span>
-                                </div>
-                            </div>
+            <!-- Left: Profile Info -->
+            <div class="ibox settings-col profile-info">
+                <div class="ibox-body">
+                    <div class="profile-card">
+                        <div class="profile-avatar">
+                            <i class="fa fa-user"></i>
                         </div>
-                        
-                        <div class="ibox">
-                            <div class="ibox-body">
-                                <h5 class="font-strong mb-4">Account Information</h5>
-                                <ul class="list-group list-group-full">
-                                    <li class="list-group-item">
-                                        <strong>User ID:</strong>
-                                        <span class="float-right"><%= userDetails.id %></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>Member Since:</strong>
-                                        <span class="float-right"><%= userDetails.created_at %></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>Last Login:</strong>
-                                        <span class="float-right"><%= userDetails.last_login || 'Never' %></span>
-                                    </li>
-                                </ul>
-                            </div>
+                        <div class="profile-name"><%= userDetails.first_name %> <%= userDetails.last_name %></div>
+                        <div class="profile-username">@<%= userDetails.username %></div>
+                        <div class="profile-badges">
+                            <span class="badge badge-<%= userDetails.role === 'admin' ? 'info' : 'success' %>">
+                                <%= userDetails.role.toUpperCase() %>
+                            </span>
+                            <span class="badge badge-<%= userDetails.status === 'active' ? 'success' : 'info' %>">
+                                <%= userDetails.status.toUpperCase() %>
+                            </span>
                         </div>
                     </div>
-                    
-                    <!-- Edit Profile & Change Password -->
-                    <div class="col-lg-8">
-                        <!-- Edit Profile -->
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Edit Profile</div>
-                            </div>
-                            <div class="ibox-body">
-                                <form id="updateProfileForm">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>First Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="first_name" name="first_name" 
-                                                       value="<%= userDetails.first_name %>" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Last Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="last_name" name="last_name" 
-                                                       value="<%= userDetails.last_name %>" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Username <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="username" name="username" 
-                                               value="<%= userDetails.username %>" required>
-                                        <small class="form-text text-muted">Can contain letters, numbers, underscores, and hyphens. Minimum 3 characters.</small>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary" id="updateProfileBtn">
-                                        <i class="fa fa-save"></i> Update Profile
-                                    </button>
-                                </form>
-                            </div>
+                    <div style="border-top:1px solid #eaeef2; padding-top:12px; margin-top:12px;">
+                        <div class="info-row">
+                            <span class="info-label">User ID</span>
+                            <span class="info-value"><%= userDetails.id %></span>
                         </div>
-                        
-                        <!-- Change Password -->
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Change Password</div>
-                            </div>
-                            <div class="ibox-body">
-                                <form id="changePasswordForm">
-                                    <div class="form-group">
-                                        <label>Current Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="current_password" name="current_password" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>New Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="new_password" name="new_password" 
-                                               required minlength="6">
-                                        <small class="form-text text-muted">Minimum 6 characters</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Confirm New Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <button type="submit" class="btn btn-warning" id="changePasswordBtn" style="width: 100%;">
-                                                <i class="fa fa-key"></i> Change Password
-                                            </button>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <a href="/forgot-password" class="btn btn-outline-secondary" style="width: 100%;">
-                                                <i class="fa fa-question-circle"></i> Forgot Password?
-                                            </a>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                        <div class="info-row">
+                            <span class="info-label">Member Since</span>
+                            <span class="info-value"><%= userDetails.created_at %></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Last Login</span>
+                            <span class="info-value"><%= userDetails.last_login || '—' %></span>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-            </footer>
+
+            <!-- Right: Forms -->
+            <div style="flex:1; min-width:320px; display:flex; flex-direction:column; gap:12px;">
+
+                <!-- Edit Profile Form -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-user" style="color:#4299e1;margin-right:5px;"></i>Edit Profile</span>
+                    </div>
+                    <div class="ibox-body">
+                        <form id="updateProfileForm">
+                            <div style="display:flex; gap:12px; margin-bottom:14px;">
+                                <div style="flex:1;">
+                                    <div class="form-group">
+                                        <label>First Name <span class="required">*</span></label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                                               value="<%= userDetails.first_name %>" required>
+                                    </div>
+                                </div>
+                                <div style="flex:1;">
+                                    <div class="form-group">
+                                        <label>Last Name <span class="required">*</span></label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                                               value="<%= userDetails.last_name %>" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:16px;">
+                                <label>Username <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       value="<%= userDetails.username %>" required>
+                                <div class="form-text">Can contain letters, numbers, underscores, and hyphens. Minimum 3 characters.</div>
+                            </div>
+                            <button type="submit" class="btn-save" id="updateProfileBtn">
+                                <i class="fa fa-save" style="margin-right:6px;"></i>Update Profile
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Change Password Form -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <span class="ibox-title"><i class="fa fa-key" style="color:#e53e3e;margin-right:5px;"></i>Change Password</span>
+                    </div>
+                    <div class="ibox-body">
+                        <form id="changePasswordForm">
+                            <div class="form-group">
+                                <label>Current Password <span class="required">*</span></label>
+                                <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>New Password <span class="required">*</span></label>
+                                <input type="password" class="form-control" id="new_password" name="new_password" required minlength="6">
+                                <div class="form-text">Minimum 6 characters</div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:16px;">
+                                <label>Confirm New Password <span class="required">*</span></label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button type="submit" class="btn-change-pwd" id="changePasswordBtn">
+                                    <i class="fa fa-key" style="margin-right:6px;"></i>Change Password
+                                </button>
+                                <a href="/forgot-password" class="btn-secondary-link">
+                                    <i class="fa fa-question-circle" style="margin-right:6px;"></i>Forgot Password?
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
         </div>
-    </div>
 
-    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
-    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
-    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/assets/js/app.min.js"></script>
+    </div><!-- dash-body -->
+</div><!-- page-wrapper -->
 
-    <script>
-        // Update Profile
-        $('#updateProfileForm').on('submit', async function(e) {
-            e.preventDefault();
+<script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+<script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+<script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/assets/js/app.min.js"></script>
 
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
+<script>
+    // Update Profile
+    $('#updateProfileForm').on('submit', async function(e) {
+        e.preventDefault();
 
-            $('#updateProfileBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
 
-            try {
-                const response = await fetch('/profile/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+        $('#updateProfileBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
 
-                const result = await response.json();
+        try {
+            const response = await fetch('/profile/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
 
-                if (!response.ok) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Errors',
-                        html: result.errors.map(e => `<p>• ${e}</p>`).join('')
-                    });
-                    
-                    $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
-                    return;
-                }
+            const result = await response.json();
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: result.message
-                }).then(() => {
-                    location.reload();
-                });
-
-            } catch (err) {
+            if (!response.ok) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Could not update profile'
+                    title: 'Validation Errors',
+                    html: result.errors.map(e => `<p>• ${e}</p>`).join('')
                 });
                 
                 $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
-            }
-        });
-
-        // Change Password
-        $('#changePasswordForm').on('submit', async function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-
-            // Validate passwords match
-            if (data.new_password !== data.confirm_password) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'New passwords do not match'
-                });
                 return;
             }
 
-            $('#changePasswordBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Changing...');
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: result.message
+            }).then(() => {
+                location.reload();
+            });
 
-            try {
-                const response = await fetch('/profile/change-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Could not update profile'
+            });
+            
+            $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
+        }
+    });
 
-                const result = await response.json();
+    // Change Password
+    $('#changePasswordForm').on('submit', async function(e) {
+        e.preventDefault();
 
-                if (!response.ok) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        html: result.errors.map(e => `<p>• ${e}</p>`).join('')
-                    });
-                    
-                    $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
-                    return;
-                }
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: result.message
-                }).then(() => {
-                    $('#changePasswordForm')[0].reset();
-                    $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
-                });
+        // Validate passwords match
+        if (data.new_password !== data.confirm_password) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'New passwords do not match'
+            });
+            return;
+        }
 
-            } catch (err) {
+        $('#changePasswordBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Changing...');
+
+        try {
+            const response = await fetch('/profile/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Could not change password'
+                    html: result.errors.map(e => `<p>• ${e}</p>`).join('')
                 });
                 
                 $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+                return;
             }
-        });
-    </script>
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: result.message
+            }).then(() => {
+                $('#changePasswordForm')[0].reset();
+                $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+            });
+
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Could not change password'
+            });
+            
+            $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+        }
+    });
+</script>
 </body>
 </html>
