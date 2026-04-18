@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Agali Awamu SACCO</title>
-    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
 /* ── Base ── */
-body { overflow-x:hidden; font-family:'DM Sans',sans-serif; background:#f7fafc; }
-.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); }
-body.sidebar-collapsed .page-wrapper { margin-left:60px; }
+* { box-sizing:border-box; }
+html, body { width:100%; max-width:100%; overflow-x:hidden; }
+body { font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); width:calc(100% - 220px); max-width:100%; }
+body.sidebar-collapsed .page-wrapper { margin-left:60px; width:calc(100% - 60px); }
 .dash-body { padding:14px 22px 32px; }
+@media(max-width:991px){
+    .page-wrapper { margin-left:0; width:100%; max-width:100%; }
+    .dash-body { padding:12px 14px 24px; }
+    .page-heading { padding:12px 14px 0; }
+}
 
 /* ── Page heading ── */
 .page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
@@ -119,6 +125,12 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
 .profile-left  { width:240px; flex-shrink:0; }
 .profile-right { flex:1; min-width:0; }
 @media(max-width:768px){ .profile-left{ width:100%; } }
+.family-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(max-width:576px){
+    .quick-stats { grid-template-columns:1fr; }
+    .profile-tabs { overflow-x:auto; white-space:nowrap; }
+    .family-grid { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -363,7 +375,7 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
 
                 <!-- ── TAB: FAMILY ── -->
                 <div class="tab-pane" id="tab-family">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                    <div class="family-grid">
 
                         <!-- Father -->
                         <div class="ibox" style="margin-bottom:0;">
@@ -493,10 +505,12 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
     </div><!-- dash-body -->
 </div><!-- page-wrapper -->
 
-<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
-<script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
-<script src="assets/js/app.min.js"></script>
+<script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+<script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+<script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="/assets/js/app.min.js"></script>
 <script>
 function switchTab(tabId, btn) {
     /* deactivate all tabs and buttons */
