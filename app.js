@@ -1343,8 +1343,8 @@ app.get('/members/:id', checkAuth, asyncHandler(async (req, res) => {
   const [rows] = await db.execute(`
     SELECT 
       a.*,
-      DATE_FORMAT(a.Date_of_Birth, "%d-%b-%Y") AS Date_of_Birth,
-      DATE_FORMAT(a.date_joined, "%d-%b-%Y") AS date_joined,
+      DATE_FORMAT(a.date_of_birth, "%d-%b-%Y") AS date_of_birth,
+      DATE_FORMAT(a.Date_Joined, "%d-%b-%Y") AS Date_Joined,
       COALESCE(t.total_savings_credit, 0) AS total_savings_credit,
       COALESCE(t.total_insurance_cover, 0) AS total_Insuarance_cover,
       COALESCE(t.total_membership_fee, 0) AS total_Membership_Fee,
@@ -1371,7 +1371,7 @@ app.get('/members/:id', checkAuth, asyncHandler(async (req, res) => {
   `, [memberId]);
 
   if (rows.length === 0) {
-    return res.status(404).send('Member not found');
+    return res.status(404).render('error', { message: 'Member not found' });
   }
 
   const member = rows[0];
@@ -1469,23 +1469,23 @@ app.get('/members/:id/edit', checkAuth, asyncHandler(async (req, res) => {
 
   const [rows] = await db.execute(`
     SELECT 
-      id, First_Name, Middle_Name, Last_Name, tel_no, sex, marital_status,
-      DATE_FORMAT(Date_of_Birth, '%Y-%m-%d') AS Date_of_Birth,
+      id, First_name, Middle_Name, Last_Name, tel_no, sex, marital_status,
+      DATE_FORMAT(date_of_birth, '%Y-%m-%d') AS date_of_birth,
       national_id,
-      DATE_FORMAT(Date_joined, '%Y-%m-%d') AS date_joined,
-      occupation, village_lc1, status, Parish, sub_county, place_of_birth,
+      DATE_FORMAT(Date_Joined, '%Y-%m-%d') AS date_joined,
+      occupation, village_lc1, Status, parish, sub_county, place_of_birth,
       next_of_kin_First_name, next_of_kin_Last_name, next_of_kin_tel, next_of_kin_address,
       Father_First_name, Father_Last_name, father_tel, father_status,  
       father_village, father_parish, father_subcounty, father_district,
       mother_First_name, mother_Last_name, mother_tel, mother_status,
       mother_village, mother_parish, mother_subcounty, mother_district,
-      comments, Passport_Photo, Status
+      comments, Passport_Photo
     FROM members_mst 
     WHERE id = ?
   `, [id]);
 
   if (rows.length === 0) {
-    return res.status(404).send("Member not found");
+    return res.status(404).render('error', { message: 'Member not found' });
   }
 
   const member = rows[0];
@@ -1495,8 +1495,7 @@ app.get('/members/:id/edit', checkAuth, asyncHandler(async (req, res) => {
   }
 
   res.render('member_edit', {
-    currentPage: 'home',
-    member: rows[0],
+    member: member,
     photoBase64,
     user: req.session.user
   });
@@ -1522,9 +1521,9 @@ app.post('/members/:id/edit', checkAuth, upload.single('photo'), asyncHandler(as
     date_of_birth: req.body.date_of_birth || null,
     occupation: req.body.occupation || null,
     village_lc1: req.body.village_lc1 || null,
-    status: req.body.status || null,
+    Status: req.body.status || null,
     national_id: req.body.national_id || null,
-    date_joined: req.body.date_joined || null,
+    Date_Joined: req.body.date_joined || null,
     parish: req.body.parish || null,
     sub_county: req.body.sub_county || null,
     place_of_birth: req.body.place_of_birth || null,
@@ -1556,7 +1555,7 @@ app.post('/members/:id/edit', checkAuth, upload.single('photo'), asyncHandler(as
     await db.execute(`
       UPDATE members_mst 
       SET First_name=?, Middle_Name=?, Last_Name=?, tel_no=?, sex=?, marital_status=?, 
-          date_of_birth=?, occupation=?, village_lc1=?, status=?, national_id=?, date_joined=?,
+          date_of_birth=?, occupation=?, village_lc1=?, Status=?, national_id=?, Date_Joined=?,
           parish=?, sub_county=?, place_of_birth=?,
           next_of_kin_First_name=?, next_of_kin_Last_name=?, next_of_kin_tel=?, next_of_kin_address=?,
           Father_First_name=?, Father_Last_name=?, father_tel=?, father_status=?, father_village=?, 
@@ -1567,7 +1566,7 @@ app.post('/members/:id/edit', checkAuth, upload.single('photo'), asyncHandler(as
     `, [
       memberData.First_name, memberData.Middle_Name, memberData.Last_Name, memberData.tel_no,
       memberData.sex, memberData.marital_status, memberData.date_of_birth, memberData.occupation,
-      memberData.village_lc1, memberData.status, memberData.national_id, memberData.date_joined,
+      memberData.village_lc1, memberData.Status, memberData.national_id, memberData.Date_Joined,
       memberData.parish, memberData.sub_county, memberData.place_of_birth,
       memberData.next_of_kin_First_name, memberData.next_of_kin_Last_name, memberData.next_of_kin_tel,
       memberData.next_of_kin_address, memberData.Father_First_name, memberData.Father_Last_name,
@@ -1601,7 +1600,7 @@ app.post('/members/:id/edit', checkAuth, upload.single('photo'), asyncHandler(as
     console.error('Error updating member:', err);
     res.status(500).json({
       success: false,
-      error: 'Failed to update member profile. Please try again.'
+      error: 'Failed to update member profile: ' + err.message
     });
   }
 }));

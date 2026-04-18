@@ -1,233 +1,401 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>Edit Dependant</title>
-    <!-- GLOBAL MAINLY STYLES-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Member - Agali Awamu SACCO</title>
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="/assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <!-- PLUGINS STYLES-->
-    <link href="/assets/vendors/select2/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="/assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet" />
-    <!-- THEME STYLES-->
+    <link href="/assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
     <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <style>
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .loading-overlay.active {
-            display: flex;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+<style>
+* { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+
+/* ══════════════════════════════════════════
+   BASE LAYOUT — matches admin dashboard
+══════════════════════════════════════════ */
+body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+.page-wrapper { 
+    margin-left: 220px !important;
+    margin-top: 60px; 
+    width: calc(100% - 220px) !important; 
+    max-width: 100%; 
+    transition: margin-left .22s ease, width .22s ease;
+}
+body.sidebar-collapsed .page-wrapper { 
+    margin-left: 60px !important; 
+    width: calc(100% - 60px) !important; 
+}
+@media (max-width: 991px) {
+    .page-wrapper { 
+        margin-left: 0 !important; 
+        width: 100% !important; 
+        max-width: 100%; 
+    }
+    .page-heading { padding: 12px 14px 0; }
+    .page-content { padding: 12px 14px 24px; }
+}
+
+/* ══════════════════════════════════════════
+   PAGE HEADING
+══════════════════════════════════════════ */
+.page-heading {
+    padding: 14px 22px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+}
+.page-heading h3 {
+    font-size: 1.1rem; font-weight: 700; color: #1a1f2e; margin: 0;
+}
+.page-heading .sub { font-size: .72rem; color: #a0aec0; margin-top: 2px; }
+
+/* ══════════════════════════════════════════
+   SHARED CARD
+══════════════════════════════════════════ */
+.ibox { margin-bottom: 0 !important; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 6px rgba(26,31,46,.06); border: 1px solid #eaeef2; }
+.ibox-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; border-bottom: 1px solid #eaeef2; background: #fff;
+}
+.ibox-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #718096; }
+.ibox-body  { padding: 14px; background: #fff; }
+
+/* ══════════════════════════════════════════
+   FORM STYLING
+══════════════════════════════════════════ */
+.form-group label {
+    font-size: .75rem;
+    font-weight: 600;
+    color: #1a1f2e;
+    margin-bottom: 5px;
+}
+.form-control, .form-select {
+    font-size: .75rem;
+    padding: 6px 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: #fff;
+    color: #333;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #00b894;
+    box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════ */
+.btn {
+    font-size: .75rem;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 6px;
+    transition: all .15s;
+}
+.btn-save {
+    background: #00b894;
+    color: #fff;
+    border: none;
+}
+.btn-save:hover {
+    background: #00a388;
+    color: #fff;
+}
+.btn-cancel {
+    background: #e9ecef;
+    color: #555;
+    border: none;
+}
+.btn-cancel:hover {
+    background: #dee2e6;
+    color: #333;
+}
+
+/* Page content */
+.page-content { padding: 12px 22px 24px; }
+
+/* Footer */
+.page-footer {
+    padding: 12px 22px;
+    font-size: .72rem;
+    color: #a0aec0;
+    text-align: center;
+    border-top: 1px solid #eaeef2;
+    background: #fff;
+}
+
+/* Grid layout */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+
+/* Section heading */
+.section-title {
+    font-size: .85rem;
+    font-weight: 700;
+    color: #1a1f2e;
+    margin: 14px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.section-title i { color: #00b894; }
+
+/* Loading spinner */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+.loading-overlay.active { display: flex; }
+.spinner {
+    border: 3px solid rgba(255,255,255,.3);
+    border-top: 3px solid #fff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
 </head>
 
-<body class="fixed-navbar">
+<body>
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
     </div>
 
+    <%- include('partials/header') %>
+    <%- include('partials/sidebar') %>
+
     <div class="page-wrapper">
-        <!-- START HEADER-->         
-        <%- include('partials/header') %>
-        <!-- END HEADER-->
-        <!-- START SIDEBAR-->
-        <%- include('partials/sidebar') %>        
-        <!-- END SIDEBAR-->
-        
-        <div class="content-wrapper">
-            <!-- START PAGE CONTENT-->
-            <div class="page-heading">
-                <h1 class="page-title">Edit Dependant Profile</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="/"><i class="la la-home font-20"></i></a>
-                    </li>
-                    <li class="breadcrumb-item"><a href="/dependants">Dependants</a></li>
-                    <li class="breadcrumb-item">Edit Profile</li>
-                </ol>
+        <div class="page-heading">
+            <div>
+                <h3><i class="fa fa-edit" style="margin-right: 8px; color: #00b894;"></i>Edit Member Profile</h3>
+                <div class="sub">Member ID: #<%= member.id %></div>
             </div>
-            
-            <div class="page-content fade-in-up">                
-                <div class="ibox">
-                    <div class="ibox-head">
-                        <div class="ibox-title">
-                            Editing: <%= dependant.First_Name %> <%= dependant.Last_Name %>
-                            <small class="ml-2">(Dependant ID: <%= dependant.id %>)</small>
+        </div>
+
+        <div class="page-content">
+            <div class="ibox">
+                <div class="ibox-head">
+                    <span class="ibox-title"><i class="fa fa-user" style="color: #00b894; margin-right: 5px;"></i><%= member.First_name %> <%= member.Middle_Name %> <%= member.Last_Name %></span>
+                </div>
+
+                <div class="ibox-body">
+                    <form id="editMemberForm">
+                        <!-- Basic Information Section -->
+                        <div class="section-title">
+                            <i class="fa fa-address-card"></i> Personal Information
                         </div>
-                        <div class="ibox-tools">
-                            <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="First_name">First Name</label>
+                                <input type="text" id="First_name" name="First_name" class="form-control" value="<%= member.First_name %>" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="Middle_Name">Middle Name</label>
+                                <input type="text" id="Middle_Name" name="Middle_Name" class="form-control" value="<%= member.Middle_Name || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="Last_Name">Last Name</label>
+                                <input type="text" id="Last_Name" name="Last_Name" class="form-control" value="<%= member.Last_Name %>" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tel_no">Phone Number</label>
+                                <input type="tel" id="tel_no" name="tel_no" class="form-control" value="<%= member.tel_no || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="sex">Gender</label>
+                                <select id="sex" name="sex" class="form-select">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male" <%= member.sex === 'Male' ? 'selected' : '' %>>Male</option>
+                                    <option value="Female" <%= member.sex === 'Female' ? 'selected' : '' %>>Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="date_of_birth">Date of Birth</label>
+                                <input type="date" id="date_of_birth" name="date_of_birth" class="form-control" value="<%= member.date_of_birth || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="national_id">National ID</label>
+                                <input type="text" id="national_id" name="national_id" class="form-control" value="<%= member.national_id || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="marital_status">Marital Status</label>
+                                <select id="marital_status" name="marital_status" class="form-select">
+                                    <option value="">Select Status</option>
+                                    <option value="Single" <%= member.marital_status === 'Single' ? 'selected' : '' %>>Single</option>
+                                    <option value="Married" <%= member.marital_status === 'Married' ? 'selected' : '' %>>Married</option>
+                                    <option value="Divorced" <%= member.marital_status === 'Divorced' ? 'selected' : '' %>>Divorced</option>
+                                    <option value="Widowed" <%= member.marital_status === 'Widowed' ? 'selected' : '' %>>Widowed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="occupation">Occupation</label>
+                                <input type="text" id="occupation" name="occupation" class="form-control" value="<%= member.occupation || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Member Status</label>
+                                <select id="status" name="status" class="form-select">
+                                    <option value="">Select Status</option>
+                                    <option value="ACTIVE" <%= member.Status === 'ACTIVE' ? 'selected' : '' %>>Active</option>
+                                    <option value="INACTIVE" <%= member.Status === 'INACTIVE' ? 'selected' : '' %>>Inactive</option>
+                                    <option value="SUSPENDED" <%= member.Status === 'SUSPENDED' ? 'selected' : '' %>>Suspended</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="ibox-body">
-                        <form id="editDependantForm">
-                            <!-- Status Selection -->
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <label><b>Dependant Status:</b></label>
-                                    <select name="status" class="form-control form-control-sm" style="width: 200px; display: inline-block;">
-                                        <option value="Active" <%= dependant.Status === 'Active' ? 'selected' : '' %>>Active</option>
-                                        <option value="Disabled" <%= dependant.Status === 'Disabled' ? 'selected' : '' %>>Disabled</option>
-                                    </select>
-                                </div>
+
+                        <!-- Location Information -->
+                        <div class="section-title" style="margin-top: 18px;">
+                            <i class="fa fa-map-marker"></i> Location Information
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="village_lc1">Village/LC1</label>
+                                <input type="text" id="village_lc1" name="village_lc1" class="form-control" value="<%= member.village_lc1 || '' %>">
                             </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="ibox ibox-primary">
-                                        <div class="ibox-head">
-                                            <div class="ibox-title">Personal Details</div>
-                                            <div class="ibox-tools">
-                                                <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
-                                            </div>
-                                        </div>
-                                        <div class="ibox-body">
-                                            <div style="margin-bottom:5px;font-size: 80%;">
-                                                
-                                                <div class="form-group row">
-                                                    <label for="First_Name" class="col-sm-3"><b>First Name:</b></label>
-                                                    <input type="text" id="First_Name" name="First_Name" 
-                                                           class="form-control form-control-sm rounded col-sm-3" 
-                                                           value="<%= dependant.First_Name %>" required>
-
-                                                    <label for="Middle_Name" class="col-sm-3"><b>Middle Name:</b></label>
-                                                    <input type="text" id="Middle_Name" name="Middle_Name" 
-                                                           class="form-control form-control-sm rounded col-sm-3" 
-                                                           value="<%= dependant.Middle_Name || '' %>">
-                                                </div>
-                                                
-                                                <div class="form-group row">
-                                                    <label for="Last_Name" class="col-sm-3"><b>Last Name:</b></label>
-                                                    <input type="text" id="Last_Name" name="Last_Name" 
-                                                           class="form-control form-control-sm rounded col-sm-3" 
-                                                           value="<%= dependant.Last_Name %>" required>
-
-                                                    <label for="child_date_of_birth" class="col-sm-3"><b>Birth Date:</b></label>
-                                                    <input type="date" id="child_date_of_birth" name="child_date_of_birth" 
-                                                           class="form-control form-control-sm rounded col-sm-3" 
-                                                           value="<%= dependant.child_date_of_birth %>" required>
-                                                </div>
-                                                
-                                                <div class="form-group row">
-                                                    <label for="sex" class="col-sm-3"><b>Gender:</b></label>
-                                                    <select name="sex" class="form-control form-control-sm rounded col-sm-3" required>
-                                                        <option value="">Select Gender</option>
-                                                        <option value="Male" <%= dependant.Gender === 'Male' ? 'selected' : '' %>>Male</option>
-                                                        <option value="Female" <%= dependant.Gender === 'Female' ? 'selected' : '' %>>Female</option>
-                                                    </select>
-
-                                                    <label for="person_id" class="col-sm-3"><b>Member No:</b></label>
-                                                    <input type="number" id="person_id" name="person_id" 
-                                                           class="form-control form-control-sm rounded col-sm-3" 
-                                                           value="<%= dependant.person_id %>" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="form-group">
+                                <label for="parish">Parish</label>
+                                <input type="text" id="parish" name="parish" class="form-control" value="<%= member.parish || '' %>">
                             </div>
-
-                            <!-- Form Actions -->
-                            <div class="form-group mt-3">
-                                <button type="submit" class="btn btn-info" id="submitBtn">
-                                    <i class="fa fa-save"></i> Update Dependant
-                                </button>
-                                <a href="/dependants" class="btn btn-secondary">
-                                    <i class="fa fa-times"></i> Cancel
-                                </a>
+                            <div class="form-group">
+                                <label for="sub_county">Sub-County</label>
+                                <input type="text" id="sub_county" name="sub_county" class="form-control" value="<%= member.sub_county || '' %>">
                             </div>
-                        </form>
-                    </div>
+                            <div class="form-group">
+                                <label for="place_of_birth">Place of Birth</label>
+                                <input type="text" id="place_of_birth" name="place_of_birth" class="form-control" value="<%= member.place_of_birth || '' %>">
+                            </div>
+                        </div>
+
+                        <!-- Membership Information -->
+                        <div class="section-title" style="margin-top: 18px;">
+                            <i class="fa fa-calendar"></i> Membership Information
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="date_joined">Date Joined</label>
+                                <input type="date" id="date_joined" name="date_joined" class="form-control" value="<%= member.date_joined || '' %>">
+                            </div>
+                        </div>
+
+                        <!-- Next of Kin -->
+                        <div class="section-title" style="margin-top: 18px;">
+                            <i class="fa fa-users"></i> Next of Kin
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="next_of_kin_First_name">First Name</label>
+                                <input type="text" id="next_of_kin_First_name" name="next_of_kin_First_name" class="form-control" value="<%= member.next_of_kin_First_name || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="next_of_kin_Last_name">Last Name</label>
+                                <input type="text" id="next_of_kin_Last_name" name="next_of_kin_Last_name" class="form-control" value="<%= member.next_of_kin_Last_name || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="next_of_kin_tel">Phone</label>
+                                <input type="tel" id="next_of_kin_tel" name="next_of_kin_tel" class="form-control" value="<%= member.next_of_kin_tel || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="next_of_kin_address">Address</label>
+                                <input type="text" id="next_of_kin_address" name="next_of_kin_address" class="form-control" value="<%= member.next_of_kin_address || '' %>">
+                            </div>
+                        </div>
+
+                        <!-- Comments -->
+                        <div class="section-title" style="margin-top: 18px;">
+                            <i class="fa fa-comment"></i> Additional Information
+                        </div>
+
+                        <div class="form-group">
+                            <label for="comments">Comments</label>
+                            <textarea id="comments" name="comments" class="form-control" rows="3" style="resize: vertical;"><%= member.comments || '' %></textarea>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" class="btn btn-save" id="submitBtn">
+                                <i class="fa fa-save"></i> Save Changes
+                            </button>
+                            <a href="/members" class="btn btn-cancel">
+                                <i class="fa fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-            
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-            </footer>
         </div>
+
+        <footer class="page-footer">
+            <div>2026 © <b>Agali Awamu SACCO</b> — All rights reserved.</div>
+        </footer>
     </div>
 
-    <!-- CORE PLUGINS-->
+    <!-- Scripts -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
     <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
     <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-    <script src="/assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/assets/js/app.min.js"></script>
 
     <script>
         $(document).ready(function() {
-            // Form Submission
-            $('#editDependantForm').on('submit', async function(e) {
+            $('#editMemberForm').on('submit', async function(e) {
                 e.preventDefault();
 
-                // Show loading overlay
                 $('#loadingOverlay').addClass('active');
-                $('#submitBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+                $('#submitBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
                 const formData = new FormData(this);
                 const data = Object.fromEntries(formData.entries());
 
                 try {
-                    const response = await fetch('/dependants/<%= dependant.id %>/edit', {
+                    const response = await fetch('/members/<%= member.id %>/edit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(data)
                     });
 
                     const result = await response.json();
-
-                    // Hide loading overlay
                     $('#loadingOverlay').removeClass('active');
 
                     if (response.ok) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: result.message,
-                            confirmButtonText: 'OK'
+                            text: 'Member profile updated successfully',
+                            confirmButtonColor: '#00b894'
                         }).then(() => {
-                            window.location.href = '/dependants';
+                            window.location.href = '/members';
                         });
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Update Failed',
-                            text: result.error || 'An error occurred while updating'
+                            text: result.error || result.message || 'An error occurred while updating'
                         });
-                        $('#submitBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Dependant');
+                        $('#submitBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Save Changes');
                     }
                 } catch (error) {
                     $('#loadingOverlay').removeClass('active');
@@ -235,17 +403,10 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'An unexpected error occurred'
+                        text: 'An unexpected error occurred: ' + error.message
                     });
-                    $('#submitBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Dependant');
+                    $('#submitBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Save Changes');
                 }
-            });
-
-            // Initialize datepicker for birth date
-            $('#child_date_of_birth').datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: true,
-                endDate: new Date()
             });
         });
     </script>
