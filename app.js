@@ -5169,7 +5169,7 @@ app.get('/member/insurance', checkMemberAuth, asyncHandler(async (req, res) => {
     const [rows] = await db.execute(`
         SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS tran_date,
                Amount, payment_period, description
-        FROM transactions WHERE member_id=? AND transaction_type='Insurance Cover'
+        FROM transactions WHERE member_id=? AND transaction_type='Insuarance Cover'
         ORDER BY tran_date DESC
     `, [memberId]);
     const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
@@ -5187,7 +5187,7 @@ app.get('/member/welfare', checkMemberAuth, asyncHandler(async (req, res) => {
     const [rows] = await db.execute(`
         SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS tran_date,
                Amount, payment_period, description
-        FROM transactions WHERE member_id=? AND transaction_type='Welfare Fee'
+        FROM transactions WHERE member_id=? AND transaction_type='welfare Fee'
         ORDER BY tran_date DESC
     `, [memberId]);
     const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
