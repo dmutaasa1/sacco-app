@@ -21,7 +21,7 @@ function isSubActive(pages) {
 /* Mobile overlay */
 #sb-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(10,15,28,.6); z-index: 997;
+    background: rgba(10,15,28,.6); z-index: 1039;
     backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
 body.sb-open #sb-overlay { display: block; }
@@ -33,7 +33,7 @@ body.sb-open #sb-overlay { display: block; }
     width: 220px; height: 100vh;
     background: #0f1623;
     border-right: 1px solid rgba(255,255,255,.04);
-    z-index: 998;
+    z-index: 1040;
     display: flex; flex-direction: column;
     overflow: hidden;
     font-family: 'DM Sans',-apple-system,sans-serif;
@@ -66,14 +66,61 @@ body.sidebar-collapsed #sidebar { width: 60px; }
     }
 }
 
-/* ── Content wrapper ── */
-.content-wrapper {
+/* ── Layout offsets ──
+   Two page structures exist:
+   A) div.page-wrapper > div.content-wrapper   (index.ejs, member_add.ejs)
+      → only .content-wrapper gets the margin; .page-wrapper is a plain shell
+   B) div.page-wrapper (no content-wrapper)    (member dashboard etc.)
+      → .page-wrapper itself gets the margin
+
+   JS below marks which case we're in by adding .pw-shell or .pw-content
+   to .page-wrapper at runtime. CSS then targets correctly.
+── */
+
+/* Case A: page-wrapper is a shell, content-wrapper is the offset target */
+.page-wrapper.pw-shell {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+.page-wrapper.pw-shell > .content-wrapper {
     margin-left: 220px;
+    margin-top: 60px;
+    min-width: 0;
     transition: margin-left .24s cubic-bezier(.4,0,.2,1);
 }
-body.sidebar-collapsed .content-wrapper { margin-left: 60px; }
-@media (min-width:768px) and (max-width:991px) { .content-wrapper { margin-left: 60px; } }
-@media (max-width:767px) { .content-wrapper { margin-left: 0; } }
+body.sidebar-collapsed .page-wrapper.pw-shell > .content-wrapper { margin-left: 60px; }
+@media (min-width:768px) and (max-width:991px) {
+    .page-wrapper.pw-shell > .content-wrapper { margin-left: 60px; }
+}
+@media (max-width:767px) {
+    .page-wrapper.pw-shell > .content-wrapper { margin-left: 0; margin-top: 60px; }
+}
+
+/* Case B: page-wrapper IS the content area */
+.page-wrapper.pw-content {
+    margin-left: 220px !important;
+    margin-top: 60px !important;
+    min-width: 0;
+    transition: margin-left .24s cubic-bezier(.4,0,.2,1);
+}
+body.sidebar-collapsed .page-wrapper.pw-content { margin-left: 60px !important; }
+@media (min-width:768px) and (max-width:991px) {
+    .page-wrapper.pw-content { margin-left: 60px !important; }
+}
+@media (max-width:767px) {
+    .page-wrapper.pw-content { margin-left: 0 !important; margin-top: 60px !important; }
+}
+
+/* Fallback: plain .content-wrapper (no page-wrapper parent) */
+body > .content-wrapper,
+.page-wrapper:not(.pw-shell):not(.pw-content) > .content-wrapper {
+    margin-left: 220px;
+    margin-top: 60px;
+    transition: margin-left .24s cubic-bezier(.4,0,.2,1);
+}
+body.sidebar-collapsed > .content-wrapper { margin-left: 60px; }
 
 /* ── Inner scroll ── */
 #sb-scroll {
@@ -489,10 +536,25 @@ body.sidebar-collapsed .sb-sub { display: none !important; }
         }
     });
 
+    /* ── Detect page layout and mark page-wrapper accordingly ── */
+    function detectLayout() {
+        var pw = document.querySelector('.page-wrapper');
+        if (!pw) return;
+        if (pw.querySelector('.content-wrapper')) {
+            pw.classList.add('pw-shell');   /* A: shell wrapping content-wrapper */
+        } else {
+            pw.classList.add('pw-content'); /* B: page-wrapper is the content area */
+        }
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', wireBtn);
+        document.addEventListener('DOMContentLoaded', function() {
+            wireBtn();
+            detectLayout();
+        });
     } else {
         wireBtn();
+        detectLayout();
     }
 }());
 </script>
