@@ -241,7 +241,6 @@ body.sidebar-collapsed .page-wrapper {
         </footer>
     </div>
 
-    <!-- Scripts -->
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
     <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -251,53 +250,24 @@ body.sidebar-collapsed .page-wrapper {
     <script src="/assets/js/app.min.js"></script>
     <script>
         $(function () {
-            $('#example-table').DataTable({
-                pageLength: 25,
-                order: [[0, 'desc']],
-                language: {
-                    search: '',
-                    searchPlaceholder: 'Search…',
-                    lengthMenu: 'Show _MENU_',
-                    info: '_START_–_END_ of _TOTAL_',
-                    paginate: { previous: '‹', next: '›' }
-                }
-            });
+            // Check if DataTables is already initialized
+            if (!$.fn.DataTable.isDataTable('#example-table')) {
+                $('#example-table').DataTable({
+                    pageLength: 25,
+                    order: [[0, 'desc']],
+                    language: {
+                        search: '',
+                        searchPlaceholder: 'Search…',
+                        lengthMenu: 'Show _MENU_',
+                        info: '_START_–_END_ of _TOTAL_',
+                        paginate: { previous: '‹', next: '›' }
+                    }
+                });
+            }
         });
     </script>
 </body>
 </html>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-silver-100"></div>
                     </label>
                 </div>
             </div>
