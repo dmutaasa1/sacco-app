@@ -255,6 +255,7 @@ body.sidebar-collapsed .page-wrapper {
     <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
     <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="/assets/js/app.min.js"></script>
     
     <!-- PLUGINS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -269,28 +270,22 @@ body.sidebar-collapsed .page-wrapper {
         const feedback = document.getElementById('memberFeedback');
         const memberInfoDisplay = document.getElementById('memberInfoDisplay');
 
-        // Initialize datepicker - FIXED
+        // Initialize date picker - use HTML5 date input
         $(document).ready(function () {
-            console.log('Initializing datepicker...');
+            console.log('Initializing date handler...');
             
-            // Method 1: Direct initialization on input
-            $('#tran_date').datepicker({
-                format: 'yyyy/mm/dd',
-                autoclose: true,
-                todayHighlight: true,
-                todayBtn: 'linked',
-                orientation: 'bottom auto'
-            });
+            // Set today's date on page load
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${year}/${month}/${day}`;
             
-            // Set today's date
-            var today = new Date();
-            $('#tran_date').datepicker('setDate', today);
+            $('#tran_date').val(dateStr);
             
-            console.log('Datepicker initialized');
-            
-            // Alternative: Click on addon to open datepicker
+            // Allow calendar icon to open date picker
             $('.input-group-addon').on('click', function() {
-                $('#tran_date').datepicker('show');
+                $('#tran_date').trigger('focus');
             });
         });
 
@@ -332,9 +327,17 @@ body.sidebar-collapsed .page-wrapper {
 
         // Validate member function
         function validateMember(memberNo) {
+            console.log('Validating internal account:', memberNo);
             fetch(`/api/internal/${memberNo}`)
-                .then(res => res.json())
+                .then(res => {
+                    console.log('API response status:', res.status);
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    }
+                    return res.json();
+                })
                 .then(data => {
+                    console.log('API response data:', data);
                     if (data.success) {
                         // Member found
                         memberData = data.member;
@@ -536,9 +539,12 @@ body.sidebar-collapsed .page-wrapper {
                         document.getElementById('member_trans').reset();
                         document.getElementById('member_id').value = memberData.id;
                         
-                        // Reset datepicker to today
-                        var today = new Date();
-                        $('#tran_date').datepicker('setDate', today);
+                        // Reset date field to today
+                        const today = new Date();
+                        const year = today.getFullYear();
+                        const month = String(today.getMonth() + 1).padStart(2, '0');
+                        const day = String(today.getDate()).padStart(2, '0');
+                        $('#tran_date').val(`${year}/${month}/${day}`);
                         
                         // Re-enable button
                         submitBtn.disabled = false;
