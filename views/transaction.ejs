@@ -356,7 +356,7 @@ body.sidebar-collapsed .page-wrapper {
                         displayMemberInfo(data);
 
                         // Warn if not active
-                        if (data.member.status !== 'Active') {
+                        if (data.member.status.toLowerCase() !== 'active') {
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Member Not Active',

@@ -350,12 +350,12 @@ body.sidebar-collapsed .page-wrapper {
                         // Show member info
                         displayMemberInfo(data);
 
-                        // Warn if not active
-                        if (data.member.status !== 'Internal') {
+                        // Warn if not internal
+                        if (data.member.status.toLowerCase() !== 'internal') {
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Invalid Account',
-                                text: `This Account's status is "${data.member.status}". Transactions may be restricted.`,
+                                text: `This Account's status is "${data.member.status}". Only internal accounts can be used.`,
                                 confirmButtonText: 'Continue Anyway',
                                 confirmButtonColor: '#00b894'
                             });

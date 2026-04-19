@@ -1681,7 +1681,7 @@ app.get('/api/member/:member_id', asyncHandler(async (req, res) => {
     const [member] = await db.execute(
       `SELECT id, First_name, Last_Name, Middle_Name, status 
        FROM members_mst 
-       WHERE status ="Active" and id = ?`,
+       WHERE LOWER(status) = 'active' and id = ?`,
       [member_id]
     );
 
@@ -1725,7 +1725,7 @@ app.get('/api/internal/:member_id', asyncHandler(async (req, res) => {
     const [member] = await db.execute(
       `SELECT id, First_name, Last_Name, Middle_Name, status 
        FROM members_mst 
-       WHERE status ="Internal" and id = ?`,
+       WHERE LOWER(status) = 'internal' and id = ?`,
       [member_id]
     );
 
