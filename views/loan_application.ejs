@@ -4,44 +4,110 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Application</title>
-    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <title>Loan Application - Agali Awamu SACCO</title>
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+    
     <style>
+* { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+
+body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+.page-wrapper { 
+    margin-left: 220px !important;
+    margin-top: 60px; 
+    width: calc(100% - 220px) !important; 
+    max-width: 100%; 
+    transition: margin-left .22s ease, width .22s ease;
+}
+body.sidebar-collapsed .page-wrapper { 
+    margin-left: 60px !important; 
+    width: calc(100% - 60px) !important; 
+}
+@media (max-width: 991px) {
+    .page-wrapper { 
+        margin-left: 0 !important; 
+        width: 100% !important; 
+        max-width: 100%; 
+    }
+    .page-heading { padding: 12px 14px 0; }
+    .page-content { padding: 12px 14px 24px; }
+}
+
+.page-heading { padding: 14px 22px 0; }
+.page-heading h3 { font-size: 1.1rem; font-weight: 700; color: #1a1f2e; margin: 0; }
+
+.ibox { margin-bottom: 14px !important; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 6px rgba(26,31,46,.06); border: 1px solid #eaeef2; }
+.ibox-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid #eaeef2; background: #fff; }
+.ibox-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #718096; }
+.ibox-body { padding: 14px; background: #fff; }
+
+.page-content { padding: 12px 22px 24px; }
+.page-footer { padding: 12px 22px; font-size: .72rem; color: #a0aec0; text-align: center; border-top: 1px solid #eaeef2; background: #fff; }
+
+.form-group label { font-size: .75rem; font-weight: 600; color: #1a1f2e; margin-bottom: 5px; }
+.form-control, .form-select { font-size: .75rem; padding: 6px 10px; border: 1px solid #dee2e6; border-radius: 6px; background: #fff; }
+.form-control:focus, .form-select:focus { border-color: #00b894; box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1); }
+
+.section-title { font-size: .85rem; font-weight: 700; color: #1a1f2e; margin: 14px 0 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #eaeef2; padding-bottom: 8px; }
+.section-title i { color: #00b894; }
+
+.btn { font-size: .75rem; font-weight: 600; padding: 7px 16px; border-radius: 6px; transition: all .15s; }
+.btn-primary { background: #00b894; color: #fff; border: none; }
+.btn-primary:hover { background: #00a388; color: #fff; }
+.btn-secondary { background: #e9ecef; color: #555; border: none; }
+.btn-secondary:hover { background: #dee2e6; color: #333; }
+.btn-success { background: #00b894; color: #fff; border: none; }
+.btn-success:hover { background: #00a388; color: #fff; }
+
+.input-group .input-group-prepend { display: flex; }
+.input-group .input-group-append { display: flex; }
+.input-group .input-group-text, .input-group-prepend .btn, .input-group-append .btn { 
+    font-size: .75rem;
+    padding: 6px 10px;
+    border-color: #dee2e6;
+}
+
         .calculator-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
+            background: #f7fafc;
+            padding: 14px;
+            border-radius: 6px;
+            margin-top: 14px;
+            border: 1px solid #eaeef2;
         }
         .calc-result {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #dee2e6;
+            padding: 8px 0;
+            border-bottom: 1px solid #eaeef2;
+            font-size: .75rem;
         }
         .calc-result:last-child {
             border-bottom: none;
         }
         .calc-result.highlight {
-            background: #fff3cd;
-            padding: 10px 8px;
+            background: #f0f0f0;
+            padding: 8px 6px;
             border-radius: 4px;
-            border-bottom: none;
-            margin-top: 4px;
+            border-bottom: 1px solid #eaeef2;
+            margin-top: 2px;
+            color: #1a1f2e;
+            font-weight: 600;
         }
         .method-comparison {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            border-left: 4px solid #ffc107;
+            background: #f0f0f0;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            border-left: 3px solid #00b894;
         }
+        .method-comparison h6 { color: #00b894; font-size: .8rem; margin-bottom: 8px; }
         .fee-badge {
             display: inline-block;
-            background: #dc3545;
+            background: #f56565;
             color: #fff;
             font-size: 10px;
             font-weight: 700;
@@ -50,25 +116,22 @@
             margin-left: 6px;
             vertical-align: middle;
         }
+        .input-group-text { background: #f7fafc; border-color: #dee2e6; font-size: .75rem; }
+        .alert { font-size: .75rem; }
+        h6 { font-size: .85rem; font-weight: 700; color: #1a1f2e; }
     </style>
 </head>
 
-<body class="fixed-navbar">
+<body>
     <div class="page-wrapper">
         <%- include('partials/header') %>
         <%- include('partials/sidebar') %>
-
-        <div class="content-wrapper">
-            <div class="page-heading">
-                <h1 class="page-title">Loan Application</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
-                    <li class="breadcrumb-item">Loans</li>
-                    <li class="breadcrumb-item">Application</li>
-                </ol>
-            </div>
-
-            <div class="page-content fade-in-up">
+        
+        <div class="page-heading">
+            <h3><i class="fa fa-file-text" style="color: #00b894; margin-right: 8px;"></i>Loan Application</h3>
+        </div>
+        
+        <div class="page-content">
                 <div class="row">
 
                     <!-- ── Form ── -->
@@ -203,21 +266,19 @@
                 </div>
             </div>
 
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-                <a class="px-4" href="#" target="_blank">Contact Us</a>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
+            <div class="page-footer">
+                2026 © Agali Awamu SACCO — All rights reserved.
+            </div>
         </div>
     </div>
 
-    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
-    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
-    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-    <script src="assets/js/app.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="/assets/js/app.min.js"></script>
 
     <script>
         // Set today as default disbursement date
@@ -435,14 +496,20 @@
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, Disburse',
-                cancelButtonText: 'Cancel'
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#00b894'
             }).then(function (result) {
                 if (!result.isConfirmed) return;
 
                 $('#submitBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
 
-                Swal.fire({ title: 'Processing Loan', text: 'Please wait…',
-                    allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+                Swal.fire({ 
+                    title: 'Processing Loan', 
+                    text: 'Please wait…',
+                    allowOutsideClick: false, 
+                    confirmButtonColor: '#00b894',
+                    didOpen: function () { Swal.showLoading(); } 
+                });
 
                 $.ajax({
                     url: '/loans/create',
@@ -476,8 +543,12 @@
                         });
                     },
                     error: function (xhr) {
-                        Swal.fire({ icon: 'error', title: 'Loan Creation Failed',
-                            text: xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Something went wrong. Please try again.' });
+                        Swal.fire({ 
+                            icon: 'error', 
+                            title: 'Loan Creation Failed',
+                            text: xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Something went wrong. Please try again.',
+                            confirmButtonColor: '#00b894'
+                        });
                         $('#submitBtn').prop('disabled', false).html('<i class="fa fa-check"></i> Create &amp; Disburse Loan');
                     }
                 });
