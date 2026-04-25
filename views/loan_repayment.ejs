@@ -520,6 +520,20 @@
             return Number(loan.total_owed || 0);
         }
 
+        function getPendingInstallmentsTotal(schedule) {
+            if (!Array.isArray(schedule)) return 0;
+
+            return schedule.reduce((sum, item) => {
+                if (item.status !== 'Pending' && item.status !== 'Overdue') {
+                    return sum;
+                }
+
+                const expectedPayment = Number(item.expected_payment || 0);
+                const paidAmount = Number(item.paid_amount || 0);
+                return sum + Math.max(0, expectedPayment - paidAmount);
+            }, 0);
+        }
+
         function buildDetailRows(items) {
             return items.map(item => `
                 <div class="detail-row">
@@ -558,7 +572,7 @@
                 <div class="metric-card">
                     <div class="metric-label">Suggested Payment</div>
                     <div class="metric-value">${formatCurrency(suggestedAmount)}</div>
-                    <div class="metric-sub">Recovered so far ${formatCurrency(totalPaid)}</div>
+                    <div class="metric-sub">Total pending installments</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Status</div>
@@ -735,7 +749,7 @@
                 const history = Array.isArray(historyResponse.history) ? historyResponse.history : [];
                 paymentHistoryData = history;
                 const totalPaid = history.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-                const suggestedAmount = getEffectiveOutstanding(loan, totalPaid);
+                const suggestedAmount = getPendingInstallmentsTotal(schedule);
                 const pendingCount = schedule.filter(item => item.status === 'Pending' || item.status === 'Overdue').length;
 
                 loan.interest_last_30_days = detailsResponse.interest_last_30_days || 0;
