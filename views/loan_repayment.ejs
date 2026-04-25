@@ -520,18 +520,18 @@
             return Number(loan.total_owed || 0);
         }
 
-        function getPendingInstallmentsTotal(schedule) {
-            if (!Array.isArray(schedule)) return 0;
+        function getSuggestedInstallmentAmount(loan, schedule) {
+            const pendingInstallment = Array.isArray(schedule)
+                ? schedule.find(item => item.status === 'Pending' || item.status === 'Overdue')
+                : null;
 
-            return schedule.reduce((sum, item) => {
-                if (item.status !== 'Pending' && item.status !== 'Overdue') {
-                    return sum;
-                }
+            if (pendingInstallment) {
+                const expectedPayment = Number(pendingInstallment.expected_payment || 0);
+                const paidAmount = Number(pendingInstallment.paid_amount || 0);
+                return Math.max(0, expectedPayment - paidAmount);
+            }
 
-                const expectedPayment = Number(item.expected_payment || 0);
-                const paidAmount = Number(item.paid_amount || 0);
-                return sum + Math.max(0, expectedPayment - paidAmount);
-            }, 0);
+            return Number(loan.monthly_payment || 0);
         }
 
         function buildDetailRows(items) {
@@ -572,7 +572,7 @@
                 <div class="metric-card">
                     <div class="metric-label">Suggested Payment</div>
                     <div class="metric-value">${formatCurrency(suggestedAmount)}</div>
-                    <div class="metric-sub">Total pending installments</div>
+                    <div class="metric-sub">Current installment amount</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Status</div>
@@ -749,7 +749,7 @@
                 const history = Array.isArray(historyResponse.history) ? historyResponse.history : [];
                 paymentHistoryData = history;
                 const totalPaid = history.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-                const suggestedAmount = getPendingInstallmentsTotal(schedule);
+                const suggestedAmount = getSuggestedInstallmentAmount(loan, schedule);
                 const pendingCount = schedule.filter(item => item.status === 'Pending' || item.status === 'Overdue').length;
 
                 loan.interest_last_30_days = detailsResponse.interest_last_30_days || 0;
