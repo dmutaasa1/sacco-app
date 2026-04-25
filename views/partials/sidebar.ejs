@@ -414,6 +414,14 @@ body.sidebar-collapsed .sb-sub { display: none !important; }
                 </ul>
             </li>
 
+            <li class="<%= isActive(['savings_history']) %>">
+                <a class="sb-a" href="/savings_history">
+                    <span class="sb-ico"><i class="fa fa-piggy-bank"></i></span>
+                    <span class="sb-lbl">Savings</span>
+                    <span class="sb-tip">Savings</span>
+                </a>
+            </li>
+
             <li class="sb-section">Reports</li>
 
             <li class="<%= isActive(['membership_fee','welfare','Welfare','Insurance_cover','savings_report','loans_report','liquidity_report','financial_statements']) %>">

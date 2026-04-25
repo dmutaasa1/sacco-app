@@ -233,7 +233,7 @@ body.sidebar-collapsed .page-wrapper {
                                     <button class="btn btn-primary" type="submit" id="submitBtn">
                                         <i class="fa fa-check-circle"></i> Submit Transaction
                                     </button>
-                                    <a href="/transaction_list" class="btn btn-secondary">
+                                    <a href="/internal_transaction_listing" class="btn btn-secondary">
                                         <i class="fa fa-list"></i> View All
                                     </a>
                                 </div>
@@ -364,14 +364,20 @@ body.sidebar-collapsed .page-wrapper {
                             });
                         }
                     } else {
-                        // Member not found
                         resetMember();
-                        feedback.innerHTML = '<i class="fa fa-times-circle"></i> Member not found';
+                        const isWrongStatus = data.reason === 'invalid_status';
+                        feedback.innerHTML = isWrongStatus
+                            ? '<i class="fa fa-times-circle"></i> Account is not internal'
+                            : '<i class="fa fa-times-circle"></i> Member not found';
                         feedback.className = 'form-text text-danger';
                         memberInput.classList.add('member-invalid');
                         memberInput.classList.remove('member-valid');
-                        
-                        showNotFoundState(memberNo);
+
+                        if (isWrongStatus) {
+                            showInvalidStatusState(data);
+                        } else {
+                            showNotFoundState(memberNo);
+                        }
                     }
                 })
                 .catch(err => {
@@ -448,6 +454,18 @@ body.sidebar-collapsed .page-wrapper {
                     <i class="fa fa-exclamation-triangle" style="color: #ffc107;"></i>
                     <p><strong>Validation Error</strong></p>
                     <p class="text-muted small">Please try again</p>
+                </div>
+            `;
+        }
+
+        function showInvalidStatusState(data) {
+            const memberName = data.full_name || `Member #${data.member?.id || ''}`.trim();
+            memberInfoDisplay.innerHTML = `
+                <div class="waiting-state">
+                    <i class="fa fa-ban" style="color: #f0ad4e;"></i>
+                    <p><strong>Invalid Account Status</strong></p>
+                    <p class="text-muted small">${memberName} is marked as "${data.member?.status || 'Unknown'}"</p>
+                    <p class="text-muted small">Only members with status "internal" can post here</p>
                 </div>
             `;
         }
@@ -536,7 +554,7 @@ body.sidebar-collapsed .page-wrapper {
                     cancelButtonText: 'Add Another'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = '/transaction_list';
+                        window.location.href = '/internal_transaction_listing';
                     } else {
                         // Reset form but keep member
                         document.getElementById('member_trans').reset();
@@ -563,11 +581,10 @@ body.sidebar-collapsed .page-wrapper {
                     text: 'Could not submit transaction. Please try again.',
                     confirmButtonColor: '#00b894'
                 });
-                });
-                
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa fa-check-circle"></i> Submit Transaction';
             }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa fa-check-circle"></i> Submit Transaction';
         });
 
         // Amount formatting

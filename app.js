@@ -1156,6 +1156,7 @@ const pageRoutes = [
   'welfare',
   'Insurance_cover',
   'savings_report',
+  'savings_history',
   'member_add',
   'dependant_add',
   'transaction_list',
@@ -1262,7 +1263,7 @@ app.post('/member_txns', checkAuth, asyncHandler(async (req, res) => {
 
 // POST: Filter transactions
 app.post('/transactions/filter', asyncHandler(async (req, res) => {
-  const { startDate, endDate, memberStatus, excludeInternal, memberId, payment_period, transaction_type, start, length, draw } = req.body;
+  const { startDate, endDate, memberStatus, excludeInternal, savingsOnly, memberId, payment_period, transaction_type, start, length, draw } = req.body;
   const db = dbConfig;
   
   let query = `
@@ -1287,6 +1288,9 @@ app.post('/transactions/filter', asyncHandler(async (req, res) => {
   if (memberId) {
     query += ` AND t.member_id = ?`;
     params.push(memberId);
+  }
+  if (savingsOnly) {
+    query += ` AND t.transaction_type IN ('Saving', 'Savings Withdrawal')`;
   }
   if (payment_period) {
     query += ` AND t.payment_period = ?`;
@@ -1728,19 +1732,36 @@ app.get('/api/internal/:member_id', asyncHandler(async (req, res) => {
     const [member] = await db.execute(
       `SELECT id, First_name, Last_Name, Middle_Name, status 
        FROM members_mst 
-       WHERE LOWER(status) = 'internal' and id = ?`,
+       WHERE id = ?`,
       [member_id]
     );
 
     if (member.length === 0) {
       return res.json({
         success: false,
-        message: 'Member not found'
+        message: 'Member not found',
+        reason: 'not_found'
       });
     }
 
     const memberData = member[0];
     const fullName = `${memberData.First_name} ${memberData.Middle_Name || ''} ${memberData.Last_Name}`.trim();
+
+     if ((memberData.status || '').toLowerCase() !== 'internal') {
+      return res.json({
+        success: false,
+        message: 'Member is not an internal account',
+        reason: 'invalid_status',
+        member: {
+          id: memberData.id,
+          first_name: memberData.First_name,
+          middle_name: memberData.Middle_Name,
+          last_name: memberData.Last_Name,
+          status: memberData.status
+        },
+        full_name: fullName
+      });
+    }
 
     res.json({
       success: true,
