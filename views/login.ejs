@@ -1,125 +1,485 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>St Kizito Agali Awamu &amp;  Login</title>
-    <!-- GLOBAL MAINLY STYLES-->
-    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agali Awamu SACCO — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <!-- THEME STYLES-->
-    <link href="assets/css/main.css" rel="stylesheet" />
-    <!-- PAGE LEVEL STYLES-->
-    <link href="./assets/css/pages/auth-light.css" rel="stylesheet" />
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    height: 100%;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: #f0f4f8;
+    color: #1a1f2e;
+    overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════
+   LAYOUT — split screen
+═══════════════════════════════════════════════ */
+.login-page {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ── Left branding panel ── */
+.login-brand {
+    flex: 0 0 42%;
+    background: #0f1623;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative circles */
+.login-brand::before {
+    content: '';
+    position: absolute;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: rgba(0,184,148,.06);
+    top: -100px; left: -100px;
+}
+.login-brand::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(9,132,227,.06);
+    bottom: -80px; right: -60px;
+}
+
+.brand-inner { position: relative; z-index: 2; text-align: center; }
+
+.brand-logo {
+    width: 72px; height: 72px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #00b894, #0984e3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; font-weight: 800; color: #fff;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 32px rgba(0,184,148,.35);
+}
+
+.brand-name {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #f0f4ff;
+    letter-spacing: -.3px;
+    line-height: 1.15;
+}
+
+.brand-sub {
+    font-size: .72rem;
+    font-weight: 600;
+    color: #00b894;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    margin-top: 6px;
+}
+
+.brand-tagline {
+    margin-top: 32px;
+    font-size: .82rem;
+    color: rgba(255,255,255,.3);
+    line-height: 1.7;
+    max-width: 240px;
+}
+
+/* Stats row */
+.brand-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 40px;
+}
+.stat-item { text-align: center; }
+.stat-val {
+    font-size: 1.2rem; font-weight: 700;
+    color: #00b894;
+}
+.stat-lbl {
+    font-size: .62rem; font-weight: 600;
+    color: rgba(255,255,255,.25);
+    text-transform: uppercase; letter-spacing: .8px;
+    margin-top: 2px;
+}
+
+/* ── Right form panel ── */
+.login-form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: #f7fafc;
+    overflow-y: auto;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-card-head {
+    margin-bottom: 28px;
+}
+.login-card-head h2 {
+    font-size: 1.4rem; font-weight: 800;
+    color: #1a1f2e; margin-bottom: 4px;
+}
+.login-card-head p {
+    font-size: .8rem; color: #a0aec0; font-weight: 400;
+}
+
+/* ── Form elements ── */
+.form-field { margin-bottom: 16px; }
+
+.form-field label {
+    display: block;
+    font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: #718096; margin-bottom: 6px;
+}
+
+.input-wrap {
+    position: relative;
+}
+.input-wrap .f-icon {
+    position: absolute;
+    left: 12px; top: 50%; transform: translateY(-50%);
+    color: #a0aec0; font-size: .82rem;
+    pointer-events: none;
+    transition: color .15s;
+}
+.input-wrap input {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px 0 38px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    color: #1a1f2e;
+    background: #fff;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+}
+.input-wrap input::placeholder { color: #c0cad8; }
+.input-wrap input:focus {
+    border-color: #00b894;
+    box-shadow: 0 0 0 3px rgba(0,184,148,.12);
+}
+.input-wrap input:focus + .f-icon,
+.input-wrap:focus-within .f-icon { color: #00b894; }
+
+/* Password toggle */
+.pwd-toggle {
+    position: absolute;
+    right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: #a0aec0; font-size: .82rem; padding: 0;
+    transition: color .15s;
+}
+.pwd-toggle:hover { color: #718096; }
+
+/* Remember + forgot row */
+.form-extra {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.remember-label {
+    display: flex; align-items: center; gap: 7px;
+    font-size: .76rem; color: #718096; cursor: pointer;
+    user-select: none;
+}
+.remember-label input[type="checkbox"] {
+    width: 15px; height: 15px;
+    accent-color: #00b894; cursor: pointer;
+}
+.forgot-link {
+    font-size: .76rem; color: #00b894; font-weight: 600;
+    text-decoration: none; transition: color .15s;
+}
+.forgot-link:hover { color: #00a37d; }
+
+/* Submit button */
+.btn-login {
+    width: 100%; height: 46px;
+    background: linear-gradient(135deg, #00b894, #00a37d);
+    color: #fff; border: none;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .9rem; font-weight: 700;
+    cursor: pointer; letter-spacing: .2px;
+    transition: transform .12s, box-shadow .12s, background .15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-login:hover {
+    background: linear-gradient(135deg, #00a37d, #009166);
+    box-shadow: 0 6px 20px rgba(0,184,148,.32);
+    transform: translateY(-1px);
+}
+.btn-login:active { transform: translateY(0); box-shadow: none; }
+.btn-login:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+/* Member login link */
+.member-link {
+    margin-top: 20px;
+    text-align: center;
+    padding: 14px;
+    background: rgba(66,153,225,.06);
+    border: 1px solid rgba(66,153,225,.15);
+    border-radius: 9px;
+    font-size: .78rem; color: #718096;
+}
+.member-link a {
+    color: #4299e1; font-weight: 600; text-decoration: none;
+    transition: color .15s;
+}
+.member-link a:hover { color: #2b6cb0; }
+
+/* Error alert */
+.login-error {
+    background: rgba(229,62,62,.07);
+    border: 1px solid rgba(229,62,62,.2);
+    border-left: 3px solid #e53e3e;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: .78rem; color: #c53030;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+}
+
+/* Divider */
+.login-divider {
+    text-align: center;
+    font-size: .65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .8px;
+    color: #cbd5e0; margin: 22px 0 4px;
+}
+
+/* Footer note */
+.login-footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: .68rem; color: #c0cad8;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — mobile: stack vertically
+═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    html, body { overflow: auto; }
+    .login-page { flex-direction: column; height: auto; min-height: 100vh; }
+    .login-brand {
+        flex: 0 0 auto;
+        padding: 32px 24px;
+        flex-direction: row;
+        gap: 16px;
+        justify-content: flex-start;
+    }
+    .login-brand::before, .login-brand::after { display: none; }
+    .brand-inner { display: flex; align-items: center; gap: 14px; text-align: left; }
+    .brand-logo  { width: 44px; height: 44px; border-radius: 12px; font-size: 1.1rem; margin: 0; flex-shrink: 0; }
+    .brand-name  { font-size: 1rem; }
+    .brand-sub   { margin-top: 3px; }
+    .brand-tagline, .brand-stats { display: none; }
+    .login-form-panel { padding: 28px 20px 40px; }
+}
+</style>
 </head>
 
-<body class="bg-silver-300">
-    <div class="content">
-        <div class="brand">
-            <h2>St Kizito Agali Awamu</h2>
-             <% if (error) { %>
-    <p style="color:red;"><%= error %></p>
-  <% } %>
+<body>
+<div class="login-page">
+
+    <!-- ── Brand panel ── -->
+    <div class="login-brand">
+        <div class="brand-inner">
+            <div class="brand-logo">AW</div>
+            <div>
+                <div class="brand-name">Agali Awamu<br>SACCO</div>
+                <div class="brand-sub">Admin Portal</div>
+            </div>
+            <div class="brand-tagline">
+                Manage member accounts, loans, savings, and financial reports — all in one place.
+            </div>
+            <div class="brand-stats">
+                <div class="stat-item">
+                    <div class="stat-val">Secure</div>
+                    <div class="stat-lbl">Access</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val">Real-time</div>
+                    <div class="stat-lbl">Data</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val">Full</div>
+                    <div class="stat-lbl">Control</div>
+                </div>
+            </div>
         </div>
-        <form id="login-form"  method="post" action="/login">
-            <h2 class="login-title">Log in</h2>
-            <div class="form-group">
-                <div class="input-group-icon right">
-                    <div class="input-icon"><i class="fa fa-envelope"></i></div>
-                    <input class="form-control"  name="username" placeholder="Username" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="input-group-icon right">
-                    <div class="input-icon"><i class="fa fa-lock font-16"></i></div>
-                    <input class="form-control" type="password" name="password" placeholder="Password">
-                </div>
-            </div>
-            <div class="form-group d-flex justify-content-between">
-                <label class="ui-checkbox ui-checkbox-info">
-                    <input type="checkbox">
-                    <span class="input-span"></span>Remember me</label>
-                <a href="forgot_password.html">Forgot password?</a>
-            </div>
-            <div class="form-group">
-                <button class="btn btn-info btn-block" type="submit">Login</button>
-            </div>
-            
-           
-          
-        </form>
     </div>
-    <!-- BEGIN PAGA BACKDROPS-->
-    <div class="sidenav-backdrop backdrop"></div>
-    <div class="preloader-backdrop">
-        <div class="page-preloader">Loading</div>
-    </div>
-    <!-- END PAGA BACKDROPS-->
-    
 
-    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
-<script src="./assets/vendors/jquery-validation/dist/jquery.validate.min.js"></script>
+    <!-- ── Form panel ── -->
+    <div class="login-form-panel">
+        <div class="login-card">
+
+            <div class="login-card-head">
+                <h2>Welcome back</h2>
+                <p>Sign in to your admin account to continue</p>
+            </div>
+
+            <!-- Server-side error -->
+            <% if (typeof error !== 'undefined' && error) { %>
+            <div class="login-error">
+                <i class="fa fa-exclamation-circle"></i>
+                <%= error %>
+            </div>
+            <% } %>
+
+            <!-- JS error placeholder -->
+            <div class="login-error" id="jsError" style="display:none;">
+                <i class="fa fa-exclamation-circle"></i>
+                <span id="jsErrorMsg"></span>
+            </div>
+
+            <form id="login-form">
+
+                <div class="form-field">
+                    <label>Username</label>
+                    <div class="input-wrap">
+                        <input type="text" name="username" placeholder="Enter your username"
+                               autocomplete="username" required />
+                        <i class="f-icon fa fa-user-o"></i>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Password</label>
+                    <div class="input-wrap">
+                        <input type="password" name="password" id="passwordField"
+                               placeholder="Enter your password"
+                               autocomplete="current-password" required />
+                        <i class="f-icon fa fa-lock"></i>
+                        <button type="button" class="pwd-toggle" id="togglePwd" tabindex="-1">
+                            <i class="fa fa-eye" id="togglePwdIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-extra">
+                    <label class="remember-label">
+                        <input type="checkbox" name="remember" />
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <i class="fa fa-sign-in"></i> Sign In
+                </button>
+
+            </form>
+
+            <div class="login-divider">or</div>
+
+            <div class="member-link">
+                Are you a member? &nbsp;
+                <a href="/member-login"><i class="fa fa-user"></i> Member Login →</a>
+            </div>
+
+            <div class="login-footer">
+                &copy; <%= new Date().getFullYear() %> Agali Awamu SACCO. All rights reserved.
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
 <script>
-  $(function() {
-    $('#login-form').validate({
-      errorClass: "help-block",
-      rules: {
-        username: {
-          required: true
-        },
-        password: {
-          required: true
+$(function () {
+
+    /* ── Password visibility toggle ── */
+    $('#togglePwd').on('click', function () {
+        var field = $('#passwordField');
+        var icon  = $('#togglePwdIcon');
+        if (field.attr('type') === 'password') {
+            field.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            field.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
         }
-      },
-      highlight: function(e) {
-        $(e).closest(".form-group").addClass("has-error");
-      },
-      unhighlight: function(e) {
-        $(e).closest(".form-group").removeClass("has-error");
-      },
-      submitHandler: function(form) {
-        $.ajax({
-          url: '/login',
-          type: 'POST',
-          data: $(form).serialize(),
-          success: function(response) {
-            // Redirect based on role
-            if (response && response.role === 'member') {
-              window.location.href = '/member/dashboard';
-            } else {
-              window.location.href = '/';
-            }
-          },
-          error: function(xhr) {
-            // Show error as popup alert
-            const errorMsg = xhr.responseJSON && xhr.responseJSON.error 
-                             ? xhr.responseJSON.error 
-                             : 'Login failed. Please try again.';
-            alert(errorMsg);
-          }
-        });
-      }
     });
-  });
+
+    /* ── Show error ── */
+    function showError(msg) {
+        $('#jsErrorMsg').text(msg);
+        $('#jsError').show();
+    }
+    function hideError() {
+        $('#jsError').hide();
+    }
+
+    /* ── Submit ── */
+    $('#login-form').on('submit', function (e) {
+        e.preventDefault();
+        hideError();
+
+        var username = $('input[name="username"]').val().trim();
+        var password = $('input[name="password"]').val();
+
+        if (!username || !password) {
+            showError('Please enter both username and password.');
+            return;
+        }
+
+        var btn = $('#loginBtn');
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Signing in…');
+
+        $.ajax({
+            url: '/login',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ username: username, password: password }),
+            success: function (response) {
+                if (response && response.role === 'member') {
+                    window.location.href = '/member/dashboard';
+                } else {
+                    window.location.href = '/';
+                }
+            },
+            error: function (xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.error)
+                    ? xhr.responseJSON.error
+                    : 'Login failed. Please check your credentials.';
+                showError(msg);
+                btn.prop('disabled', false).html('<i class="fa fa-sign-in"></i> Sign In');
+            }
+        });
+    });
+
+    /* ── Enter key on any field ── */
+    $('input').on('keypress', function (e) {
+        if (e.which === 13) { $('#login-form').submit(); }
+    });
+
+});
 </script>
-
-    <!-- CORE PLUGINS -->
-    <script src="./assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL PLUGINS -->
-    <script src="./assets/vendors/jquery-validation/dist/jquery.validate.min.js" type="text/javascript"></script>
-    <!-- CORE SCRIPTS-->
-    <script src="assets/js/app.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL SCRIPTS-->
-    
-
-    
 </body>
-
 </html>
-
-
