@@ -1262,7 +1262,7 @@ app.post('/member_txns', checkAuth, asyncHandler(async (req, res) => {
 
 // POST: Filter transactions
 app.post('/transactions/filter', asyncHandler(async (req, res) => {
-  const { startDate, endDate, memberStatus, memberId, payment_period, transaction_type, start, length, draw } = req.body;
+  const { startDate, endDate, memberStatus, excludeInternal, memberId, payment_period, transaction_type, start, length, draw } = req.body;
   const db = dbConfig;
   
   let query = `
@@ -1280,6 +1280,9 @@ app.post('/transactions/filter', asyncHandler(async (req, res) => {
   if (memberStatus) {
     query += ` AND m.status = ?`;
     params.push(memberStatus);
+  }
+  if (excludeInternal) {
+    query += ` AND LOWER(m.status) <> 'internal'`;
   }
   if (memberId) {
     query += ` AND t.member_id = ?`;
