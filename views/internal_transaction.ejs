@@ -157,17 +157,17 @@ body.sidebar-collapsed .page-wrapper {
                                         <div class="form-group">
                                             <label>Transaction Date <span style="color: #f56565;">*</span></label>
                                             <div class="input-group date">
-                                                <span class="input-group-addon bg-white">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text bg-white">
                                                     <i class="fa fa-calendar"></i>
-                                                </span>
+                                                    </span>
+                                                </div>
                                                 <input 
                                                     class="form-control" 
-                                                    type="text" 
+                                                    type="date" 
                                                     name="tran_date"
                                                     id="tran_date"
-                                                    placeholder="YYYY/MM/DD"
                                                     required
-                                                    readonly
                                                 >
                                             </div>
                                         </div>
@@ -270,22 +270,25 @@ body.sidebar-collapsed .page-wrapper {
         const feedback = document.getElementById('memberFeedback');
         const memberInfoDisplay = document.getElementById('memberInfoDisplay');
 
-        // Initialize date picker - use HTML5 date input
+        // Initialize native HTML date input
         $(document).ready(function () {
-            console.log('Initializing date handler...');
-            
-            // Set today's date on page load
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
-            const dateStr = `${year}/${month}/${day}`;
+            const dateStr = `${year}-${month}-${day}`;
             
             $('#tran_date').val(dateStr);
             
-            // Allow calendar icon to open date picker
-            $('.input-group-addon').on('click', function() {
-                $('#tran_date').trigger('focus');
+            // Allow calendar icon to open the browser picker where supported
+            $('.input-group-text').on('click', function() {
+                const input = document.getElementById('tran_date');
+                if (input.showPicker) {
+                    input.showPicker();
+                } else {
+                    input.focus();
+                    input.click();
+                }
             });
         });
 
@@ -544,7 +547,7 @@ body.sidebar-collapsed .page-wrapper {
                         const year = today.getFullYear();
                         const month = String(today.getMonth() + 1).padStart(2, '0');
                         const day = String(today.getDate()).padStart(2, '0');
-                        $('#tran_date').val(`${year}/${month}/${day}`);
+                        $('#tran_date').val(`${year}-${month}-${day}`);
                         
                         // Re-enable button
                         submitBtn.disabled = false;
