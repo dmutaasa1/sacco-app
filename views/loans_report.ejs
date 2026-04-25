@@ -3,249 +3,510 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loans Report</title>
-    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <link href="./assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
-    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-        .summary-cards {
-            margin-bottom: 30px;
-            
+        * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+
+        body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+        .page-wrapper {
+            margin-left: 220px !important;
+            margin-top: 60px;
+            width: calc(100% - 220px) !important;
+            max-width: 100%;
+            transition: margin-left .22s ease, width .22s ease;
         }
-        .summary-card {
-            background: white;
-            padding: 5px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
+        body.sidebar-collapsed .page-wrapper {
+            margin-left: 60px !important;
+            width: calc(100% - 60px) !important;
         }
-        .summary-card .value {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 10px 0;
+        @media (max-width: 991px) {
+            .page-wrapper {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100%;
+            }
+            .page-heading { padding: 12px 14px 0; }
+            .page-content { padding: 12px 14px 24px; }
         }
-        .summary-card .label {
-            color: #6c757d;
-            font-size: 14px;
+
+        .page-heading { padding: 14px 22px 0; }
+        .page-heading h3 { font-size: 1.1rem; font-weight: 700; color: #1a1f2e; margin: 0; }
+        .page-subtitle { margin-top: 4px; color: #718096; font-size: .78rem; }
+        .page-content { padding: 12px 22px 24px; }
+        .page-footer { padding: 12px 22px; font-size: .72rem; color: #a0aec0; text-align: center; border-top: 1px solid #eaeef2; background: #fff; }
+
+        .hero-strip {
+            background: linear-gradient(135deg, #00b894 0%, #008f76 100%);
+            border-radius: 10px;
+            color: #fff;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 12px 30px rgba(0, 184, 148, 0.16);
         }
-        .summary-card.primary .value { color: #007bff; }
-        .summary-card.success .value { color: #28a745; }
-        .summary-card.warning .value { color: #ffc107; }
-        .summary-card.danger .value { color: #dc3545; }
-        .summary-card.info .value { color: #17a2b8; }
-        
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 0.85rem;
-            font-weight: bold;
+        .hero-strip .title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
-        .status-active { background: #28a745; color: white; }
-        .status-pending { background: #ffc107; color: black; }
-        .status-completed { background: #17a2b8; color: white; }
-        .status-defaulted { background: #dc3545; color: white; }
-        
-        .payment-status-completed { color: #28a745; font-weight: bold; }
-        .payment-status-has-overdue { color: #dc3545; font-weight: bold; }
-        .payment-status-active { color: #007bff; font-weight: bold; }
-        .payment-status-up-to-date { color: #17a2b8; font-weight: bold; }
+        .hero-strip .meta {
+            font-size: .78rem;
+            opacity: .92;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 1199px) {
+            .summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 767px) {
+            .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 575px) {
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+        .metric-card {
+            background: #fff;
+            border: 1px solid #eaeef2;
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 104px;
+            box-shadow: 0 1px 6px rgba(26,31,46,.06);
+        }
+        .metric-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1f2e;
+            line-height: 1.35;
+        }
+        .metric-sub {
+            margin-top: 6px;
+            font-size: .72rem;
+            color: #718096;
+        }
+
+        .ibox {
+            margin-bottom: 14px !important;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 6px rgba(26,31,46,.06);
+            border: 1px solid #eaeef2;
+        }
+        .ibox-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #eaeef2;
+            background: #fff;
+            flex-wrap: wrap;
+        }
+        .ibox-title {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #718096;
+        }
+        .ibox-body { padding: 14px; background: #fff; }
+
+        .btn {
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .btn-sm { padding: 5px 12px; font-size: .7rem; }
+        .btn-primary { background: #00b894; border: none; color: #fff; }
+        .btn-primary:hover { background: #00a388; color: #fff; }
+        .btn-secondary { background: #edf2f7; border: none; color: #2d3748; }
+        .btn-secondary:hover { background: #e2e8f0; color: #1a202c; }
+        .btn-outline-primary { border: 1px solid #00b894; color: #00b894; background: #fff; }
+        .btn-outline-primary:hover { background: #00b894; color: #fff; }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+        @media (max-width: 1199px) {
+            .filters-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 575px) {
+            .filters-grid { grid-template-columns: 1fr; }
+        }
+        .form-group label {
+            font-size: .75rem;
+            font-weight: 600;
+            color: #1a1f2e;
+            margin-bottom: 5px;
+        }
+        .form-control, .form-select {
+            font-size: .75rem;
+            padding: 8px 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: #fff;
+            min-height: 38px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #00b894;
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: .68rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .status-active { background: rgba(49, 130, 206, .12); color: #2b6cb0; }
+        .status-pending { background: rgba(221, 107, 32, .14); color: #c05621; }
+        .status-completed { background: rgba(56, 161, 105, .12); color: #2f855a; }
+        .status-defaulted { background: rgba(229, 62, 62, .12); color: #c53030; }
+        .payment-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: .68rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .payment-completed { background: rgba(56, 161, 105, .12); color: #2f855a; }
+        .payment-has-overdue { background: rgba(229, 62, 62, .12); color: #c53030; }
+        .payment-active { background: rgba(49, 130, 206, .12); color: #2b6cb0; }
+        .payment-up-to-date { background: rgba(66, 153, 225, .12); color: #2c5282; }
+
+        .table-responsive { overflow-x: auto; }
+        #loansReportTable {
+            width: 100% !important;
+            font-size: .75rem;
+        }
+        #loansReportTable thead th {
+            padding: 7px 8px;
+            font-size: .72rem;
+            font-weight: 700;
+            background: #f7fafc;
+            border-bottom: 2px solid #eaeef2;
+            color: #1a1f2e;
+            white-space: nowrap;
+        }
+        #loansReportTable tbody td {
+            padding: 7px 8px;
+            vertical-align: middle;
+            border-color: #eaeef2;
+        }
+        #loansReportTable tbody tr:hover { background: #f7fafc; }
+        .text-right { text-align: right !important; }
+
+        .dataTables_wrapper { font-size: .75rem; }
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: .75rem;
+        }
+        .dataTables_wrapper .pagination .page-link {
+            font-size: .75rem;
+            padding: .4rem .6rem;
+            color: #00b894;
+        }
+        .dataTables_wrapper .pagination .page-item.active .page-link {
+            background: #00b894;
+            border-color: #00b894;
+        }
+
+        @media print {
+            body { background: #fff !important; }
+            .page-heading,
+            .page-footer,
+            .ibox-tools,
+            .filters-grid,
+            .dataTables_length,
+            .dataTables_filter,
+            .dataTables_info,
+            .dataTables_paginate,
+            .sidebar,
+            .header,
+            .page-header { display: none !important; }
+
+            .page-wrapper,
+            body.sidebar-collapsed .page-wrapper {
+                margin: 0 !important;
+                width: 100% !important;
+            }
+
+            .ibox,
+            .metric-card,
+            .hero-strip {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+
+            .hero-strip {
+                color: #1a1f2e !important;
+                background: #fff !important;
+            }
+        }
     </style>
 </head>
-
-<body class="fixed-navbar">
+<body>
     <div class="page-wrapper">
         <%- include('partials/header') %>
         <%- include('partials/sidebar') %>
-        
-        <div class="content-wrapper">
-            <div class="page-heading">
-                <h1 class="page-title">Loans Report</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="index.html"><i class="la la-home font-20"></i></a>
-                    </li>
-                    <li class="breadcrumb-item">Reports</li>
-                    <li class="breadcrumb-item">Loans Report</li>
-                </ol>
+
+        <div class="page-heading">
+            <h3><i class="fa fa-line-chart" style="color: #00b894; margin-right: 8px;"></i>Loans Report</h3>
+            <div class="page-subtitle">Portfolio performance, disbursement trend, collections, and repayment status in one view.</div>
+        </div>
+
+        <div class="page-content">
+            <div class="hero-strip">
+                <div class="title">Loan portfolio overview</div>
+                <div class="meta">Report rows are ordered by most recent disbursement date first.</div>
             </div>
-            
-            <div class="page-content fade-in-up">
-                <!-- Summary Cards -->
-                <div class="summary-cards">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <div class="summary-card primary">
-                                <div class="label">Total Loans</div>
-                                <div class="value" id="totalLoans">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="summary-card success">
-                                <div class="label">Active Loans</div>
-                                <div class="value" id="activeLoans">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="summary-card success">
-                                <div class="label">Completed Loans</div>
-                                <div class="value" id="completedLoans">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="summary-card warning">
-                                <div class="label">Loans Overdue</div>
-                                <div class="value" id="loansOverdue">-</div>
-                            </div>
-                        </div>
-                          <div class="col-md-2">
-                            <div class="summary-card danger">
-                                <div class="label">Defaulted Loans</div>
-                                <div class="value" id="defaultedLoans">-</div>
-                            </div>
-                        </div>
-                         <div class="col-md-2">
-                            <div class="summary-card primary">
-                                <div class="label">Quick Loans</div>
-                                <div class="value" id="quickLoans">-</div>
-                            </div>
-                        </div>
-                      
-                      
-                        
-                    </div>
-                    <div class="row" style="margin-top: 15px;">
 
-                          <div class="col-md-3">
-                            <div class="summary-card info">
-                                <div class="label">Total Disbursed</div>
-                                <div class="value" id="totalDisbursed">-</div>
-                            </div>
-                        </div>
-                       
-                      
-                        
-                        <div class="col-md-3">
-                            <div class="summary-card warning">
-                                <div class="label">Total Outstanding</div>
-                                <div class="value" id="totalOutstanding">-</div>
-                            </div>
-                        </div>
+            <div class="summary-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Total Loans</div>
+                    <div class="metric-value" id="totalLoans">-</div>
+                    <div class="metric-sub">All loan records</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Active Loans</div>
+                    <div class="metric-value" id="activeLoans">-</div>
+                    <div class="metric-sub">Open accounts in recovery</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Completed Loans</div>
+                    <div class="metric-value" id="completedLoans">-</div>
+                    <div class="metric-sub">Fully cleared loans</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Overdue Loans</div>
+                    <div class="metric-value" id="loansOverdue">-</div>
+                    <div class="metric-sub">Loans with overdue installments</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Defaulted Loans</div>
+                    <div class="metric-value" id="defaultedLoans">-</div>
+                    <div class="metric-sub">Accounts marked defaulted</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Quick Loans</div>
+                    <div class="metric-value" id="quickLoans">-</div>
+                    <div class="metric-sub">Simple interest active loans</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Disbursed</div>
+                    <div class="metric-value" id="totalDisbursed">-</div>
+                    <div class="metric-sub">Principal issued</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Outstanding</div>
+                    <div class="metric-value" id="totalOutstanding">-</div>
+                    <div class="metric-sub">Current open exposure</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Collected</div>
+                    <div class="metric-value" id="totalCollected">-</div>
+                    <div class="metric-sub">Paid installments received</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Interest Collected</div>
+                    <div class="metric-value" id="totalinterest">-</div>
+                    <div class="metric-sub">Interest already paid</div>
+                </div>
+            </div>
 
-                        <div class="col-md-3">
-                            <div class="summary-card info">
-                                <div class="label">Total Collected</div>
-                                <div class="value" id="totalCollected">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="summary-card info">
-                                <div class="label">Total Interest</div>
-                                <div class="value" id="totalinterest">-</div>
-                            </div>
-                        </div>
-                        
+            <div class="ibox">
+                <div class="ibox-head">
+                    <div class="ibox-title">Filters & Actions</div>
+                    <div class="ibox-tools">
+                        <button class="btn btn-outline-primary btn-sm" id="excelExportBtn">
+                            <i class="fa fa-file-excel-o"></i> Excel Export
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="pdfExportBtn">
+                            <i class="fa fa-file-pdf-o"></i> PDF Print
+                        </button>
                     </div>
                 </div>
-
-                <div class="ibox">
-                    <div class="ibox-head">
-                        <div class="ibox-title">Loans Report</div>
-                        <div class="ibox-tools">
-                            <button class="btn btn-success btn-sm" id="exportBtn">
-                                <i class="fa fa-file-excel-o"></i> Export to CSV
-                            </button>
-                            <button class="btn btn-info btn-sm" onclick="window.print()">
-                                <i class="fa fa-print"></i> Print
-                            </button>
+                <div class="ibox-body">
+                    <div class="filters-grid">
+                        <div class="form-group mb-0">
+                            <label for="memberId">Member ID</label>
+                            <input type="text" id="memberId" class="form-control" placeholder="Member ID">
                         </div>
-                    </div>
-                    
-                    <!-- Filters -->
-                    <div class="ibox-body">
-                        <div class="row" style="margin-bottom: 15px;">
-                            <div class="col-md-2">
-                                <label>Member ID:</label>
-                                <input type="text" id="memberId" placeholder="Member ID" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-md-3">
-                                <label>Member Name:</label>
-                                <input type="text" id="memberName" placeholder="Member Name" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-md-2">
-                                <label>Status:</label>
-                                <select id="loanStatus" class="form-control form-control-sm">
-                                    <option value="">-- All --</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Completed">Completed</option>
-                                    <option value="Defaulted">Defaulted</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label>Start Date:</label>
-                                <input type="date" id="startDate" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-md-2">
-                                <label>End Date:</label>
-                                <input type="date" id="endDate" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-md-1" style="padding-top: 25px;">
-                                <button id="filterBtn" class="btn btn-primary btn-sm btn-block">Filter</button>
-                            </div>
+                        <div class="form-group mb-0">
+                            <label for="memberName">Member Name</label>
+                            <input type="text" id="memberName" class="form-control" placeholder="Member name">
                         </div>
-
-                        <hr>
-
-                        <!-- DataTable -->
-                        <div class="table-responsive">
-                            <table id="loansReportTable" class="table table-striped table-bordered table-hover" style="width:100%; font-size: 0.9rem;">
-                                <thead>
-                                    <tr>
-                                        <th>SN</th>
-                                        <th>Loan ID</th>
-                                        <th>Member</th>
-                                        <th>Phone</th>
-                                        <th>Amount</th>
-                                        <th>Rate</th>
-                                        <th>Term</th>
-                                        <th>Monthly Payment</th>
-                                        <th>Balance</th>
-                                        <th>Paid</th>
-                                        <th>Pending</th>
-                                        <th>Overdue</th>
-                                        <th>Disbursed</th>
-                                        <th>Status</th>
-                                        <th>Payment Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                            </table>
+                        <div class="form-group mb-0">
+                            <label for="loanStatus">Status</label>
+                            <select id="loanStatus" class="form-control">
+                                <option value="">All statuses</option>
+                                <option value="Active">Active</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Defaulted">Defaulted</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label>&nbsp;</label>
+                            <div style="display:flex; gap:10px;">
+                                <button id="filterBtn" class="btn btn-primary btn-sm btn-block">
+                                    <i class="fa fa-filter"></i> Apply
+                                </button>
+                                <button id="clearBtn" class="btn btn-secondary btn-sm btn-block">
+                                    <i class="fa fa-undo"></i> Clear
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-                <a class="px-4" href="#" target="_blank">Contact Us</a>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
+
+            <div class="ibox">
+                <div class="ibox-head">
+                    <div class="ibox-title">Loan Report Table</div>
+                </div>
+                <div class="ibox-body">
+                    <div class="table-responsive">
+                        <table id="loansReportTable" class="table table-striped table-bordered table-hover" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>SN</th>
+                                    <th>Loan ID</th>
+                                    <th>Member</th>
+                                    <th>Phone</th>
+                                    <th class="text-right">Amount</th>
+                                    <th>Rate</th>
+                                    <th>Term</th>
+                                    <th class="text-right">Monthly</th>
+                                    <th class="text-right">Balance</th>
+                                    <th>Paid</th>
+                                    <th>Pending</th>
+                                    <th>Overdue</th>
+                                    <th>Disbursed</th>
+                                    <th>Status</th>
+                                    <th>Payment Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            2026 © Agali Awamu SACCO — All rights reserved.
         </div>
     </div>
 
-    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
-    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
-    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
-    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-    <script src="./assets/vendors/DataTables/datatables.min.js"></script>
-    <script src="assets/js/app.min.js"></script>
-
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="/assets/vendors/DataTables/datatables.min.js"></script>
+    <script src="/assets/js/app.min.js"></script>
     <script>
-        // Load summary statistics
+        function formatCurrency(value) {
+            return 'UGX ' + Number(value || 0).toLocaleString('en-UG', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatDate(value) {
+            if (!value) return '-';
+            const parsed = new Date(value);
+            if (Number.isNaN(parsed.getTime())) return '-';
+            return parsed.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getFilterPayload() {
+            return {
+                memberId: $('#memberId').val(),
+                memberName: $('#memberName').val(),
+                loanStatus: $('#loanStatus').val(),
+                startDate: $('#startDate').val(),
+                endDate: $('#endDate').val()
+            };
+        }
+
+        function paymentStatusPill(status) {
+            const normalized = String(status || '').toLowerCase().replace(/ /g, '-');
+            const classMap = {
+                completed: 'payment-completed',
+                'has-overdue': 'payment-has-overdue',
+                active: 'payment-active',
+                'up-to-date': 'payment-up-to-date'
+            };
+            const pillClass = classMap[normalized] || 'payment-active';
+            return '<span class="payment-pill ' + pillClass + '">' + escapeHtml(status || 'Unknown') + '</span>';
+        }
+
+        function loanStatusPill(status) {
+            const normalized = String(status || '').toLowerCase();
+            const classMap = {
+                active: 'status-active',
+                pending: 'status-pending',
+                completed: 'status-completed',
+                defaulted: 'status-defaulted'
+            };
+            const pillClass = classMap[normalized] || 'status-pending';
+            return '<span class="status-pill ' + pillClass + '">' + escapeHtml(status || 'Pending') + '</span>';
+        }
+
         function loadSummary() {
             $.ajax({
                 url: '/reports/loans-summary',
@@ -256,41 +517,204 @@
                     $('#completedLoans').text(data.completed_loans || 0);
                     $('#quickLoans').text(data.quick_loans || 0);
                     $('#defaultedLoans').text(data.defaulted_loans || 0);
-                    $('#totalDisbursed').text('UGX ' + (parseFloat(data.total_disbursed || 0)).toLocaleString());
-                    $('#totalOutstanding').text('UGX ' + (parseFloat(data.total_outstanding || 0)).toLocaleString());
-                    $('#totalCollected').text('UGX ' + (parseFloat(data.total_collected || 0)).toLocaleString());
-                    $('#totalinterest').text('UGX ' + (parseFloat(data.Interest_Paid || 0)).toLocaleString());
                     $('#loansOverdue').text(data.loans_with_overdue || 0);
-                },
-                error: function() {
-                    console.error('Error loading summary');
+                    $('#totalDisbursed').text(formatCurrency(data.total_disbursed || 0));
+                    $('#totalOutstanding').text(formatCurrency(data.total_outstanding || 0));
+                    $('#totalCollected').text(formatCurrency(data.total_collected || 0));
+                    $('#totalinterest').text(formatCurrency(data.Interest_Paid || 0));
                 }
             });
         }
 
-        $(document).ready(function () {
-            // Load summary on page load
+        async function fetchAllLoansRows() {
+            const payload = {
+                ...getFilterPayload(),
+                start: 0,
+                length: 10000,
+                draw: 1
+            };
+
+            const response = await $.ajax({
+                url: '/reports/loans-report',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload)
+            });
+
+            return Array.isArray(response.data) ? response.data : [];
+        }
+
+        function exportLoansExcel(rows) {
+            if (!rows.length) {
+                alert('No loan rows available for export.');
+                return;
+            }
+
+            let tableHtml = `
+                <table>
+                    <tr><th colspan="16">Loans Report</th></tr>
+                    <tr><td>Generated</td><td>${escapeHtml(formatDate(new Date().toISOString()))}</td></tr>
+                </table>
+                <br />
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>Loan ID</th>
+                            <th>Member ID</th>
+                            <th>Member</th>
+                            <th>Phone</th>
+                            <th>Loan Amount</th>
+                            <th>Interest Rate</th>
+                            <th>Term</th>
+                            <th>Monthly Payment</th>
+                            <th>Balance</th>
+                            <th>Paid</th>
+                            <th>Pending</th>
+                            <th>Overdue</th>
+                            <th>Disbursed</th>
+                            <th>Status</th>
+                            <th>Payment Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            rows.forEach(row => {
+                tableHtml += `
+                    <tr>
+                        <td>${escapeHtml(row.loan_id)}</td>
+                        <td>${escapeHtml(row.member_id)}</td>
+                        <td>${escapeHtml(row.member_name)}</td>
+                        <td>${escapeHtml(row.tel_no)}</td>
+                        <td>${escapeHtml(Number(row.loan_amount || 0))}</td>
+                        <td>${escapeHtml(Number(row.interest_rate || 0))}%</td>
+                        <td>${escapeHtml(row.loan_term_months)} months</td>
+                        <td>${escapeHtml(Number(row.monthly_payment || 0))}</td>
+                        <td>${escapeHtml(Number(row.balance || 0))}</td>
+                        <td>${escapeHtml(row.payments_made)}</td>
+                        <td>${escapeHtml(row.payments_pending)}</td>
+                        <td>${escapeHtml(row.payments_overdue)}</td>
+                        <td>${escapeHtml(formatDate(row.disbursement_date))}</td>
+                        <td>${escapeHtml(row.status)}</td>
+                        <td>${escapeHtml(row.payment_status)}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += '</tbody></table>';
+
+            const blob = new Blob(['\ufeff' + tableHtml], { type: 'application/vnd.ms-excel' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'loans-report.xls';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        function printLoansPdf(rows) {
+            if (!rows.length) {
+                alert('No loan rows available for printing.');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank', 'width=1200,height=800');
+            if (!printWindow) {
+                alert('Please allow popups to print the report.');
+                return;
+            }
+
+            const summaryCardsHtml = document.querySelector('.summary-grid').innerHTML;
+            const rowsHtml = rows.map(row => `
+                <tr>
+                    <td>${escapeHtml(row.loan_id)}</td>
+                    <td>${escapeHtml(row.member_name)}</td>
+                    <td>${escapeHtml(row.tel_no)}</td>
+                    <td style="text-align:right;">${escapeHtml(formatCurrency(row.loan_amount))}</td>
+                    <td style="text-align:right;">${escapeHtml(formatCurrency(row.balance))}</td>
+                    <td>${escapeHtml(formatDate(row.disbursement_date))}</td>
+                    <td>${escapeHtml(row.status)}</td>
+                    <td>${escapeHtml(row.payment_status)}</td>
+                </tr>
+            `).join('');
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Loans Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 24px; color: #1a1f2e; }
+                        h1 { margin: 0 0 6px; font-size: 24px; }
+                        .meta { color: #4a5568; margin-bottom: 18px; font-size: 13px; }
+                        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 18px; }
+                        .metric-card { border: 1px solid #dfe6ee; border-radius: 8px; padding: 12px; }
+                        .metric-label { font-size: 11px; text-transform: uppercase; color: #718096; font-weight: 700; margin-bottom: 8px; }
+                        .metric-value { font-size: 16px; font-weight: 700; }
+                        .metric-sub { font-size: 11px; color: #718096; margin-top: 6px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 12px; }
+                        th, td { border: 1px solid #dfe6ee; padding: 7px 8px; text-align: left; }
+                        th { background: #f7fafc; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Loans Report</h1>
+                    <div class="meta">Generated ${escapeHtml(formatDate(new Date().toISOString()))}</div>
+                    <div class="grid">${summaryCardsHtml}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Loan ID</th>
+                                <th>Member</th>
+                                <th>Phone</th>
+                                <th>Amount</th>
+                                <th>Balance</th>
+                                <th>Disbursed</th>
+                                <th>Status</th>
+                                <th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 400);
+        }
+
+        function viewLoan(loanId) {
+            window.location.href = '/Loan_statement?loan_id=' + loanId;
+        }
+
+        function makePayment(loanId) {
+            window.location.href = '/loan_repayment?loan_id=' + loanId;
+        }
+
+        $(document).ready(function() {
             loadSummary();
 
             const table = $('#loansReportTable').DataTable({
                 processing: true,
                 serverSide: true,
                 searching: false,
+                pageLength: 25,
+                order: [[12, 'desc']],
                 ajax: {
                     url: '/reports/loans-report',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: function (d) {
+                    data: function(d) {
                         return JSON.stringify({
                             ...d,
-                            memberId: $('#memberId').val(),
-                            memberName: $('#memberName').val(),
-                            loanStatus: $('#loanStatus').val(),
-                            startDate: $('#startDate').val(),
-                            endDate: $('#endDate').val()
+                            ...getFilterPayload()
                         });
                     },
-                    error: function(xhr, error, thrown) {
+                    error: function(xhr) {
                         alert('Error: ' + (xhr.responseJSON?.error || 'Could not load data.'));
                     }
                 },
@@ -299,147 +723,99 @@
                     { data: 'loan_id', width: '5%' },
                     { data: 'member_name', width: '12%' },
                     { data: 'tel_no', width: '8%' },
-                    { 
+                    {
                         data: 'loan_amount',
                         width: '8%',
-                        render: function (data) {
-                            return 'UGX ' + parseFloat(data).toLocaleString();
-                        }
+                        className: 'text-right',
+                        render: function(data) { return formatCurrency(data); }
                     },
-                    { 
+                    {
                         data: 'interest_rate',
                         width: '4%',
-                        render: function (data) {
-                            return data + '%';
-                        }
+                        render: function(data) { return Number(data || 0) + '%'; }
                     },
-                    { 
+                    {
                         data: 'loan_term_months',
                         width: '4%',
-                        render: function (data) {
-                            return data + 'm';
-                        }
+                        render: function(data) { return Number(data || 0) + 'm'; }
                     },
-                    { 
+                    {
                         data: 'monthly_payment',
                         width: '8%',
-                        render: function (data) {
-                            return 'UGX ' + parseFloat(data).toLocaleString();
-                        }
+                        className: 'text-right',
+                        render: function(data) { return formatCurrency(data); }
                     },
-                    { 
+                    {
                         data: 'balance',
                         width: '8%',
-                        render: function (data) {
-                            const color = data > 0 ? 'red' : 'green';
-                            return `<span style="color: ${color}; font-weight: bold;">UGX ${parseFloat(data).toLocaleString()}</span>`;
+                        className: 'text-right',
+                        render: function(data) {
+                            const amount = Number(data || 0);
+                            const color = amount > 0 ? '#c53030' : '#2f855a';
+                            return '<strong style="color:' + color + ';">' + escapeHtml(formatCurrency(amount)) + '</strong>';
                         }
                     },
-                    { 
-                        data: 'payments_made',
-                        width: '4%',
-                        render: function (data) {
-                            return `<span style="color: green;">${data}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'payments_pending',
-                        width: '4%',
-                        render: function (data) {
-                            return `<span style="color: orange;">${data}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'payments_overdue',
-                        width: '4%',
-                        render: function (data) {
-                            return `<span style="color: red; font-weight: bold;">${data}</span>`;
-                        }
-                    },
-                    { 
+                    { data: 'payments_made', width: '4%' },
+                    { data: 'payments_pending', width: '4%' },
+                    { data: 'payments_overdue', width: '4%' },
+                    {
                         data: 'disbursement_date',
                         width: '7%',
-                        render: function (data) {
-                            return new Date(data).toLocaleDateString('en-GB');
-                        }
+                        render: function(data) { return formatDate(data); }
                     },
-                    { 
+                    {
                         data: 'status',
                         width: '6%',
-                        render: function (data) {
-                            const statusClass = 'status-' + data.toLowerCase();
-                            return `<span class="status-badge ${statusClass}">${data}</span>`;
-                        }
+                        render: function(data) { return loanStatusPill(data); }
                     },
-                    { 
+                    {
                         data: 'payment_status',
                         width: '7%',
-                        render: function (data) {
-                            const statusClass = 'payment-status-' + data.toLowerCase().replace(/ /g, '-');
-                            return `<span class="${statusClass}">${data}</span>`;
-                        }
+                        render: function(data) { return paymentStatusPill(data); }
                     },
                     {
                         data: null,
                         orderable: false,
-                        width: '6%',
-                        render: function (data, type, row) {
+                        width: '7%',
+                        render: function(data, type, row) {
                             return `
-                                <button class="btn btn-info btn-xs" onclick="viewLoan(${row.loan_id})" title="View Statement">
+                                <button class="btn btn-outline-primary btn-sm" onclick="viewLoan(${row.loan_id})" title="View Statement">
                                     <i class="fa fa-eye"></i>
                                 </button>
-                                <button class="btn btn-success btn-xs" onclick="makePayment(${row.loan_id})" title="Make Payment" ${row.status !== 'Active' ? 'disabled' : ''}>
+                                <button class="btn btn-primary btn-sm" onclick="makePayment(${row.loan_id})" title="Record Payment" ${row.status !== 'Active' ? 'disabled' : ''}>
                                     <i class="fa fa-money"></i>
                                 </button>
                             `;
                         }
                     }
                 ],
-                order: [[1, 'desc']]
+                dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>rt<"row"<"col-sm-6"i><"col-sm-6"p>>',
+                scrollX: true,
+                autoWidth: false
             });
 
-            $('#filterBtn').on('click', function () {
+            $('#filterBtn').on('click', function() {
                 table.ajax.reload();
-                loadSummary(); // Refresh summary when filtering
+                loadSummary();
             });
 
-            // Export to CSV
-            $('#exportBtn').on('click', function() {
-                const formData = {
-                    memberId: $('#memberId').val(),
-                    memberName: $('#memberName').val(),
-                    loanStatus: $('#loanStatus').val(),
-                    startDate: $('#startDate').val(),
-                    endDate: $('#endDate').val()
-                };
+            $('#clearBtn').on('click', function() {
+                $('#memberId, #memberName, #startDate, #endDate').val('');
+                $('#loanStatus').val('');
+                table.ajax.reload();
+                loadSummary();
+            });
 
-                // Create a form and submit it
-                const form = $('<form>', {
-                    method: 'POST',
-                    action: '/reports/loans-export'
-                });
+            $('#excelExportBtn').on('click', async function() {
+                const rows = await fetchAllLoansRows();
+                exportLoansExcel(rows);
+            });
 
-                $.each(formData, function(key, value) {
-                    form.append($('<input>', {
-                        type: 'hidden',
-                        name: key,
-                        value: value
-                    }));
-                });
-
-                $('body').append(form);
-                form.submit();
-                form.remove();
+            $('#pdfExportBtn').on('click', async function() {
+                const rows = await fetchAllLoansRows();
+                printLoansPdf(rows);
             });
         });
-
-        function viewLoan(loanId) {
-            window.location.href = '/loan_statement?loan_id=' + loanId;
-        }
-
-        function makePayment(loanId) {
-            window.location.href = '/loan_repayment?loan_id=' + loanId;
-        }
     </script>
 </body>
 </html>
