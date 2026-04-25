@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agali Awamu SACCO — Member Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    height: 100%;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: #f0f4f8;
+    color: #1a1f2e;
+    overflow: hidden;
+}
+
+.login-page {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ── Brand panel — uses purple/blue for member portal ── */
+.login-brand {
+    flex: 0 0 42%;
+    background: #0f1623;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+.login-brand::before {
+    content: '';
+    position: absolute;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: rgba(66,153,225,.06);
+    top: -100px; left: -100px;
+}
+.login-brand::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(159,122,234,.06);
+    bottom: -80px; right: -60px;
+}
+
+.brand-inner { position: relative; z-index: 2; text-align: center; }
+
+.brand-logo {
+    width: 72px; height: 72px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #4299e1, #9f7aea);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; font-weight: 800; color: #fff;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 32px rgba(66,153,225,.35);
+}
+
+.brand-name {
+    font-size: 1.55rem; font-weight: 800;
+    color: #f0f4ff; letter-spacing: -.3px; line-height: 1.15;
+}
+.brand-sub {
+    font-size: .72rem; font-weight: 600;
+    color: #63b3ed;
+    text-transform: uppercase; letter-spacing: 1.4px;
+    margin-top: 6px;
+}
+.brand-tagline {
+    margin-top: 32px; font-size: .82rem;
+    color: rgba(255,255,255,.3); line-height: 1.7;
+    max-width: 240px;
+}
+
+/* Feature list */
+.brand-features {
+    margin-top: 36px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.feat-item {
+    display: flex; align-items: center; gap: 10px;
+}
+.feat-dot {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(66,153,225,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; color: #63b3ed; flex-shrink: 0;
+}
+.feat-text {
+    font-size: .76rem; color: rgba(255,255,255,.4); font-weight: 500;
+}
+
+/* ── Form panel ── */
+.login-form-panel {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 24px;
+    background: #f7fafc;
+    overflow-y: auto;
+}
+
+.login-card { width: 100%; max-width: 400px; }
+
+.login-card-head { margin-bottom: 28px; }
+.login-card-head h2 {
+    font-size: 1.4rem; font-weight: 800; color: #1a1f2e; margin-bottom: 4px;
+}
+.login-card-head p { font-size: .8rem; color: #a0aec0; }
+
+/* Form fields */
+.form-field { margin-bottom: 16px; }
+.form-field label {
+    display: block; font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: #718096; margin-bottom: 6px;
+}
+.input-wrap { position: relative; }
+.input-wrap .f-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: #a0aec0; font-size: .82rem; pointer-events: none;
+    transition: color .15s;
+}
+.input-wrap input {
+    width: 100%; height: 44px;
+    padding: 0 12px 0 38px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem; color: #1a1f2e;
+    background: #fff; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+}
+.input-wrap input::placeholder { color: #c0cad8; }
+.input-wrap input:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66,153,225,.12);
+}
+.input-wrap:focus-within .f-icon { color: #4299e1; }
+
+.pwd-toggle {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: #a0aec0; font-size: .82rem; padding: 0;
+}
+.pwd-toggle:hover { color: #718096; }
+
+.form-extra {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 20px;
+}
+.remember-label {
+    display: flex; align-items: center; gap: 7px;
+    font-size: .76rem; color: #718096; cursor: pointer; user-select: none;
+}
+.remember-label input[type="checkbox"] {
+    width: 15px; height: 15px; accent-color: #4299e1; cursor: pointer;
+}
+.forgot-link {
+    font-size: .76rem; color: #4299e1; font-weight: 600;
+    text-decoration: none;
+}
+.forgot-link:hover { color: #2b6cb0; }
+
+/* Submit */
+.btn-login {
+    width: 100%; height: 46px;
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+    color: #fff; border: none; border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .9rem; font-weight: 700; cursor: pointer;
+    transition: transform .12s, box-shadow .12s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-login:hover {
+    box-shadow: 0 6px 20px rgba(66,153,225,.35);
+    transform: translateY(-1px);
+}
+.btn-login:active { transform: translateY(0); box-shadow: none; }
+.btn-login:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+/* Admin link */
+.admin-link {
+    margin-top: 20px; text-align: center; padding: 14px;
+    background: rgba(0,184,148,.05);
+    border: 1px solid rgba(0,184,148,.15);
+    border-radius: 9px;
+    font-size: .78rem; color: #718096;
+}
+.admin-link a {
+    color: #00b894; font-weight: 600; text-decoration: none;
+}
+.admin-link a:hover { color: #00a37d; }
+
+/* Error */
+.login-error {
+    background: rgba(229,62,62,.07);
+    border: 1px solid rgba(229,62,62,.2);
+    border-left: 3px solid #e53e3e;
+    border-radius: 8px; padding: 10px 14px;
+    font-size: .78rem; color: #c53030;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+}
+
+.login-divider {
+    text-align: center; font-size: .65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .8px;
+    color: #cbd5e0; margin: 22px 0 4px;
+}
+.login-footer {
+    margin-top: 24px; text-align: center;
+    font-size: .68rem; color: #c0cad8;
+}
+
+/* Member ID hint */
+.id-hint {
+    margin-top: 6px; padding: 8px 12px;
+    background: rgba(66,153,225,.06);
+    border-radius: 7px; font-size: .7rem; color: #718096;
+    display: flex; align-items: center; gap: 6px;
+}
+
+@media (max-width: 768px) {
+    html, body { overflow: auto; }
+    .login-page { flex-direction: column; height: auto; min-height: 100vh; }
+    .login-brand {
+        flex: 0 0 auto; padding: 28px 20px;
+        flex-direction: row; gap: 14px; justify-content: flex-start;
+    }
+    .login-brand::before, .login-brand::after { display: none; }
+    .brand-inner { display: flex; align-items: center; gap: 14px; text-align: left; }
+    .brand-logo  { width: 44px; height: 44px; border-radius: 12px; font-size: 1.1rem; margin: 0; flex-shrink: 0; }
+    .brand-name  { font-size: 1rem; }
+    .brand-tagline, .brand-features { display: none; }
+    .login-form-panel { padding: 28px 20px 40px; }
+}
+</style>
+</head>
+
+<body>
+<div class="login-page">
+
+    <!-- ── Brand panel ── -->
+    <div class="login-brand">
+        <div class="brand-inner">
+            <div class="brand-logo"><i class="fa fa-user"></i></div>
+            <div>
+                <div class="brand-name">Agali Awamu<br>SACCO</div>
+                <div class="brand-sub">Member Portal</div>
+            </div>
+            <div class="brand-tagline">
+                Access your savings, loans, contributions and account information securely.
+            </div>
+            <div class="brand-features">
+                <div class="feat-item">
+                    <div class="feat-dot"><i class="fa fa-database"></i></div>
+                    <div class="feat-text">View your savings balance & history</div>
+                </div>
+                <div class="feat-item">
+                    <div class="feat-dot"><i class="fa fa-money"></i></div>
+                    <div class="feat-text">Track loan repayment progress</div>
+                </div>
+                <div class="feat-item">
+                    <div class="feat-dot"><i class="fa fa-shield"></i></div>
+                    <div class="feat-text">Monitor insurance & welfare contributions</div>
+                </div>
+                <div class="feat-item">
+                    <div class="feat-dot"><i class="fa fa-exchange"></i></div>
+                    <div class="feat-text">View all your transactions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Form panel ── -->
+    <div class="login-form-panel">
+        <div class="login-card">
+
+            <div class="login-card-head">
+                <h2>Member Sign In</h2>
+                <p>Enter your credentials to access your account</p>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+            <div class="login-error">
+                <i class="fa fa-exclamation-circle"></i>
+                <%= error %>
+            </div>
+            <% } %>
+
+            <div class="login-error" id="jsError" style="display:none;">
+                <i class="fa fa-exclamation-circle"></i>
+                <span id="jsErrorMsg"></span>
+            </div>
+
+            <form id="member-login-form">
+
+                <div class="form-field">
+                    <label>Username</label>
+                    <div class="input-wrap">
+                        <input type="text" name="username" placeholder="Enter your username"
+                               autocomplete="username" required />
+                        <i class="f-icon fa fa-user-o"></i>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Password</label>
+                    <div class="input-wrap">
+                        <input type="password" name="password" id="passwordField"
+                               placeholder="Enter your password"
+                               autocomplete="current-password" required />
+                        <i class="f-icon fa fa-lock"></i>
+                        <button type="button" class="pwd-toggle" id="togglePwd" tabindex="-1">
+                            <i class="fa fa-eye" id="togglePwdIcon"></i>
+                        </button>
+                    </div>
+                    <div class="id-hint">
+                        <i class="fa fa-info-circle" style="color:#4299e1;flex-shrink:0;"></i>
+                        Contact your SACCO administrator if you don't have login credentials.
+                    </div>
+                </div>
+
+                <div class="form-extra">
+                    <label class="remember-label">
+                        <input type="checkbox" name="remember" />
+                        Remember me
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <i class="fa fa-sign-in"></i> Sign In to My Account
+                </button>
+
+            </form>
+
+            <div class="login-divider">or</div>
+
+            <div class="admin-link">
+                Are you an admin or staff? &nbsp;
+                <a href="/login"><i class="fa fa-user-secret"></i> Admin Login →</a>
+            </div>
+
+            <div class="login-footer">
+                &copy; <%= new Date().getFullYear() %> Agali Awamu SACCO. All rights reserved.
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+<script>
+$(function () {
+
+    /* Password toggle */
+    $('#togglePwd').on('click', function () {
+        var field = $('#passwordField');
+        var icon  = $('#togglePwdIcon');
+        if (field.attr('type') === 'password') {
+            field.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            field.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+
+    function showError(msg) {
+        $('#jsErrorMsg').text(msg);
+        $('#jsError').show();
+    }
+    function hideError() { $('#jsError').hide(); }
+
+    $('#member-login-form').on('submit', function (e) {
+        e.preventDefault();
+        hideError();
+
+        var username = $('input[name="username"]').val().trim();
+        var password = $('input[name="password"]').val();
+
+        if (!username || !password) {
+            showError('Please enter both username and password.');
+            return;
+        }
+
+        var btn = $('#loginBtn');
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Signing in…');
+
+        $.ajax({
+            url: '/member-login',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ username: username, password: password }),
+            success: function () {
+                window.location.href = '/member/dashboard';
+            },
+            error: function (xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.error)
+                    ? xhr.responseJSON.error
+                    : 'Login failed. Please check your credentials.';
+                showError(msg);
+                btn.prop('disabled', false)
+                   .html('<i class="fa fa-sign-in"></i> Sign In to My Account');
+            }
+        });
+    });
+
+    $('input').on('keypress', function (e) {
+        if (e.which === 13) { $('#member-login-form').submit(); }
+    });
+
+});
+</script>
+</body>
+</html>
