@@ -2907,17 +2907,30 @@ app.get('/loans/:loan_id/interest-full', checkAuth, asyncHandler(async (req, res
   });
 }));
 
-// GET: Export interest history to CSV - Already correct
+// GET: Export interest history to Excel
 app.get('/loans/:loan_id/interest-export', checkAuth, asyncHandler(async (req, res) => {
   const { loan_id } = req.params;
   const db = dbConfig;
 
+  const [loan] = await db.execute(`
+    SELECT 
+      l.id,
+      CONCAT(m.First_name, ' ', m.Last_Name) AS member_name
+    FROM loans l
+    JOIN members_mst m ON l.member_id = m.id
+    WHERE l.id = ?
+  `, [loan_id]);
+
+  if (loan.length === 0) {
+    return res.status(404).send('Loan not found');
+  }
+
   const [history] = await db.execute(`
     SELECT 
-      calculation_date as 'Date',
-      outstanding_balance as 'Outstanding Balance',
-      daily_interest_amount as 'Daily Interest',
-      annual_interest_rate as 'Annual Rate (%)'
+      calculation_date,
+      outstanding_balance,
+      daily_interest_amount,
+      annual_interest_rate
     FROM loan_daily_interest
     WHERE loan_id = ?
     ORDER BY calculation_date DESC
@@ -2927,23 +2940,42 @@ app.get('/loans/:loan_id/interest-export', checkAuth, asyncHandler(async (req, r
     return res.status(404).send('No interest history found');
   }
 
-  // Generate CSV
-  const headers = Object.keys(history[0]);
-  const csvRows = [headers.join(',')];
-
-  for (const row of history) {
-    const values = headers.map(header => {
-      const value = row[header];
-      return typeof value === 'string' ? `"${value}"` : value;
+  const XLSX = require('xlsx');
+  const workbook = XLSX.utils.book_new();
+  const shortDate = (value) => {
+    const d = new Date(value);
+    return d.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: '2-digit'
     });
-    csvRows.push(values.join(','));
-  }
+  };
 
-  const csv = csvRows.join('\n');
+  const exportRows = history.map((row) => ({
+    Date: shortDate(row.calculation_date),
+    'Outstanding Balance': parseFloat(row.outstanding_balance || 0),
+    'Daily Interest': parseFloat(row.daily_interest_amount || 0),
+    'Annual Rate (%)': parseFloat(row.annual_interest_rate || 0),
+    'Daily Rate (%)': parseFloat(row.annual_interest_rate || 0) / 365
+  }));
 
-  res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', `attachment; filename=loan_${loan_id}_interest_history.csv`);
-  res.send(csv);
+  const worksheet = XLSX.utils.json_to_sheet(exportRows);
+  worksheet['!cols'] = [
+    { wch: 12 },
+    { wch: 20 },
+    { wch: 18 },
+    { wch: 16 },
+    { wch: 16 }
+  ];
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Interest History');
+
+  const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+  const safeMember = String(loan[0].member_name || 'member').replace(/[^\w.-]+/g, '_');
+
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename=loan_${loan_id}_interest_history_${safeMember}.xlsx`);
+  res.send(buffer);
 }));
 
 // GET: Interest summary for dashboard

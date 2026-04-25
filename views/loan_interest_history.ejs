@@ -266,7 +266,7 @@
                             <i class="fa fa-file-text"></i> View Statement
                         </a>
                         <a href="/loans/<%= loan.id %>/interest-export" class="btn btn-primary btn-sm">
-                            <i class="fa fa-download"></i> Export CSV
+                            <i class="fa fa-download"></i> Export Excel
                         </a>
                     </div>
                 </div>
@@ -297,7 +297,7 @@
                             <tbody>
                                 <% history.forEach(record => { %>
                                     <tr>
-                                        <td><%= new Date(record.calculation_date).toLocaleDateString('en-GB') %></td>
+                                        <td data-order="<%= new Date(record.calculation_date).toISOString() %>"><%= new Date(record.calculation_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) %></td>
                                         <td class="text-right">UGX <%= parseFloat(record.outstanding_balance).toLocaleString('en-UG', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) %></td>
                                         <td class="text-right">UGX <%= parseFloat(record.daily_interest_amount).toLocaleString('en-UG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
                                         <td class="text-right"><%= parseFloat(record.annual_interest_rate).toFixed(2) %>%</td>
