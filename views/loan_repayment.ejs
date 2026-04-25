@@ -525,13 +525,14 @@
                 ? schedule.find(item => item.status === 'Pending' || item.status === 'Overdue')
                 : null;
 
+            const remainingAmount = getEffectiveOutstanding(loan, paymentHistoryData.reduce((sum, item) => sum + Number(item.amount || 0), 0));
+
             if (pendingInstallment) {
-                const expectedPayment = Number(pendingInstallment.expected_payment || 0);
-                const paidAmount = Number(pendingInstallment.paid_amount || 0);
-                return Math.max(0, expectedPayment - paidAmount);
+                const installmentAmount = Number(pendingInstallment.expected_payment || 0);
+                return Math.max(0, Math.min(installmentAmount, remainingAmount));
             }
 
-            return Number(loan.monthly_payment || 0);
+            return Math.max(0, Math.min(Number(loan.monthly_payment || 0), remainingAmount));
         }
 
         function buildDetailRows(items) {
