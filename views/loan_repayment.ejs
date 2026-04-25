@@ -3,556 +3,872 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Repayment</title>
-    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
     <style>
-        .payment-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+
+        body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+        .page-wrapper {
+            margin-left: 220px !important;
+            margin-top: 60px;
+            width: calc(100% - 220px) !important;
+            max-width: 100%;
+            transition: margin-left .22s ease, width .22s ease;
         }
-        .info-item {
+        body.sidebar-collapsed .page-wrapper {
+            margin-left: 60px !important;
+            width: calc(100% - 60px) !important;
+        }
+        @media (max-width: 991px) {
+            .page-wrapper {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100%;
+            }
+            .page-heading { padding: 12px 14px 0; }
+            .page-content { padding: 12px 14px 24px; }
+        }
+
+        .page-heading { padding: 14px 22px 0; }
+        .page-heading h3 { font-size: 1.1rem; font-weight: 700; color: #1a1f2e; margin: 0; }
+        .page-subtitle { margin-top: 4px; color: #718096; font-size: .78rem; }
+        .page-content { padding: 12px 22px 24px; }
+        .page-footer { padding: 12px 22px; font-size: .72rem; color: #a0aec0; text-align: center; border-top: 1px solid #eaeef2; background: #fff; }
+
+        .ibox {
+            margin-bottom: 14px !important;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 6px rgba(26,31,46,.06);
+            border: 1px solid #eaeef2;
+        }
+        .ibox-head {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #dee2e6;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #eaeef2;
+            background: #fff;
         }
-        .info-item:last-child {
-            border-bottom: none;
+        .ibox-title {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #718096;
         }
-        .payment-history {
-            margin-top: 20px;
+        .ibox-body { padding: 14px; background: #fff; }
+
+        .btn {
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 6px;
+            transition: all .15s;
         }
-        .history-item {
-            padding: 10px;
-            background: white;
+        .btn-sm { padding: 5px 12px; font-size: .7rem; }
+        .btn-primary { background: #00b894; border: none; color: #fff; }
+        .btn-primary:hover { background: #00a388; color: #fff; }
+        .btn-secondary { background: #edf2f7; border: none; color: #2d3748; }
+        .btn-secondary:hover { background: #e2e8f0; color: #1a202c; }
+        .btn-outline-primary {
+            border: 1px solid #00b894;
+            color: #00b894;
+            background: #fff;
+        }
+        .btn-outline-primary:hover {
+            background: #00b894;
+            color: #fff;
+        }
+        .btn-link {
+            color: #00b894;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 0;
+        }
+        .btn-link:hover { color: #008f76; text-decoration: none; }
+
+        .hero-strip {
+            background: linear-gradient(135deg, #00b894 0%, #008f76 100%);
+            border-radius: 10px;
+            color: #fff;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 12px 30px rgba(0, 184, 148, 0.16);
+        }
+        .hero-strip .title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .hero-strip .meta {
+            font-size: .78rem;
+            opacity: .92;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 1199px) {
+            .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 575px) {
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+        .metric-card {
+            background: #fff;
+            border: 1px solid #eaeef2;
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 104px;
+        }
+        .metric-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #718096;
             margin-bottom: 10px;
-            border-left: 4px solid #28a745;
-            border-radius: 3px;
         }
-        .payment-type-label {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            margin-left: 10px;
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1f2e;
+            line-height: 1.35;
         }
-        .full-payment {
-            background: #28a745;
-            color: white;
+        .metric-sub {
+            margin-top: 6px;
+            font-size: .72rem;
+            color: #718096;
         }
-        .partial-payment {
-            background: #ffc107;
-            color: black;
+
+        .form-group label {
+            font-size: .75rem;
+            font-weight: 600;
+            color: #1a1f2e;
+            margin-bottom: 5px;
+        }
+        .form-control, .form-select, .form-control-sm {
+            font-size: .75rem;
+            padding: 8px 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: #fff;
+            min-height: 38px;
+        }
+        textarea.form-control { min-height: 96px; }
+        .form-control:focus, .form-select:focus, .form-control-sm:focus {
+            border-color: #00b894;
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+        }
+        .form-hint {
+            margin-top: 8px;
+            font-size: .72rem;
+            color: #718096;
+        }
+
+        .callout {
+            border-radius: 8px;
+            padding: 12px 14px;
+            border: 1px solid #bee3f8;
+            background: #ebf8ff;
+            color: #2c5282;
+            font-size: .75rem;
+            margin-bottom: 14px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+        .detail-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label {
+            color: #718096;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+        .detail-value {
+            color: #1a1f2e;
+            font-size: .78rem;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: .68rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .status-paid { background: rgba(56, 161, 105, .12); color: #2f855a; }
+        .status-pending { background: rgba(221, 107, 32, .14); color: #c05621; }
+        .status-overdue { background: rgba(229, 62, 62, .12); color: #c53030; }
+        .status-active { background: rgba(49, 130, 206, .12); color: #2b6cb0; }
+        .status-completed { background: rgba(56, 161, 105, .12); color: #2f855a; }
+        .status-defaulted { background: rgba(229, 62, 62, .12); color: #c53030; }
+
+        .installment-table,
+        .history-table {
+            width: 100%;
+            font-size: .75rem;
+            border-collapse: collapse;
+        }
+        .installment-table th,
+        .installment-table td,
+        .history-table th,
+        .history-table td {
+            border: 1px solid #eaeef2;
+            padding: 8px;
+            vertical-align: top;
+        }
+        .installment-table th,
+        .history-table th {
+            background: #f7fafc;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #718096;
+        }
+        .text-right { text-align: right !important; }
+        .text-success-soft { color: #2f855a; }
+        .text-danger-soft { color: #c53030; }
+        .text-warning-soft { color: #c05621; }
+        .text-info-soft { color: #2b6cb0; }
+
+        .history-card {
+            border: 1px solid #eaeef2;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #fff;
+        }
+        .history-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .history-meta {
+            color: #718096;
+            font-size: .72rem;
+        }
+        .history-breakdown {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        @media (max-width: 575px) {
+            .history-breakdown { grid-template-columns: 1fr; }
+        }
+        .history-chip {
+            border-radius: 8px;
+            background: #f7fafc;
+            border: 1px solid #eaeef2;
+            padding: 8px 10px;
+            font-size: .72rem;
+        }
+
+        .empty-state,
+        .loading-state {
+            padding: 24px 16px;
+            text-align: center;
+            color: #718096;
+            font-size: .82rem;
         }
     </style>
 </head>
 
-<body class="fixed-navbar">
+<body>
     <div class="page-wrapper">
         <%- include('partials/header') %>
         <%- include('partials/sidebar') %>
-        
-        <div class="content-wrapper">
-            <div class="page-heading">
-                <h1 class="page-title">Loan Repayment</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="index.html"><i class="la la-home font-20"></i></a>
-                    </li>
-                    <li class="breadcrumb-item">Loans</li>
-                    <li class="breadcrumb-item">Repayment</li>
-                </ol>
+
+        <div class="page-heading">
+            <h3><i class="fa fa-money" style="color: #00b894; margin-right: 8px;"></i>Loan Repayment</h3>
+            <div class="page-subtitle">Record full or partial payments and monitor loan recovery in real time.</div>
+        </div>
+
+        <div class="page-content">
+            <div class="hero-strip" id="repaymentHero">
+                <div class="title">Preparing repayment workspace</div>
+                <div class="meta">Fetching loan account and installment data.</div>
             </div>
-            
-            <div class="page-content fade-in-up">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Record Payment</div>
+
+            <div class="summary-grid" id="summaryCards">
+                <div class="metric-card"><div class="metric-label">Loan Type</div><div class="metric-value">Loading...</div></div>
+                <div class="metric-card"><div class="metric-label">Outstanding</div><div class="metric-value">Loading...</div></div>
+                <div class="metric-card"><div class="metric-label">Suggested</div><div class="metric-value">Loading...</div></div>
+                <div class="metric-card"><div class="metric-label">Status</div><div class="metric-value">Loading...</div></div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">Record Payment</div>
+                            <div class="ibox-tools">
+                                <a href="/Loan_statement?loan_id=<%= typeof loan_id !== 'undefined' ? loan_id : '' %>" class="btn btn-outline-primary btn-sm" id="statementLink">
+                                    <i class="fa fa-file-text"></i> View Statement
+                                </a>
                             </div>
-                            <div class="ibox-body">
-                                <form id="repaymentForm">
-                                    <input type="hidden" id="loan_id">
-                                    <input type="hidden" id="suggested_amount">
-                                    
-                                    <div class="alert alert-info">
-                                        <i class="fa fa-info-circle"></i> 
-                                        You can make full or partial payments. Partial payments will be applied to pending installments in order.
-                                    </div>
+                        </div>
+                        <div class="ibox-body">
+                            <input type="hidden" id="loan_id">
+                            <input type="hidden" id="suggested_amount">
 
-                                    <div class="form-group">
-                                        <label>Payment Amount (UGX) *</label>
-                                        <input type="number" class="form-control" id="payment_amount" required min="1" step="0.01">
-                                        <small class="form-text text-muted">
-                                            Suggested amount: <strong id="suggested_display">-</strong>
-                                            <button type="button" class="btn btn-sm btn-link" id="useSuggestedBtn">Use Suggested Amount</button>
-                                        </small>
-                                    </div>
+                            <div class="callout">
+                                <i class="fa fa-info-circle"></i>
+                                You can record either a full settlement or a partial repayment. Partial repayments are applied to pending installments in order, starting with accrued interest where applicable.
+                            </div>
 
-                                    <div class="form-group">
-                                        <label>Payment Date *</label>
-                                        <input type="date" class="form-control" id="payment_date" required>
+                            <form id="repaymentForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="payment_amount">Payment Amount (UGX) *</label>
+                                            <input type="number" class="form-control" id="payment_amount" required min="1" step="0.01" placeholder="Enter amount received">
+                                            <div class="form-hint">
+                                                Suggested amount: <strong id="suggested_display">-</strong>
+                                                <button type="button" class="btn btn-link btn-sm" id="useSuggestedBtn">Use suggested amount</button>
+                                            </div>
+                                        </div>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label>Payment Method *</label>
-                                        <select class="form-control" id="payment_method" required>
-                                            <option value="Cash">Cash</option>
-                                            <option value="Bank Transfer">Bank Transfer</option>
-                                            <option value="Mobile Money">Mobile Money</option>
-                                            <option value="Cheque">Cheque</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Reference Number</label>
-                                        <input type="text" class="form-control" id="reference_number" placeholder="Transaction reference">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Notes</label>
-                                        <textarea class="form-control" id="payment_notes" rows="3"></textarea>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fa fa-check"></i> Record Payment
-                                        </button>
-                                        <button type="button" class="btn btn-secondary" onclick="window.location.href='loans-list.html'">
-                                            <i class="fa fa-times"></i> Cancel
-                                        </button>
-                                    </div>
-                                </form>
-
-                                <!-- Payment History -->
-                                <div class="payment-history">
-                                    <h5>Payment History</h5>
-                                    <div id="paymentHistory">
-                                        <p class="text-muted">Loading payment history...</p>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="payment_date">Payment Date *</label>
+                                            <input type="date" class="form-control" id="payment_date" required>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="payment_method">Payment Method *</label>
+                                            <select class="form-control" id="payment_method" required>
+                                                <option value="Cash">Cash</option>
+                                                <option value="Bank Transfer">Bank Transfer</option>
+                                                <option value="Mobile Money">Mobile Money</option>
+                                                <option value="Cheque">Cheque</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="reference_number">Reference Number</label>
+                                            <input type="text" class="form-control" id="reference_number" placeholder="Transaction reference">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="payment_notes">Notes</label>
+                                    <textarea class="form-control" id="payment_notes" rows="3" placeholder="Optional internal notes"></textarea>
+                                </div>
+
+                                <div class="form-group mb-0">
+                                    <button type="submit" class="btn btn-primary" id="submitPaymentBtn">
+                                        <i class="fa fa-check"></i> Record Payment
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="cancelBtn">
+                                        <i class="fa fa-times"></i> Back to Loans
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">Payment History</div>
+                        </div>
+                        <div class="ibox-body">
+                            <div id="paymentHistory">
+                                <div class="loading-state">Loading payment history...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">Loan Details</div>
+                        </div>
+                        <div class="ibox-body">
+                            <div class="details-grid" id="paymentInfo">
+                                <div class="loading-state">Loading loan information...</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Loan Details</div>
-                            </div>
-                            <div class="ibox-body">
-                                <div class="payment-info" id="paymentInfo">
-                                    <p class="text-center text-muted">Loading loan information...</p>
-                                </div>
-                            </div>
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">Pending Installments</div>
                         </div>
-
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Pending Installments</div>
-                            </div>
-                            <div class="ibox-body">
-                                <div id="pendingInstallments">
-                                    <p class="text-center text-muted">Loading...</p>
-                                </div>
+                        <div class="ibox-body">
+                            <div id="pendingInstallments">
+                                <div class="loading-state">Loading pending installments...</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-                <a class="px-4" href="#" target="_blank">Contact Us</a>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
+        </div>
+
+        <div class="page-footer">
+            2026 © Agali Awamu SACCO — All rights reserved.
         </div>
     </div>
 
-    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
-    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
-    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
-    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-    <script src="assets/js/app.min.js"></script>
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="/assets/vendors/DataTables/datatables.min.js"></script>
+    <script src="/assets/js/app.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const loanId = urlParams.get('loan_id');
 
+        let loanData = null;
+        let statementData = null;
+        let paymentHistoryData = [];
+
         if (!loanId) {
             alert('No loan ID provided');
-            window.location.href = 'loans-list.html';
+            window.location.href = '/loan_list';
         }
 
         $('#loan_id').val(loanId);
         $('#payment_date').val(new Date().toISOString().split('T')[0]);
+        $('#statementLink').attr('href', '/Loan_statement?loan_id=' + encodeURIComponent(loanId));
 
-        let loanData = null;
-
-        // Load loan details
-        // Load loan details - HANDLE BOTH METHODS
-function loadLoanDetails() {
-    $.ajax({
-        url: `/loans/${loanId}/details`,
-        type: 'GET',
-        success: function(response) {
-            if (response.loan) {
-                const loan = response.loan;
-                const interestMethod = loan.interest_method || 'reducing_balance';
-                
-                let html = '';
-                
-                // In loan_repayment.html - Simple Interest Display
-                    if (interestMethod === 'simple_interest') {
-                        const totalRepayment = parseFloat(loan.total_repayment);  // ✅ Now this will be correct
-                        const totalInterest = parseFloat(loan.total_expected_interest);
-                        
-                        // Calculate total paid so far
-                        $.ajax({
-                            url: `/loans/${loanId}/payment-history`,
-                            type: 'GET',
-                            success: function(historyResponse) {
-                                let totalPaid = 0;
-                                historyResponse.history.forEach(h => {
-                                    totalPaid += parseFloat(h.amount);
-                                });
-                                
-                                const remaining = totalRepayment - totalPaid;
-                                
-                                html = `
-                                    <div class="alert alert-info mb-3">
-                                        <i class="fa fa-bolt"></i> <strong>Quick Loan</strong> (Simple Interest)
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Member:</span>
-                                        <strong>${loan.member_name}</strong>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Principal Amount:</span>
-                                        <strong>UGX ${parseFloat(loan.loan_amount).toLocaleString()}</strong>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Total Interest (Fixed):</span>
-                                        <strong style="color: orange;">UGX ${totalInterest.toLocaleString()}</strong>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Total to Repay:</span>
-                                        <strong style="color: blue;">UGX ${totalRepayment.toLocaleString()}</strong>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Total Paid:</span>
-                                        <strong style="color: green;">UGX ${totalPaid.toLocaleString()}</strong>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Amount Remaining:</span>
-                                        <strong style="color: red; font-size: 1.2em;">UGX ${remaining.toLocaleString()}</strong>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Monthly Payment:</span>
-                                        <strong>UGX ${parseFloat(loan.monthly_payment).toLocaleString()}</strong>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Loan Status:</span>
-                                        <strong>${loan.status}</strong>
-                                    </div>
-                                `;
-                                
-                                $('#paymentInfo').html(html);
-                                
-                                // Set suggested amount
-                                $('#suggested_amount').val(remaining);
-                                $('#suggested_display').text('UGX ' + remaining.toLocaleString());
-                            }
-                        });
-                    }
-
-                 else {
-                    // REDUCING BALANCE DISPLAY (existing code)
-                    html = `
-                        <div class="alert alert-info mb-3">
-                            <i class="fa fa-line-chart"></i> <strong>Standard Loan</strong> (Reducing Balance)
-                        </div>
-                        <div class="info-item">
-                            <span>Member:</span>
-                            <strong>${loan.member_name}</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Original Loan Amount:</span>
-                            <strong>UGX ${parseFloat(loan.loan_amount).toLocaleString()}</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Principal Balance:</span>
-                            <strong style="color: blue;">UGX ${parseFloat(loan.balance).toLocaleString()}</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Accumulated Interest:</span>
-                            <strong style="color: orange;">UGX ${parseFloat(loan.accumulated_interest).toLocaleString()}</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Total Owed:</span>
-                            <strong style="color: red; font-size: 1.2em;">UGX ${parseFloat(loan.total_owed).toLocaleString()}</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Interest Rate:</span>
-                            <strong>${loan.interest_rate}% per annum</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Daily Interest:</span>
-                            <strong>~UGX ${(loan.balance * (loan.interest_rate / 100) / 365).toFixed(2)}</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Interest (Last 30 Days):</span>
-                            <strong>UGX ${parseFloat(response.interest_last_30_days || 0).toLocaleString()}</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Loan Status:</span>
-                            <strong>${loan.status}</strong>
-                        </div>
-                    `;
-                    $('#paymentInfo').html(html);
-                    
-                    // Set suggested amount to total owed
-                    $('#suggested_amount').val(loan.total_owed);
-                    $('#suggested_display').text('UGX ' + parseFloat(loan.total_owed).toLocaleString());
-                }
-                
-                loadPendingInstallments();
-                loadPaymentHistory();
-            }
-        },
-        error: function(xhr) {
-            alert('Error loading loan details: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        function formatCurrency(value) {
+            return 'UGX ' + Number(value || 0).toLocaleString('en-UG', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
         }
-    });
-}
 
-     
+        function formatDate(value) {
+            if (!value) return '-';
+            const parsed = new Date(value);
+            if (Number.isNaN(parsed.getTime())) return '-';
+            return parsed.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
 
-        // Load pending installments
-        // Load pending installments - SHOW EXPECTED BREAKDOWN
-                    function loadPendingInstallments() {
-                        $.ajax({
-                            url: `/loans/${loanId}/statement`,
-                            type: 'GET',
-                            success: function(response) {
-                                console.log('Statement response:', response);
-                                
-                                if (!response.schedule || response.schedule.length === 0) {
-                                    $('#pendingInstallments').html('<p class="text-muted">No installments found.</p>');
-                                    return;
-                                }
-                                
-                                const pendingPayments = response.schedule.filter(s => 
-                                    s.status === 'Pending' || s.status === 'Overdue'
-                                );
-                                
-                                if (pendingPayments.length === 0) {
-                                    $('#pendingInstallments').html('<p class="text-success">All installments paid!</p>');
-                                    return;
-                                }
-                                
-                                let html = '<div style="font-size: 0.85rem;">';
-                                html += '<p class="text-info"><i class="fa fa-info-circle"></i> <strong>Expected breakdown</strong> (reducing balance). Actual interest calculated daily.</p>';
-                                html += '<table class="table table-sm table-bordered">';
-                                html += `<thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Due Date</th>
-                                        <th>Expected Payment</th>
-                                        <th>Paid</th>
-                                        <th>Balance</th>
-                                    </tr>
-                                </thead><tbody>`;
-                                
-                                pendingPayments.forEach(p => {
-                                    const paidAmount = parseFloat(p.paid_amount || 0);
-                                    const expectedPayment = parseFloat(p.expected_payment || 0);
-                                    const expectedPrincipal = parseFloat(p.expected_principal || 0);
-                                    const expectedInterest = parseFloat(p.expected_interest || 0);
-                                    const balance = expectedPayment - paidAmount;
-                                    const statusColor = p.status === 'Overdue' ? 'red' : 'orange';
-                                    
-                                    html += `
-                                        <tr style="color: ${statusColor};">
-                                            <td>${p.payment_number}</td>
-                                            <td>${new Date(p.due_date).toLocaleDateString('en-GB')}</td>
-                                            <td>
-                                                <strong>${expectedPayment.toLocaleString()}</strong>
-                                                <br><small class="text-muted">
-                                                    Principal: ${expectedPrincipal.toLocaleString()}
-                                                    <br>Interest: ${expectedInterest.toLocaleString()} (expected)
-                                                </small>
-                                            </td>
-                                            <td>${paidAmount.toLocaleString()}</td>
-                                            <td><strong>${balance.toLocaleString()}</strong></td>
-                                        </tr>
-                                    `;
-                                });
-                                
-                                html += '</tbody></table></div>';
-                                $('#pendingInstallments').html(html);
-                            },
-                            error: function(xhr) {
-                                console.error('Error loading installments:', xhr);
-                                $('#pendingInstallments').html('<p class="text-danger">Error loading installments</p>');
-                            }
-                        });
-                    }
-        // Load payment history
-        // Load payment history - FIXED VERSION
-            function loadPaymentHistory() {
-                $.ajax({
-                    url: `/loans/${loanId}/payment-history`,
-                    type: 'GET',
-                    success: function(response) {
-                        console.log('Payment history response:', response); // Debug log
-                        
-                        if (!response.history || response.history.length === 0) {
-                            $('#paymentHistory').html('<p class="text-muted">No payment history yet.</p>');
-                            return;
-                        }
-                        
-                        let html = '';
-                        response.history.forEach(h => {
-                            const interestPaid = parseFloat(h.interest_paid || 0);
-                            const principalPaid = parseFloat(h.principal_paid || 0);
-                            const totalAmount = parseFloat(h.amount || 0);
-                            
-                            html += `
-                                <div class="history-item">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <div>
-                                            <strong>${new Date(h.payment_date).toLocaleDateString('en-GB')}</strong>
-                                        </div>
-                                        <div style="text-align: right;">
-                                            <strong style="color: green;">UGX ${totalAmount.toLocaleString()}</strong>
-                                        </div>
-                                    </div>
-                                    <div style="margin-top: 5px; font-size: 0.9rem; color: #6c757d;">
-                                        ${h.payment_method || 'N/A'} ${h.reference_number ? '| Ref: ' + h.reference_number : ''}
-                                        <br>Principal: UGX ${principalPaid.toLocaleString()} | Interest: UGX ${interestPaid.toLocaleString()}
-                                        ${h.notes ? '<br>' + h.notes : ''}
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        
-                        $('#paymentHistory').html(html);
-                    },
-                    error: function(xhr) {
-                        console.error('Error loading payment history:', xhr);
-                        $('#paymentHistory').html('<p class="text-danger">Error loading payment history</p>');
-                    }
-                });
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatStatusPill(status) {
+            const normalized = String(status || 'Pending').toLowerCase();
+            const classMap = {
+                paid: 'status-paid',
+                pending: 'status-pending',
+                overdue: 'status-overdue',
+                active: 'status-active',
+                completed: 'status-completed',
+                defaulted: 'status-defaulted'
+            };
+            const pillClass = classMap[normalized] || 'status-pending';
+            return '<span class="status-pill ' + pillClass + '">' + escapeHtml(status || 'Pending') + '</span>';
+        }
+
+        function getEffectiveOutstanding(loan, totalPaid) {
+            if ((loan.interest_method || 'reducing_balance') === 'simple_interest') {
+                return Math.max(0, Number(loan.total_repayment || 0) - Number(totalPaid || 0));
+            }
+            return Number(loan.total_owed || 0);
+        }
+
+        function buildDetailRows(items) {
+            return items.map(item => `
+                <div class="detail-row">
+                    <div class="detail-label">${escapeHtml(item.label)}</div>
+                    <div class="detail-value">${item.value}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderHero(loan, schedule) {
+            const pendingCount = schedule.filter(item => item.status === 'Pending' || item.status === 'Overdue').length;
+            $('#repaymentHero').html(`
+                <div class="title">Loan #${escapeHtml(loan.id)} repayment for ${escapeHtml(loan.member_name)}</div>
+                <div class="meta">
+                    ${escapeHtml((loan.interest_method || 'reducing_balance').replace(/_/g, ' '))} loan •
+                    Disbursed ${escapeHtml(formatDate(loan.disbursement_date))} •
+                    ${escapeHtml(pendingCount)} installment(s) still open
+                </div>
+            `);
+        }
+
+        function renderSummaryCards(loan, totalPaid, suggestedAmount, pendingCount) {
+            const interestMethod = (loan.interest_method || 'reducing_balance').replace(/_/g, ' ');
+            const outstandingAmount = getEffectiveOutstanding(loan, totalPaid);
+            $('#summaryCards').html(`
+                <div class="metric-card">
+                    <div class="metric-label">Loan Type</div>
+                    <div class="metric-value">${escapeHtml(interestMethod)}</div>
+                    <div class="metric-sub">Member ${escapeHtml(loan.member_name)}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Outstanding</div>
+                    <div class="metric-value">${formatCurrency(outstandingAmount)}</div>
+                    <div class="metric-sub">Principal ${formatCurrency(loan.balance)} + interest ${formatCurrency(loan.accumulated_interest || 0)}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Suggested Payment</div>
+                    <div class="metric-value">${formatCurrency(suggestedAmount)}</div>
+                    <div class="metric-sub">Recovered so far ${formatCurrency(totalPaid)}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Status</div>
+                    <div class="metric-value">${formatStatusPill(loan.status)}</div>
+                    <div class="metric-sub">${pendingCount} pending or overdue installment(s)</div>
+                </div>
+            `);
+        }
+
+        function renderLoanDetails(loan, totalPaid) {
+            const interestMethod = loan.interest_method || 'reducing_balance';
+            const outstandingAmount = getEffectiveOutstanding(loan, totalPaid);
+            const details = interestMethod === 'simple_interest'
+                ? [
+                    { label: 'Member', value: escapeHtml(loan.member_name) },
+                    { label: 'Principal Amount', value: escapeHtml(formatCurrency(loan.loan_amount)) },
+                    { label: 'Total Expected Interest', value: '<span class="text-warning-soft">' + escapeHtml(formatCurrency(loan.total_expected_interest || 0)) + '</span>' },
+                    { label: 'Total Repayment', value: '<span class="text-info-soft">' + escapeHtml(formatCurrency(loan.total_repayment || 0)) + '</span>' },
+                    { label: 'Total Paid', value: '<span class="text-success-soft">' + escapeHtml(formatCurrency(totalPaid)) + '</span>' },
+                    { label: 'Amount Remaining', value: '<span class="text-danger-soft">' + escapeHtml(formatCurrency(outstandingAmount)) + '</span>' },
+                    { label: 'Monthly Payment', value: escapeHtml(formatCurrency(loan.monthly_payment)) },
+                    { label: 'Loan Status', value: formatStatusPill(loan.status) }
+                ]
+                : [
+                    { label: 'Member', value: escapeHtml(loan.member_name) },
+                    { label: 'Original Loan Amount', value: escapeHtml(formatCurrency(loan.loan_amount)) },
+                    { label: 'Principal Balance', value: '<span class="text-info-soft">' + escapeHtml(formatCurrency(loan.balance)) + '</span>' },
+                    { label: 'Accumulated Interest', value: '<span class="text-warning-soft">' + escapeHtml(formatCurrency(loan.accumulated_interest || 0)) + '</span>' },
+                    { label: 'Total Owed', value: '<span class="text-danger-soft">' + escapeHtml(formatCurrency(loan.total_owed)) + '</span>' },
+                    { label: 'Interest Rate', value: escapeHtml(Number(loan.interest_rate || 0).toLocaleString('en-UG', { maximumFractionDigits: 2 }) + '% per annum') },
+                    { label: 'Daily Interest', value: escapeHtml(formatCurrency((Number(loan.balance || 0) * (Number(loan.interest_rate || 0) / 100)) / 365)) },
+                    { label: 'Interest (Last 30 Days)', value: escapeHtml(formatCurrency(loan.interest_last_30_days || 0)) },
+                    { label: 'Loan Status', value: formatStatusPill(loan.status) }
+                ];
+
+            $('#paymentInfo').html(buildDetailRows(details));
+        }
+
+        function renderPendingInstallments(schedule, interestMethod) {
+            if (!Array.isArray(schedule) || schedule.length === 0) {
+                $('#pendingInstallments').html('<div class="empty-state">No installments found for this loan.</div>');
+                return;
             }
 
-        // Use suggested amount
-              $('#useSuggestedBtn').on('click', function (e) {
-    e.preventDefault();
+            const pendingPayments = schedule.filter(item => item.status === 'Pending' || item.status === 'Overdue');
+            if (!pendingPayments.length) {
+                $('#pendingInstallments').html('<div class="empty-state text-success-soft">All installments are fully paid.</div>');
+                return;
+            }
 
-    const suggested = $('#suggested_amount').val(); // ✅ numeric
+            let html = `
+                <div class="form-hint" style="margin-bottom:10px;">
+                    ${interestMethod === 'simple_interest'
+                        ? 'Installments below show the fixed repayment structure for this quick loan.'
+                        : 'Expected interest reflects the planned reducing-balance schedule. Actual interest accrues daily.'}
+                </div>
+                <div class="table-responsive">
+                    <table class="installment-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Due Date</th>
+                                <th class="text-right">Expected</th>
+                                <th class="text-right">Paid</th>
+                                <th class="text-right">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
 
-    if (suggested && !isNaN(suggested)) {
-        $('#payment_amount').val(suggested);
-    }
-});
+            pendingPayments.forEach(item => {
+                const expectedPayment = Number(item.expected_payment || 0);
+                const expectedPrincipal = Number(item.expected_principal || 0);
+                const expectedInterest = Number(item.expected_interest || 0);
+                const paidAmount = Number(item.paid_amount || 0);
+                const balance = Math.max(0, expectedPayment - paidAmount);
+                const rowClass = item.status === 'Overdue' ? 'text-danger-soft' : 'text-warning-soft';
 
-
-        // Submit payment
-        // Submit payment - FIXED VERSION
-            $('#repaymentForm').on('submit', function(e) {
-                e.preventDefault();
-
-                const formData = {
-                    loan_id: parseInt($('#loan_id').val()),
-                    payment_amount: parseFloat($('#payment_amount').val()),
-                    payment_date: $('#payment_date').val(),
-                    payment_method: $('#payment_method').val(),
-                    reference_number: $('#reference_number').val(),
-                    notes: $('#payment_notes').val()
-                };
-
-                // Validate payment amount against total owed (not just balance)
-                if (loanData && loanData.loan) {
-                    const totalOwed = parseFloat(loanData.loan.balance) + parseFloat(loanData.loan.accumulated_interest || 0);
-                    if (formData.payment_amount > totalOwed) {
-                        alert(`Payment amount (UGX ${formData.payment_amount.toLocaleString()}) exceeds total owed (UGX ${totalOwed.toLocaleString()})!`);
-                        return;
-                    }
-                }
-
-                $.ajax({
-    url: '/loans/repayment',
-    type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify(formData),
-    success: function(response) {
-        console.log('Payment response:', response);
-
-        const d = response.details;
-
-        let html = `
-            <div style="text-align:left">
-                <p><strong>Amount Paid:</strong> UGX ${d.amount_paid.toLocaleString()}</p>
-                <p><strong>Interest Paid:</strong> UGX ${d.interest_paid.toFixed(2)}</p>
-                <p><strong>Principal Paid:</strong> UGX ${d.principal_paid.toFixed(2)}</p>
-                <p><strong>Remaining Balance:</strong> UGX ${d.remaining_balance.toLocaleString()}</p>
-                <p><strong>Accumulated Interest:</strong> UGX ${d.accumulated_interest.toLocaleString()}</p>
-                ${
-                    d.payments_updated && d.payments_updated.length > 0
-                        ? `<p><strong>Installments Updated:</strong> ${d.payments_updated.length}</p>`
-                        : ''
-                }
-                ${
-                    d.status === 'Completed'
-                        ? `<hr><p style="color:green;font-weight:bold;">🎉 Loan fully paid!</p>`
-                        : ''
-                }
-            </div>
-        `;
-
-        Swal.fire({
-    icon: 'success',
-    title: 'Payment Recorded Successfully',
-    html: html,
-    showCancelButton: true,
-    confirmButtonText: 'Go to Loan List',
-    cancelButtonText: 'Stay Here',
-    reverseButtons: true
-}).then((result) => {
-    if (result.isConfirmed) {
-        window.location.href = '/loan_list';
-    } else {
-        // Stay on page → just refresh data
-        location.reload();
-    }
-});
-    },
-    error: function(xhr) {
-        console.error('Payment error:', xhr);
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Payment Failed',
-            text: xhr.responseJSON?.error || 'Could not record payment'
-        });
-    }
-});
-
+                html += `
+                    <tr class="${rowClass}">
+                        <td>${escapeHtml(item.payment_number)}</td>
+                        <td>${escapeHtml(formatDate(item.due_date))}</td>
+                        <td class="text-right">
+                            <strong>${escapeHtml(formatCurrency(expectedPayment))}</strong>
+                            <div class="history-meta">
+                                P: ${escapeHtml(formatCurrency(expectedPrincipal))}<br>
+                                I: ${escapeHtml(formatCurrency(expectedInterest))}
+                            </div>
+                        </td>
+                        <td class="text-right">${escapeHtml(formatCurrency(paidAmount))}</td>
+                        <td class="text-right"><strong>${escapeHtml(formatCurrency(balance))}</strong></td>
+                    </tr>
+                `;
             });
 
-        // Load all data on page load
+            html += '</tbody></table></div>';
+            $('#pendingInstallments').html(html);
+        }
+
+        function renderPaymentHistory(history) {
+            if (!Array.isArray(history) || !history.length) {
+                $('#paymentHistory').html('<div class="empty-state">No payment history yet.</div>');
+                return;
+            }
+
+            const html = history.map(item => {
+                const totalAmount = Number(item.amount || 0);
+                const interestPaid = Number(item.interest_paid || 0);
+                const principalPaid = Number(item.principal_paid || 0);
+                return `
+                    <div class="history-card">
+                        <div class="history-head">
+                            <div>
+                                <div style="font-weight:700;color:#1a1f2e;">${escapeHtml(formatDate(item.payment_date))}</div>
+                                <div class="history-meta">
+                                    ${escapeHtml(item.payment_method || 'N/A')}
+                                    ${item.reference_number ? ' • Ref: ' + escapeHtml(item.reference_number) : ''}
+                                </div>
+                            </div>
+                            <div style="font-weight:700;color:#2f855a;">${escapeHtml(formatCurrency(totalAmount))}</div>
+                        </div>
+                        <div class="history-breakdown">
+                            <div class="history-chip">
+                                <strong>Principal</strong><br>
+                                ${escapeHtml(formatCurrency(principalPaid))}
+                            </div>
+                            <div class="history-chip">
+                                <strong>Interest</strong><br>
+                                ${escapeHtml(formatCurrency(interestPaid))}
+                            </div>
+                            <div class="history-chip">
+                                <strong>Recorded</strong><br>
+                                ${escapeHtml(formatDate(item.created_at || item.payment_date))}
+                            </div>
+                        </div>
+                        ${item.notes ? `<div class="history-meta" style="margin-top:10px;">${escapeHtml(item.notes)}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            $('#paymentHistory').html(html);
+        }
+
+        async function fetchStatementData() {
+            const response = await $.ajax({
+                url: '/loans/' + loanId + '/statement',
+                type: 'GET'
+            });
+            statementData = response;
+            return response;
+        }
+
+        async function fetchPaymentHistory() {
+            return $.ajax({
+                url: '/loans/' + loanId + '/payment-history',
+                type: 'GET'
+            });
+        }
+
+        async function loadLoanDetails() {
+            try {
+                const [detailsResponse, statementResponse, historyResponse] = await Promise.all([
+                    $.ajax({
+                        url: '/loans/' + loanId + '/details',
+                        type: 'GET'
+                    }),
+                    fetchStatementData(),
+                    fetchPaymentHistory()
+                ]);
+
+                loanData = detailsResponse;
+                const loan = detailsResponse.loan;
+                const schedule = Array.isArray(statementResponse.schedule) ? statementResponse.schedule : [];
+                const history = Array.isArray(historyResponse.history) ? historyResponse.history : [];
+                paymentHistoryData = history;
+                const totalPaid = history.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+                const suggestedAmount = getEffectiveOutstanding(loan, totalPaid);
+                const pendingCount = schedule.filter(item => item.status === 'Pending' || item.status === 'Overdue').length;
+
+                loan.interest_last_30_days = detailsResponse.interest_last_30_days || 0;
+
+                renderHero(loan, schedule);
+                renderSummaryCards(loan, totalPaid, suggestedAmount, pendingCount);
+                renderLoanDetails(loan, totalPaid);
+                renderPendingInstallments(schedule, loan.interest_method || 'reducing_balance');
+                renderPaymentHistory(history);
+
+                $('#suggested_amount').val(suggestedAmount);
+                $('#suggested_display').text(formatCurrency(suggestedAmount));
+            } catch (xhr) {
+                const message = xhr?.responseJSON?.error || 'Unknown error';
+                $('#repaymentHero').html(`
+                    <div class="title">Unable to load repayment workspace</div>
+                    <div class="meta">${escapeHtml(message)}</div>
+                `);
+                $('#paymentInfo').html('<div class="empty-state">Error loading loan information.</div>');
+                $('#pendingInstallments').html('<div class="empty-state">Error loading installments.</div>');
+                $('#paymentHistory').html('<div class="empty-state">Error loading payment history.</div>');
+                alert('Error loading loan details: ' + message);
+            }
+        }
+
+        $('#useSuggestedBtn').on('click', function(e) {
+            e.preventDefault();
+            const suggested = $('#suggested_amount').val();
+            if (suggested && !isNaN(suggested)) {
+                $('#payment_amount').val(Number(suggested).toFixed(2));
+            }
+        });
+
+        $('#cancelBtn').on('click', function() {
+            window.location.href = '/loan_list';
+        });
+
+        $('#repaymentForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                loan_id: parseInt($('#loan_id').val(), 10),
+                payment_amount: parseFloat($('#payment_amount').val()),
+                payment_date: $('#payment_date').val(),
+                payment_method: $('#payment_method').val(),
+                reference_number: $('#reference_number').val(),
+                notes: $('#payment_notes').val()
+            };
+
+            if (!formData.payment_amount || formData.payment_amount <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Amount',
+                    text: 'Enter a valid payment amount greater than zero.',
+                    confirmButtonColor: '#00b894'
+                });
+                return;
+            }
+
+            if (loanData && loanData.loan) {
+                const totalPaid = paymentHistoryData.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+                const totalOwed = getEffectiveOutstanding(loanData.loan, totalPaid);
+                if (formData.payment_amount > totalOwed) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Amount Too High',
+                        text: `Payment amount exceeds total owed of ${formatCurrency(totalOwed)}.`,
+                        confirmButtonColor: '#00b894'
+                    });
+                    return;
+                }
+            }
+
+            $('#submitPaymentBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Recording...');
+
+            $.ajax({
+                url: '/loans/repayment',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    const details = response.details || {};
+                    const successHtml = `
+                        <div style="text-align:left;font-size:14px;">
+                            <p><strong>Amount Paid:</strong> ${escapeHtml(formatCurrency(details.amount_paid || 0))}</p>
+                            <p><strong>Interest Paid:</strong> ${escapeHtml(formatCurrency(details.interest_paid || 0))}</p>
+                            <p><strong>Principal Paid:</strong> ${escapeHtml(formatCurrency(details.principal_paid || 0))}</p>
+                            <p><strong>Remaining Balance:</strong> ${escapeHtml(formatCurrency(details.remaining_balance || 0))}</p>
+                            <p><strong>Accumulated Interest:</strong> ${escapeHtml(formatCurrency(details.accumulated_interest || 0))}</p>
+                            ${details.payments_updated && details.payments_updated.length
+                                ? `<p><strong>Installments Updated:</strong> ${escapeHtml(details.payments_updated.length)}</p>`
+                                : ''}
+                            ${details.status === 'Completed'
+                                ? '<hr><p style="color:#2f855a;font-weight:700;">Loan fully paid.</p>'
+                                : ''}
+                        </div>
+                    `;
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Recorded Successfully',
+                        html: successHtml,
+                        showCancelButton: true,
+                        confirmButtonText: 'Go to Loan List',
+                        cancelButtonText: 'Stay Here',
+                        reverseButtons: true,
+                        confirmButtonColor: '#00b894',
+                        cancelButtonColor: '#718096'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/loan_list';
+                            return;
+                        }
+
+                        $('#repaymentForm')[0].reset();
+                        $('#payment_date').val(new Date().toISOString().split('T')[0]);
+                        loadLoanDetails();
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: xhr.responseJSON?.error || 'Could not record payment',
+                        confirmButtonColor: '#00b894'
+                    });
+                },
+                complete: function() {
+                    $('#submitPaymentBtn').prop('disabled', false).html('<i class="fa fa-check"></i> Record Payment');
+                }
+            });
+        });
+
         loadLoanDetails();
     </script>
 </body>
