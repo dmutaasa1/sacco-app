@@ -126,6 +126,20 @@
             padding: 14px;
             min-height: 104px;
         }
+        .lookup-card {
+            background: #fff;
+            border: 1px solid #eaeef2;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 6px rgba(26,31,46,.06);
+        }
+        .lookup-actions {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
         .metric-label {
             font-size: .68rem;
             font-weight: 700;
@@ -299,7 +313,29 @@
         <div class="page-content">
             <div class="hero-strip" id="statementHero">
                 <div class="title">Preparing statement</div>
-                <div class="meta">Fetching loan profile and repayment schedule.</div>
+                <div class="meta">Enter a loan ID or open this page from the loan list.</div>
+            </div>
+
+            <div class="lookup-card">
+                <div class="row">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="form-group mb-md-0">
+                            <label for="loanLookupInput">Loan ID</label>
+                            <input type="number" class="form-control" id="loanLookupInput" min="1" placeholder="Enter loan ID">
+                            <div class="metric-sub">Load a statement for a specific loan account.</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-8">
+                        <div class="lookup-actions">
+                            <button class="btn btn-primary" id="loadLoanBtn" type="button">
+                                <i class="fa fa-search"></i> Load Statement
+                            </button>
+                            <a href="/loan_list" class="btn btn-secondary">
+                                <i class="fa fa-list"></i> Browse Loans
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="ibox">
@@ -405,16 +441,13 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const loanId = urlParams.get('loan_id');
+        let loanId = urlParams.get('loan_id');
 
         let currentLoan = null;
         let currentSchedule = [];
         let scheduleTableInstance = null;
 
-        if (!loanId) {
-            alert('No loan ID provided');
-            window.location.href = '/loan_list';
-        }
+        $('#loanLookupInput').val(loanId || '');
 
         function formatCurrency(value) {
             return 'UGX ' + Number(value || 0).toLocaleString('en-UG', {
@@ -464,6 +497,44 @@
                     <div class="detail-value">${item.value}</div>
                 </div>
             `).join('');
+        }
+
+        function setLoanContext(nextLoanId) {
+            loanId = nextLoanId ? String(nextLoanId).trim() : '';
+            $('#loanLookupInput').val(loanId);
+
+            const nextUrl = new URL(window.location.href);
+            if (loanId) {
+                nextUrl.searchParams.set('loan_id', loanId);
+            } else {
+                nextUrl.searchParams.delete('loan_id');
+            }
+            window.history.replaceState({}, '', nextUrl.toString());
+        }
+
+        function renderAwaitingLoanSelection() {
+            currentLoan = null;
+            currentSchedule = [];
+
+            $('#statementHero').html(`
+                <div class="title">Loan statement workspace</div>
+                <div class="meta">Enter a loan ID above to load the statement and payment schedule.</div>
+            `);
+            $('#summaryCards').html(`
+                <div class="metric-card"><div class="metric-label">Status</div><div class="metric-value">Awaiting loan</div></div>
+                <div class="metric-card"><div class="metric-label">Outstanding</div><div class="metric-value">-</div></div>
+                <div class="metric-card"><div class="metric-label">Installments</div><div class="metric-value">-</div></div>
+                <div class="metric-card"><div class="metric-label">Repayment</div><div class="metric-value">-</div></div>
+            `);
+            $('#loanDetails').html('<div class="empty-state">Enter a loan ID to view statement details.</div>');
+            $('#repaymentSnapshot').html('<div class="empty-state">Enter a loan ID to view repayment progress.</div>');
+
+            if (scheduleTableInstance) {
+                scheduleTableInstance.destroy();
+                scheduleTableInstance = null;
+            }
+
+            $('#scheduleBody').html('<tr><td colspan="9" class="empty-state">Enter a loan ID to view the payment schedule.</td></tr>');
         }
 
         function renderHero(loan, scheduleStats) {
@@ -795,6 +866,11 @@
         }
 
         function loadLoanStatement() {
+            if (!loanId) {
+                renderAwaitingLoanSelection();
+                return;
+            }
+
             $.ajax({
                 url: '/loans/' + loanId + '/statement',
                 type: 'GET',
@@ -811,6 +887,8 @@
                     renderSchedule(currentSchedule);
                 },
                 error: function() {
+                    currentLoan = null;
+                    currentSchedule = [];
                     $('#statementHero').html(`
                         <div class="title">Unable to load statement</div>
                         <div class="meta">The selected loan could not be found or the request failed.</div>
@@ -822,6 +900,25 @@
                 }
             });
         }
+
+        $('#loadLoanBtn').on('click', function() {
+            const enteredLoanId = ($('#loanLookupInput').val() || '').trim();
+            if (!enteredLoanId) {
+                alert('Enter a loan ID to continue.');
+                $('#loanLookupInput').focus();
+                return;
+            }
+
+            setLoanContext(enteredLoanId);
+            loadLoanStatement();
+        });
+
+        $('#loanLookupInput').on('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                $('#loadLoanBtn').trigger('click');
+            }
+        });
 
         $('#refreshStatementBtn').on('click', function() {
             loadLoanStatement();
@@ -835,6 +932,7 @@
             printStatementPdf();
         });
 
+        setLoanContext(loanId);
         loadLoanStatement();
     </script>
 </body>
