@@ -458,6 +458,10 @@ $(function () {
             contentType: 'application/json',
             data: JSON.stringify({ username: username, password: password }),
             success: function (response) {
+                if (response.forcePasswordChange) {
+                    window.location.href = '/forced-password-change';
+                    return;
+                }
                 if (response && response.role === 'member') {
                     window.location.href = '/member/dashboard';
                 } else {
