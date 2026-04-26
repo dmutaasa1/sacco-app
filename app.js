@@ -294,6 +294,12 @@ async function calculateMissingInterestForLoan(loan, startDate, endDate) {
 // Authentication middleware
 function checkAuth(req, res, next) {
   if (req.session && req.session.user) {
+    // If forced password change is required, redirect them (unless they are already on the change page or logging out)
+    if (req.session.user.force_password_change && 
+        req.path !== '/forced-password-change' && 
+        req.path !== '/logout') {
+      return res.redirect('/forced-password-change');
+    }
     next();
   } else {
     res.redirect('/login');
@@ -487,8 +493,8 @@ app.post('/users/add', checkAuth, asyncHandler(async (req, res) => {
   // Insert user
   await db.execute(`
     INSERT INTO users 
-    (username, password, first_name, last_name, role, status, member_id, created_by, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    (username, password, first_name, last_name, role, status, member_id, created_by, created_at, force_password_change)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), 1)
   `, [
     username, 
     hashedPassword, 
@@ -872,7 +878,8 @@ app.post('/login', asyncHandler(async (req, res) => {
     first_name: user.first_name,
     last_name: user.last_name,
     role: user.role,
-    member_id: user.member_id || null
+    member_id: user.member_id || null,
+    force_password_change: user.force_password_change // Store in session
   };
 
   // ✅ Wait for session to be saved before redirecting
@@ -883,8 +890,51 @@ app.post('/login', asyncHandler(async (req, res) => {
     }
 
     // Return role in response for client-side redirect
-    res.json({ role: user.role });
+    res.json({ 
+        role: user.role, 
+        forcePasswordChange: !!user.force_password_change 
+    });
   });
+}));
+
+// ==================== FORCED PASSWORD CHANGE ROUTES ====================
+
+app.get('/forced-password-change', (req, res) => {
+    if (!req.session.user || !req.session.user.force_password_change) {
+        return res.redirect('/');
+    }
+    res.render('forced_password_change', { user: req.session.user });
+});
+
+app.post('/forced-password-change', asyncHandler(async (req, res) => {
+    if (!req.session.user || !req.session.user.force_password_change) {
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const { new_password, confirm_password } = req.body;
+    const db = dbConfig;
+
+    if (!new_password || new_password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    if (new_password !== confirm_password) {
+        return res.status(400).json({ error: 'Passwords do not match' });
+    }
+
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+
+    await db.execute(
+        'UPDATE users SET password = ?, force_password_change = 0 WHERE id = ?',
+        [hashedPassword, req.session.user.id]
+    );
+
+    // Update session
+    req.session.user.force_password_change = 0;
+    
+    req.session.save((err) => {
+        if (err) return res.status(500).json({ error: 'Session error' });
+        res.json({ success: true, message: 'Password updated successfully' });
+    });
 }));
 
 // GET: Member login page

@@ -359,22 +359,22 @@ html, body {
             <form id="login-form">
 
                 <div class="form-field">
-                    <label>Username</label>
+                    <label for="usernameField">Username</label>
                     <div class="input-wrap">
-                        <input type="text" name="username" placeholder="Enter your username"
-                               autocomplete="username" required />
+                        <input type="text" name="username" id="usernameField" placeholder="Enter your username"
+                               autocomplete="username" required autofocus />
                         <i class="f-icon fa fa-user-o"></i>
                     </div>
                 </div>
 
                 <div class="form-field">
-                    <label>Password</label>
+                    <label for="passwordField">Password</label>
                     <div class="input-wrap">
                         <input type="password" name="password" id="passwordField"
                                placeholder="Enter your password"
                                autocomplete="current-password" required />
                         <i class="f-icon fa fa-lock"></i>
-                        <button type="button" class="pwd-toggle" id="togglePwd" tabindex="-1">
+                        <button type="button" class="pwd-toggle" id="togglePwd" title="Toggle password visibility">
                             <i class="fa fa-eye" id="togglePwdIcon"></i>
                         </button>
                     </div>
@@ -472,11 +472,6 @@ $(function () {
                 btn.prop('disabled', false).html('<i class="fa fa-sign-in"></i> Sign In');
             }
         });
-    });
-
-    /* ── Enter key on any field ── */
-    $('input').on('keypress', function (e) {
-        if (e.which === 13) { $('#login-form').submit(); }
     });
 
 });
