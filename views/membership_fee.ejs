@@ -150,6 +150,14 @@
             <div class="ibox">
                 <div class="ibox-head">
                     <div class="ibox-title">Filter Criteria</div>
+                    <div class="ibox-tools">
+                        <button class="btn btn-outline-primary btn-sm" id="excelExportBtn">
+                            <i class="fa fa-file-excel-o"></i> Excel Export
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="pdfExportBtn">
+                            <i class="fa fa-file-pdf-o"></i> PDF Print
+                        </button>
+                    </div>
                 </div>
                 <div class="ibox-body">
                     <div class="filters-grid">
@@ -218,6 +226,127 @@
     <script src="/assets/vendors/DataTables/datatables.min.js"></script>
     <script src="/assets/js/app.min.js"></script>
     <script>
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getFilterPayload() {
+            return {
+                payment_period: $('#payment_period').val(),
+                memberStatus: $('#memberStatus').val(),
+                paymentStatus: $('#paymentStatus').val()
+            };
+        }
+
+        async function fetchAllMembershipFeeRows() {
+            const response = await $.ajax({
+                url: '/membership_fee/payment-status',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    ...getFilterPayload(),
+                    start: 0,
+                    length: 10000,
+                    draw: 1
+                })
+            });
+            return Array.isArray(response.data) ? response.data : [];
+        }
+
+        function exportMembershipFeeExcel(rows) {
+            if (!rows.length) { alert('No data available for export.'); return; }
+
+            let tableHtml = `
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>First Name</th><th>Last Name</th><th>Phone</th>
+                            <th>Date Joined</th><th>Status</th><th>Total (UGX)</th>
+                            <th>Last Payment Date</th><th>Period</th><th>Payment Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            rows.forEach(r => {
+                tableHtml += `
+                    <tr>
+                        <td>${escapeHtml(r.member_id)}</td>
+                        <td>${escapeHtml(r.First_name)}</td>
+                        <td>${escapeHtml(r.Last_Name)}</td>
+                        <td>${escapeHtml(r.tel_no)}</td>
+                        <td>${r.Date_Joined ? new Date(r.Date_Joined).toLocaleDateString('en-GB') : ''}</td>
+                        <td>${escapeHtml(r.Status)}</td>
+                        <td>${Number(r.Total_Amount || 0)}</td>
+                        <td>${r.last_payment_date ? new Date(r.last_payment_date).toLocaleDateString('en-GB') : 'N/A'}</td>
+                        <td>${escapeHtml(r.last_payment_period)}</td>
+                        <td>${escapeHtml(r.Payment_Status)}</td>
+                    </tr>
+                `;
+            });
+            tableHtml += '</tbody></table>';
+
+            const blob = new Blob(['\ufeff' + tableHtml], { type: 'application/vnd.ms-excel' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'membership-fee-report.xls';
+            link.click();
+        }
+
+        function printMembershipFeePdf(rows) {
+            if (!rows.length) { alert('No data available for printing.'); return; }
+            const printWindow = window.open('', '_blank');
+            const summaryHtml = document.querySelector('.summary-grid').innerHTML;
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Membership Fee Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; font-size: 12px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background: #f4f4f4; }
+                        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; border: 1px solid #eee; padding: 10px; }
+                        .metric-card { padding: 10px; }
+                        .metric-label { font-size: 10px; color: #666; font-weight: bold; }
+                        .metric-value { font-size: 14px; font-weight: bold; margin-top: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Membership Fee Compliance Report — ${$('#payment_period').val() || 'All Years'}</h2>
+                    <div class="grid">${summaryHtml}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Name</th><th>Phone</th><th>Status</th>
+                                <th>Total (UGX)</th><th>Last Paid</th><th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows.map(r => `
+                                <tr>
+                                    <td>${r.member_id}</td>
+                                    <td>${r.First_name} ${r.Last_Name}</td>
+                                    <td>${r.tel_no}</td>
+                                    <td>${r.Status}</td>
+                                    <td>${Number(r.Total_Amount).toLocaleString()}</td>
+                                    <td>${r.last_payment_date ? new Date(r.last_payment_date).toLocaleDateString('en-GB') : 'N/A'}</td>
+                                    <td>${r.Payment_Status}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </body></html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
         function updateSummaryCards(data) {
             let total = 0;
             let paid = 0;
@@ -307,6 +436,16 @@
             // Reload table when filter button clicked
             $('#filterBtn').on('click', function () {
                 table.ajax.reload();
+            });
+
+            $('#excelExportBtn').on('click', async function() {
+                const rows = await fetchAllMembershipFeeRows();
+                exportMembershipFeeExcel(rows);
+            });
+
+            $('#pdfExportBtn').on('click', async function() {
+                const rows = await fetchAllMembershipFeeRows();
+                printMembershipFeePdf(rows);
             });
         });
     </script>
