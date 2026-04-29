@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>St_Kizito Agali Awamu - Welfare Payment Status</title>
+    <title>Welfare Status - Agali Awamu SACCO</title>
     <!-- GLOBAL MAINLY STYLES-->
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
@@ -13,6 +13,64 @@
     <link href="./assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
     <!-- THEME STYLES-->
     <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:#f7fafc; }
+.page-wrapper { min-height:100vh; width:100%; max-width:100%; }
+.content-wrapper { padding:0; background: transparent; }
+.dash-body { padding:14px 22px 28px; }
+@media(max-width:991px){
+    .dash-body { padding:12px 14px 24px; }
+    .page-heading { padding:12px 14px 0; }
+}
+
+/* heading */
+.page-heading { padding:14px 22px 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; border:none; background:transparent; }
+.page-heading h1.page-title { font-size:1.1rem; font-weight:700; color:#1a1f2e; margin:0; }
+.breadcrumb { background:transparent; padding:0; margin:4px 0 0; font-size:.72rem; }
+
+/* shared card */
+.ibox { margin-bottom:12px !important; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(26,31,46,.06); border:1px solid #eaeef2; background:#fff; }
+.ibox-head { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid #eaeef2; background:#fff; }
+.ibox-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#718096; }
+.ibox-body { padding:11px 12px; background:#fff; }
+
+/* table overrides */
+.table { width:100% !important; border-collapse:collapse !important; }
+.table thead th { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#a0aec0; padding:6px 10px; border-bottom:2px solid #eaeef2 !important; background:#fafbfc; white-space:nowrap; border-top:none; }
+.table td { font-size:.74rem; padding:7px 10px; border-bottom:1px solid #f0f4f8 !important; color:#444; vertical-align:middle; }
+.table tr:hover td { background:#fafbfc; }
+
+/* filter bar */
+.filter-section { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-group label { font-size:.65rem; font-weight:600; color:#718096; margin-bottom:0; text-transform:uppercase; }
+.filter-group select, .filter-group input {
+    height:34px; border:1px solid #e2e8f0; border-radius:7px;
+    padding:0 10px; font-size:.78rem; color:#1a1f2e; font-family:'DM Sans',sans-serif;
+    background:#f8fafc; outline:none; min-width: 140px;
+}
+.filter-group select:focus, .filter-group input:focus { border-color:#9f7aea; box-shadow:0 0 0 2px rgba(159,122,234,.1); }
+
+.btn-primary { 
+    height:34px; padding:0 18px; border-radius:7px; border:none; 
+    background:#9f7aea; color:#fff; font-size:.78rem; font-weight:600; 
+    cursor:pointer; font-family:'DM Sans',sans-serif; transition: all .2s;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active { background:#8c6ba5 !important; transform: translateY(-1px); }
+
+/* badges */
+.badge-status { border-radius:6px; padding:2px 8px; font-size:.6rem; font-weight:600; }
+
+hr { border-top: 1px solid #eaeef2; margin: 15px 0; }
+
+/* DataTables Customization */
+.dataTables_wrapper .dataTables_info { font-size: .7rem; color: #a0aec0; padding-top: 15px; }
+.dataTables_wrapper .dataTables_paginate { padding-top: 10px; }
+.dataTables_wrapper .dataTables_paginate .paginate_button { padding: 4px 10px; font-size: .7rem; border-radius: 4px !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #9f7aea !important; border-color: #9f7aea !important; color: white !important; }
+</style>
 </head>
 
 <body class="fixed-navbar">
@@ -26,86 +84,92 @@
         <div class="content-wrapper">
             <!-- START PAGE CONTENT-->
             <div class="page-heading">
-                <h1 class="page-title">Welfare Fee Status</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="index.html"><i class="la la-home font-20"></i></a>
-                    </li>
-                    <li class="breadcrumb-item">Welfare Fee Status</li>
-                </ol>
+                <div>
+                    <h1 class="page-title"><i class="fa fa-heart" style="color:#9f7aea;margin-right:8px;"></i>Welfare Fee Status</h1>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/dashboard"><i class="fa fa-home"></i></a></li>
+                        <li class="breadcrumb-item">Reports</li>
+                        <li class="breadcrumb-item">Welfare Status</li>
+                    </ol>
+                </div>
             </div>
-            <div class="page-content fade-in-up">
+            <div class="dash-body">
+                <!-- Filters -->
                 <div class="ibox">
                     <div class="ibox-head">
-                        <div class="ibox-title">Welfare Fee Status Report</div>
+                        <div class="ibox-title"><i class="fa fa-filter" style="margin-right:5px;color:#9f7aea;"></i>Report Filters</div>
                     </div>
-                          <!-- Filters -->
-        <div class="ibox">
-            <div class="ibox-body">
-                <div class="clf" style="margin-bottom:5px;font-size: 95%;">
-                    <div class="row" style="margin-bottom: 20px;">
-                        <div class="col-md-12">
-                            <label class="mr-2">Payment Period:</label>
-                            <select id="payment_period" class="mr-4">
-                                <option value="">-- All --</option>
-                                <option value="2020">2020</option>
-                                <option value="2021">2021</option>
-                                <option value="2022">2022</option>
-                                <option value="2023">2023</option>
-                                <option value="2024">2024</option>        
-                                <option value="2025" >2025</option>
-                                <option value="2026"selected>2026</option>
-                                <option value="2027">2027</option>
-                                <option value="2028">2028</option>
-                                <option value="2029">2029</option>
-                                <option value="2030">2030</option>
-                            </select>
+                    <div class="ibox-body">
+                        <div class="filter-section">
+                            <div class="filter-group">
+                                <label>Payment Period</label>
+                                <select id="payment_period">
+                                    <option value="">-- All --</option>
+                                    <option value="2020">2020</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2024">2024</option>        
+                                    <option value="2025" >2025</option>
+                                    <option value="2026" selected>2026</option>
+                                    <option value="2027">2027</option>
+                                    <option value="2028">2028</option>
+                                    <option value="2029">2029</option>
+                                    <option value="2030">2030</option>
+                                </select>
+                            </div>
 
-                            <label class="mr-2">Member Status:</label>
-                            <select id="memberStatus" class="mr-4">
-                                <option value="">-- All --</option>
-                                <option value="ACTIVE" selected>Active</option>
-                                <option value="INACTIVE">Inactive</option>
-                                <option value="SUSPENDED">Suspended</option>
-                            </select>
+                            <div class="filter-group">
+                                <label>Member Status</label>
+                                <select id="memberStatus">
+                                    <option value="">-- All --</option>
+                                    <option value="ACTIVE" selected>Active</option>
+                                    <option value="INACTIVE">Inactive</option>
+                                    <option value="SUSPENDED">Suspended</option>
+                                </select>
+                            </div>
 
-                            <label class="mr-2">Payment Status:</label>
-                            <select id="paymentStatus" class="mr-4">
-                                <option value="">-- All --</option>
-                                <option value="Paid">Paid</option>
-                                <option value="Not Paid">Not Paid</option>
-                            </select>
-                            
-                            <button id="filterBtn" class="btn btn-primary ml-2">Load Members</button>
+                            <div class="filter-group">
+                                <label>Payment Status</label>
+                                <select id="paymentStatus">
+                                    <option value="">-- All --</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Not Paid">Not Paid</option>
+                                </select>
+                            </div>
+                            <button id="filterBtn" class="btn btn-primary"><i class="fa fa-refresh" style="margin-right:5px;"></i>Load Members</button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <hr>
-
-        <!-- DataTable -->
-        <table id="paymentStatusTable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
-            <thead>
-                <tr>
-                    <th>Member ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Phone</th>
-                    <th>Date Joined</th>
-                    <th>Status</th>
-                    <th>Total Amount</th>
-                    <th>Last Payment Date</th>
-                    <th>Last Payment Period</th>
-                    <th>Payment Status</th>
-                </tr>
-            </thead>
-        </table>
-
+                <!-- DataTable -->
+                <div class="ibox">
+                    <div class="ibox-head">
+                        <div class="ibox-title"><i class="fa fa-list" style="margin-right:5px;color:#718096;"></i>Contribution Report</div>
+                    </div>
+                    <div class="ibox-body">
+                        <div class="table-responsive">
+                            <table id="paymentStatusTable" class="table table-hover" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>Member ID</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Phone</th>
+                                        <th>Joined</th>
+                                        <th>Status</th>
+                                        <th>Total Paid</th>
+                                        <th>Last Payment</th>
+                                        <th>Period</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-               
-            </div>
+            </div><!-- dash-body -->
+
             <!-- END PAGE CONTENT-->
             <footer class="page-footer">
                 <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
@@ -115,134 +179,7 @@
         </div>
     </div>
     <!-- BEGIN THEME CONFIG PANEL-->
-    <div class="theme-config">
-        <div class="theme-config-toggle"><i class="fa fa-cog theme-config-show"></i><i class="ti-close theme-config-close"></i></div>
-        <div class="theme-config-box">
-            <div class="text-center font-18 m-b-20">SETTINGS</div>
-            <div class="font-strong">LAYOUT OPTIONS</div>
-            <div class="check-list m-b-20 m-t-10">
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedNavbar" type="checkbox" checked>
-                    <span class="input-span"></span>Fixed navbar</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedlayout" type="checkbox">
-                    <span class="input-span"></span>Fixed layout</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input class="js-sidebar-toggler" type="checkbox">
-                    <span class="input-span"></span>Collapse sidebar</label>
-            </div>
-            <div class="font-strong">LAYOUT STYLE</div>
-            <div class="m-t-10">
-                <label class="ui-radio ui-radio-gray m-r-10">
-                    <input type="radio" name="layout-style" value="" checked="">
-                    <span class="input-span"></span>Fluid</label>
-                <label class="ui-radio ui-radio-gray">
-                    <input type="radio" name="layout-style" value="1">
-                    <span class="input-span"></span>Boxed</label>
-            </div>
-            <div class="m-t-10 m-b-10 font-strong">THEME COLORS</div>
-            <div class="d-flex m-b-20">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Default">
-                    <label>
-                        <input type="radio" name="setting-theme" value="default" checked="">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-white"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-            </div>
-            <div class="d-flex">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="White">
-                    <label>
-                        <input type="radio" name="setting-theme" value="white">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
+    <%- include('partials/theme_config') %>
     <!-- END THEME CONFIG PANEL-->
     <!-- BEGIN PAGA BACKDROPS-->
     <div class="sidenav-backdrop backdrop"></div>
@@ -298,14 +235,15 @@
                     { 
                         data: 'Status',
                         render: function (data) {
-                            const color = data === 'Active' ? 'green' : 'red';
-                            return `<span style="color:${color}; font-weight:bold;">${data}</span>`;
+                            const color = data === 'Active' ? '#00b894' : '#e17055';
+                            const bg = data === 'Active' ? '#e6faf4' : '#fff5f0';
+                            return `<span class="badge-status" style="color:${color}; background:${bg};">${data}</span>`;
                         }
                     },
                     { 
                         data: 'Total_Amount',
                         render: function (data) {
-                            return `UGX ${parseInt(data, 10).toLocaleString()}`;
+                            return `<span style="font-weight:600;color:#1a1f2e;">UGX ${parseInt(data, 10).toLocaleString()}</span>`;
                         }
                     },
                     { 
@@ -318,9 +256,10 @@
                     { 
                         data: 'Payment_Status',
                         render: function (data) {
-                            const color = data === 'Paid' ? 'green' : 'red';
+                            const color = data === 'Paid' ? '#00b894' : '#e17055';
+                            const bg = data === 'Paid' ? '#e6faf4' : '#fff5f0';
                             const icon = data === 'Paid' ? '✓' : '✗';
-                            return `<span style="color:${color}; font-weight:bold;">${icon} ${data}</span>`;
+                            return `<span class="badge-status" style="color:${color}; background:${bg};">${icon} ${data}</span>`;
                         }
                     }
                 ]
