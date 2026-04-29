@@ -12,14 +12,12 @@
 * { box-sizing:border-box; }
 html, body { width:100%; max-width:100%; overflow-x:hidden; }
 body { font-family:'DM Sans',sans-serif; background:#f7fafc; }
-.page-wrapper { margin-left:220px; margin-top:60px; min-height:calc(100vh - 60px); width:calc(100% - 220px); max-width:100%; }
-body.sidebar-collapsed .page-wrapper { margin-left:60px; }
+
 .dash-body { padding:14px 22px 28px; }
 @media(max-width:991px){
-    .page-wrapper { margin-left:0; width:100%; max-width:100%; }
     .dash-body { padding:12px 14px 24px; }
     .page-heading { padding:12px 14px 0; }
-    .stats-grid { grid-template-columns:1fr; }
+    .stats-grid { grid-template-columns:1fr 1fr; }
 }
 
 /* heading */
@@ -65,11 +63,9 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
     background:#f8fafc; outline:none;
 }
 .filter-bar select:focus, .filter-bar input:focus { border-color:#9f7aea; box-shadow:0 0 0 2px rgba(159,122,234,.1); }
-.btn-filter { height:34px; padding:0 14px; border-radius:7px; border:none; background:#9f7aea; color:#fff; font-size:.78rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
-.btn-filter:hover { background:#8c6ba5; }
 
 /* badges */
-.badge-paid { background:#e6faf4; color:#00b894; border-radius:6px; padding:2px 8px; font-size:.6rem; font-weight:600; }
+.badge-paid { background:#f3e8ff; color:#9f7aea; border-radius:6px; padding:2px 8px; font-size:.6rem; font-weight:600; }
 </style>
 </head>
 <body>
@@ -91,34 +87,34 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
         <div class="stats-grid">
             <div class="ibox widget-stat" style="background:linear-gradient(135deg,#9f7aea,#b794f4);">
                 <div class="ibox-body">
-                    <i class="fa fa-heart widget-stat-icon" style="color:#1a1f2e;"></i>
-                    <div class="widget-stat-title" style="color:#1a1f2e;">Total Paid</div>
-                    <h2 style="color:#1a1f2e;">UGX <%= Number(total || 0).toLocaleString() %></h2>
-                    <div class="widget-stat-footer" style="color:#1a1f2e;">All time welfare payments</div>
+                    <i class="fa fa-heart widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Total Paid</div>
+                    <h2 style="color:#fff;">UGX <%= Number(total || 0).toLocaleString() %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">All time welfare payments</div>
                 </div>
             </div>
             <div class="ibox widget-stat" style="background:linear-gradient(135deg,#48bb78,#68d391);">
                 <div class="ibox-body">
-                    <i class="fa fa-check-circle widget-stat-icon" style="color:#1a1f2e;"></i>
-                    <div class="widget-stat-title" style="color:#1a1f2e;">Completion</div>
-                    <h2 style="color:#1a1f2e;"><%= pct %>%</h2>
-                    <div class="widget-stat-footer" style="color:#1a1f2e;">Target: UGX 240,000/year</div>
+                    <i class="fa fa-check-circle widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Completion</div>
+                    <h2 style="color:#fff;"><%= pct %>%</h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Target: UGX 240,000/year</div>
                 </div>
             </div>
             <div class="ibox widget-stat" style="background:linear-gradient(135deg,#ed8936,#f6ad55);">
                 <div class="ibox-body">
-                    <i class="fa fa-calendar widget-stat-icon" style="color:#1a1f2e;"></i>
-                    <div class="widget-stat-title" style="color:#1a1f2e;">Payment Count</div>
-                    <h2 style="color:#1a1f2e;"><%= transactions.length %></h2>
-                    <div class="widget-stat-footer" style="color:#1a1f2e;">Total transaction<%= transactions.length !== 1 ? 's' : '' %></div>
+                    <i class="fa fa-calendar widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Payment Count</div>
+                    <h2 style="color:#fff;"><%= transactions.length %></h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Total transaction<%= transactions.length !== 1 ? 's' : '' %></div>
                 </div>
             </div>
-            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#c05621,#dd6b20);">
+            <div class="ibox widget-stat" style="background:linear-gradient(135deg,#4299e1,#63b3ed);">
                 <div class="ibox-body">
-                    <i class="fa fa-info-circle widget-stat-icon" style="color:#1a1f2e;"></i>
-                    <div class="widget-stat-title" style="color:#1a1f2e;">Annual Target</div>
-                    <h2 style="color:#1a1f2e;">UGX 240,000</h2>
-                    <div class="widget-stat-footer" style="color:#1a1f2e;">Expected contribution</div>
+                    <i class="fa fa-info-circle widget-stat-icon" style="color:#fff;"></i>
+                    <div class="widget-stat-title" style="color:#fff;">Annual Target</div>
+                    <h2 style="color:#fff;">UGX 240,000</h2>
+                    <div class="widget-stat-footer" style="color:#fff;">Expected contribution</div>
                 </div>
             </div>
         </div>
@@ -155,13 +151,12 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
                         <div style="font-size:.65rem;font-weight:600;color:#718096;margin-bottom:3px;text-transform:uppercase;">Year</div>
                         <select id="filterYear" onchange="filterTable()">
                             <option value="">All Years</option>
-                            <% 
+                            <%
                             var years = new Set();
-                            transactions.forEach(function(t){ 
+                            transactions.forEach(function(t){
                                 if(t.payment_period) years.add(t.payment_period);
                             });
-                            Array.from(years).sort().reverse().forEach(function(y){
-                            %>
+                            Array.from(years).sort().reverse().forEach(function(y){ %>
                             <option value="<%= y %>"><%= y %></option>
                             <% }); %>
                         </select>
@@ -189,7 +184,7 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
                             <td style="color:#a0aec0;"><%= i+1 %></td>
                             <td><%= t.tran_date %></td>
                             <td><span class="badge-paid"><%= t.payment_period || '—' %></span></td>
-                            <td style="text-align:right;font-weight:600;color:#1a1f2e;">UGX <%= Number(t.Amount).toLocaleString() %></td>
+                            <td style="text-align:right;font-weight:600;color:#9f7aea;">UGX <%= Number(t.Amount).toLocaleString() %></td>
                             <td style="color:#a0aec0;font-size:.68rem;"><%= t.description || 'Welfare fund payment' %></td>
                         </tr>
                         <% }) %>
@@ -214,12 +209,9 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; }
 function filterTable() {
     var year   = document.getElementById('filterYear').value;
     var search = document.getElementById('filterSearch').value.toLowerCase();
-    var rows   = document.querySelectorAll('#welfareTable tbody tr');
-    rows.forEach(function(row) {
-        var rYear = (row.dataset.year || '');
-        var rDesc = (row.dataset.desc || '');
-        var matchYear   = !year   || rYear === year;
-        var matchSearch = !search || rDesc.includes(search);
+    document.querySelectorAll('#welfareTable tbody tr').forEach(function(row) {
+        var matchYear   = !year   || (row.dataset.year || '') === year;
+        var matchSearch = !search || (row.dataset.desc || '').includes(search);
         row.style.display = (matchYear && matchSearch) ? '' : 'none';
     });
 }
