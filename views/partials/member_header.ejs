@@ -156,6 +156,13 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
     display: flex; align-items: center; justify-content: center;
     font-size: .72rem; font-weight: 700; color: #fff; flex-shrink: 0;
 }
+.usr-avatar img {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+}
 .usr-name { font-size: .78rem; font-weight: 600; color: #1a1f2e; }
 .usr-chevron { font-size: .6rem; color: #a0aec0; transition: transform .18s; }
 .usr-btn.open .usr-chevron { transform: rotate(180deg); }
@@ -256,9 +263,15 @@ body.sidebar-open #mobileSidebarBackdrop {
 
             <div class="usr-wrap">
                 <button class="usr-btn" id="usrBtn" type="button">
-                    <div class="usr-avatar">
-                        <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
-                    </div>
+                    <% if (typeof photoBase64 !== 'undefined' && photoBase64) { %>
+                        <div class="usr-avatar" style="background:none;">
+                            <img src="data:image/jpeg;base64,<%= photoBase64 %>" alt="Profile photo" />
+                        </div>
+                    <% } else { %>
+                        <div class="usr-avatar">
+                            <%= (user.first_name || 'U').charAt(0).toUpperCase() %><%= (user.last_name || '').charAt(0).toUpperCase() %>
+                        </div>
+                    <% } %>
                     <span class="usr-name"><%= user.first_name %></span>
                     <i class="fa fa-chevron-down usr-chevron"></i>
                 </button>

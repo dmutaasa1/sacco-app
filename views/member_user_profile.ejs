@@ -121,6 +121,12 @@
             margin: 0 auto 12px;
             box-shadow: 0 4px 18px rgba(0,184,148,.26);
         }
+        .profile-avatar img {
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
         .profile-name {
             font-size: 1rem;
             font-weight: 700;
@@ -361,9 +367,15 @@
             <div class="profile-left">
                 <div class="ibox">
                     <div class="profile-avatar-wrap">
-                        <div class="profile-avatar">
-                            <%= (userDetails.first_name || 'U').charAt(0).toUpperCase() %><%= (userDetails.last_name || '').charAt(0).toUpperCase() %>
-                        </div>
+                        <% if (typeof photoBase64 !== 'undefined' && photoBase64) { %>
+                            <div class="profile-avatar" style="background:none;box-shadow:none;">
+                                <img src="data:image/jpeg;base64,<%= photoBase64 %>" alt="Profile photo" />
+                            </div>
+                        <% } else { %>
+                            <div class="profile-avatar">
+                                <%= (userDetails.first_name || 'U').charAt(0).toUpperCase() %><%= (userDetails.last_name || '').charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
                         <div class="profile-name"><%= userDetails.first_name %> <%= userDetails.last_name %></div>
                         <div class="profile-id">User ID: #<%= userDetails.id %></div>
                         <div class="profile-badges">

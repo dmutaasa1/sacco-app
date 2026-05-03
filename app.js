@@ -5507,6 +5507,7 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
 
 app.get('/member/account', checkMemberAuth, asyncHandler(async (req, res) => {
   const db = dbConfig;
+  const memberId = req.session.user.member_id;
   
   const [userDetails] = await db.execute(`
     SELECT 
@@ -5526,10 +5527,25 @@ app.get('/member/account', checkMemberAuth, asyncHandler(async (req, res) => {
     return res.status(404).send('User account not found');
   }
 
+  let photoBase64 = null;
+  if (memberId) {
+    const [memberRows] = await db.execute(`
+      SELECT Passport_Photo
+      FROM members_mst
+      WHERE id = ?
+      LIMIT 1
+    `, [memberId]);
+
+    if (memberRows.length && memberRows[0].Passport_Photo) {
+      photoBase64 = memberRows[0].Passport_Photo.toString('base64');
+    }
+  }
+
   res.render('member_user_profile', { 
     currentPage: 'member_account', 
     user: req.session.user,
-    userDetails: userDetails[0]
+    userDetails: userDetails[0],
+    photoBase64
   });
 }));
 
