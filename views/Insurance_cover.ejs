@@ -1,440 +1,731 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>St_Kizito Agali Awamu - Insurance Cover Payment Status</title>
-    <!-- GLOBAL MAINLY STYLES-->
-    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <!-- PLUGINS STYLES-->
-    <link href="./assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
-    <!-- THEME STYLES-->
-    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Cover Status Report</title>
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-        .insurance-report .ibox {
-            margin-bottom: 12px;
-            border-radius: 6px;
-            overflow: hidden;
+        :root {
+            --insurance-primary: #0f766e;
+            --insurance-primary-dark: #115e59;
+            --insurance-accent: #0d9488;
+            --insurance-soft: #f0fdfa;
+            --insurance-border: #d6f5ef;
+            --insurance-text: #1a1f2e;
+            --insurance-muted: #718096;
+            --insurance-danger: #c53030;
+            --insurance-success: #0f766e;
         }
 
-        .insurance-report .ibox-head {
+        * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+
+        .page-wrapper {
+            margin-left: 220px !important;
+            margin-top: 60px;
+            width: calc(100% - 220px) !important;
+            max-width: 100%;
+            transition: margin-left .22s ease, width .22s ease;
+        }
+        body.sidebar-collapsed .page-wrapper {
+            margin-left: 60px !important;
+            width: calc(100% - 60px) !important;
+        }
+        @media (max-width: 991px) {
+            .page-wrapper {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100%;
+            }
+            .page-heading { padding: 12px 14px 0; }
+            .page-content { padding: 12px 14px 24px; }
+        }
+
+        .page-heading { padding: 14px 22px 0; }
+        .page-heading h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--insurance-text);
+            margin: 0;
+        }
+        .page-subtitle {
+            margin-top: 4px;
+            color: var(--insurance-muted);
+            font-size: .78rem;
+        }
+        .page-content { padding: 12px 22px 24px; }
+        .page-footer {
+            padding: 12px 22px;
+            font-size: .72rem;
+            color: #a0aec0;
+            text-align: center;
+            border-top: 1px solid #eaeef2;
+            background: #fff;
+        }
+
+        .hero-strip {
+            background: linear-gradient(135deg, var(--insurance-accent) 0%, var(--insurance-primary-dark) 100%);
+            border-radius: 10px;
+            color: #fff;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 12px 30px rgba(15, 118, 110, 0.18);
+        }
+        .hero-strip .title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .hero-strip .meta {
+            font-size: .78rem;
+            opacity: .92;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 767px) {
+            .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 575px) {
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+
+        .metric-card {
+            background: #fff;
+            border: 1px solid #eaeef2;
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 104px;
+            box-shadow: 0 1px 6px rgba(26, 31, 46, .06);
+        }
+        .metric-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--insurance-muted);
+            margin-bottom: 10px;
+        }
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--insurance-text);
+            line-height: 1.35;
+        }
+        .metric-sub {
+            margin-top: 6px;
+            font-size: .72rem;
+            color: var(--insurance-muted);
+        }
+
+        .ibox {
+            margin-bottom: 14px !important;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 6px rgba(26, 31, 46, .06);
+            border: 1px solid #eaeef2;
+        }
+        .ibox-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 14px;
+            gap: 10px;
+            padding: 12px 14px;
             border-bottom: 1px solid #eaeef2;
+            background: #fff;
+            flex-wrap: wrap;
         }
-
-        .insurance-report .ibox-title {
-            font-size: .78rem;
+        .ibox-title {
+            font-size: .72rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: .45px;
-            color: #555;
+            letter-spacing: .5px;
+            color: var(--insurance-muted);
+        }
+        .ibox-body { padding: 14px; background: #fff; }
+
+        .btn {
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .btn-sm { padding: 5px 12px; font-size: .7rem; }
+        .btn-primary {
+            background: var(--insurance-primary);
+            border: none;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--insurance-primary-dark);
+            color: #fff;
+        }
+        .btn-secondary {
+            background: #edf2f7;
+            border: none;
+            color: #2d3748;
+        }
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #1a202c;
+        }
+        .btn-outline-primary {
+            border: 1px solid var(--insurance-primary);
+            color: var(--insurance-primary);
+            background: #fff;
+        }
+        .btn-outline-primary:hover {
+            background: var(--insurance-primary);
+            color: #fff;
         }
 
-        .insurance-filter-grid {
+        .filters-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(160px, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 12px;
             align-items: end;
         }
-
-        .insurance-filter-grid label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: .72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .35px;
-            color: #6b7280;
-        }
-
-        .insurance-filter-grid .form-control,
-        .insurance-filter-grid .btn {
-            min-height: 36px;
-        }
-
-        .insurance-table-wrap {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        #paymentStatusTable th {
-            white-space: nowrap;
-            font-size: .72rem;
-            text-transform: uppercase;
-            letter-spacing: .25px;
-        }
-
-        #paymentStatusTable td {
-            vertical-align: middle;
-        }
-
-        .status-label {
-            font-weight: 700;
-        }
-
-        .status-label.is-good {
-            color: #18c5a9;
-        }
-
-        .status-label.is-bad {
-            color: #ff5c75;
-        }
-
         @media (max-width: 991px) {
-            .insurance-filter-grid {
-                grid-template-columns: repeat(2, minmax(160px, 1fr));
-            }
+            .filters-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 575px) {
+            .filters-grid { grid-template-columns: 1fr; }
         }
 
-        @media (max-width: 575px) {
-            .insurance-filter-grid {
-                grid-template-columns: 1fr;
-            }
+        .form-group label {
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--insurance-text);
+            margin-bottom: 5px;
+        }
+        .form-control {
+            font-size: .75rem;
+            padding: 8px 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: #fff;
+            min-height: 38px;
+        }
+        .form-control:focus {
+            border-color: var(--insurance-accent);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+        }
+
+        .table-responsive { overflow-x: auto; }
+        #insuranceTable {
+            width: 100% !important;
+            font-size: .75rem;
+        }
+        #insuranceTable thead th {
+            padding: 7px 8px;
+            font-size: .72rem;
+            font-weight: 700;
+            background: #f7fafc;
+            border-bottom: 2px solid #eaeef2;
+            color: var(--insurance-text);
+            white-space: nowrap;
+        }
+        #insuranceTable tbody td {
+            padding: 7px 8px;
+            vertical-align: middle;
+            border-color: #eaeef2;
+        }
+        #insuranceTable tbody tr:hover { background: #f7fafc; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .status-pill.paid {
+            background: #ecfdf5;
+            color: var(--insurance-success);
+        }
+        .status-pill.unpaid {
+            background: #fff1f2;
+            color: var(--insurance-danger);
+        }
+        .member-status {
+            font-weight: 700;
+        }
+        .member-status.active { color: var(--insurance-success); }
+        .member-status.inactive,
+        .member-status.suspended { color: var(--insurance-danger); }
+
+        .dataTables_wrapper { font-size: .75rem; }
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: .75rem;
+        }
+        .dataTables_wrapper .pagination .page-link {
+            font-size: .75rem;
+            padding: .4rem .6rem;
+            color: var(--insurance-primary);
+        }
+        .dataTables_wrapper .pagination .page-item.active .page-link {
+            background: var(--insurance-primary);
+            border-color: var(--insurance-primary);
         }
     </style>
 </head>
-
-<body class="fixed-navbar">
+<body>
     <div class="page-wrapper">
-        <!-- START HEADER-->
         <%- include('partials/header') %>
-        <!-- END HEADER-->
-        <!-- START SIDEBAR-->
-       <%- include('partials/sidebar') %>
-        <!-- END SIDEBAR-->
-        <div class="content-wrapper">
-            <!-- START PAGE CONTENT-->
-            <div class="page-heading">
-                <h1 class="page-title">Insurance Cover Status</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="index.html"><i class="la la-home font-20"></i></a>
-                    </li>
-                    <li class="breadcrumb-item">Insurance Cover Status</li>
-                </ol>
-            </div>
-            <div class="page-content fade-in-up insurance-report">
-                <div class="ibox">
-                    <div class="ibox-head">
-                        <div class="ibox-title">Insurance Cover Status Report</div>
-                    </div>
-                    <div class="ibox-body">
-                        <div class="insurance-filter-grid">
-                            <div>
-                                <label for="payment_period">Payment Period</label>
-                                <select id="payment_period" class="form-control">
-                                    <option value="">-- All --</option>
-                                    <option value="2020">2020</option>
-                                    <option value="2021">2021</option>
-                                    <option value="2022">2022</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2024">2024</option>
-                                    <option value="2025">2025</option>
-                                    <option value="2026" selected>2026</option>
-                                    <option value="2027">2027</option>
-                                    <option value="2028">2028</option>
-                                    <option value="2029">2029</option>
-                                    <option value="2030">2030</option>
-                                </select>
-                            </div>
+        <%- include('partials/sidebar') %>
 
-                            <div>
-                                <label for="memberStatus">Member Status</label>
-                                <select id="memberStatus" class="form-control">
-                                    <option value="">-- All --</option>
-                                    <option value="ACTIVE" selected>Active</option>
-                                    <option value="INACTIVE">Inactive</option>
-                                    <option value="SUSPENDED">Suspended</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label for="paymentStatus">Payment Status</label>
-                                <select id="paymentStatus" class="form-control">
-                                    <option value="">-- All --</option>
-                                    <option value="Paid">Paid</option>
-                                    <option value="Not Paid">Not Paid</option>
-                                </select>
-                            </div>
-
-                            <button id="filterBtn" class="btn btn-primary" type="button">
-                                <i class="fa fa-refresh mr-1"></i> Load Members
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="ibox-body">
-                        <div class="insurance-table-wrap">
-                            <table id="paymentStatusTable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th>Member ID</th>
-                                        <th>First Name</th>
-                                        <th>Last Name</th>
-                                        <th>Phone</th>
-                                        <th>Date Joined</th>
-                                        <th>Status</th>
-                                        <th>Total Amount</th>
-                                        <th>Last Payment Date</th>
-                                        <th>Last Payment Period</th>
-                                        <th>Payment Status</th>
-                                    </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
-               
-            </div>
-            <!-- END PAGE CONTENT-->
-            <footer class="page-footer">
-                <div class="font-13">2025 &copy; <b>Fincas</b> - All rights reserved.</div>
-                <a class="px-4" href="http://themeforest.net/item/adminca-responsive-bootstrap-4-3-angular-4-admin-dashboard-template/20912589" target="_blank">Contact Us</a>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
+        <div class="page-heading">
+            <h3><i class="fa fa-shield" style="color: var(--insurance-primary); margin-right: 8px;"></i>Insurance Cover Status</h3>
+            <div class="page-subtitle">Member insurance contribution status, payment activity, and current coverage standing.</div>
         </div>
-    </div>
-    <!-- BEGIN THEME CONFIG PANEL-->
-    <div class="theme-config">
-        <div class="theme-config-toggle"><i class="fa fa-cog theme-config-show"></i><i class="ti-close theme-config-close"></i></div>
-        <div class="theme-config-box">
-            <div class="text-center font-18 m-b-20">SETTINGS</div>
-            <div class="font-strong">LAYOUT OPTIONS</div>
-            <div class="check-list m-b-20 m-t-10">
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedNavbar" type="checkbox" checked>
-                    <span class="input-span"></span>Fixed navbar</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedlayout" type="checkbox">
-                    <span class="input-span"></span>Fixed layout</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input class="js-sidebar-toggler" type="checkbox">
-                    <span class="input-span"></span>Collapse sidebar</label>
+
+        <div class="page-content">
+            <div class="hero-strip">
+                <div class="title">Insurance payment overview</div>
+                <div class="meta">Review paid and unpaid members, then export the current filtered report to CSV or printable PDF.</div>
             </div>
-            <div class="font-strong">LAYOUT STYLE</div>
-            <div class="m-t-10">
-                <label class="ui-radio ui-radio-gray m-r-10">
-                    <input type="radio" name="layout-style" value="" checked="">
-                    <span class="input-span"></span>Fluid</label>
-                <label class="ui-radio ui-radio-gray">
-                    <input type="radio" name="layout-style" value="1">
-                    <span class="input-span"></span>Boxed</label>
-            </div>
-            <div class="m-t-10 m-b-10 font-strong">THEME COLORS</div>
-            <div class="d-flex m-b-20">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Default">
-                    <label>
-                        <input type="radio" name="setting-theme" value="default" checked="">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-white"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
+
+            <div class="summary-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Members Shown</div>
+                    <div class="metric-value" id="membersShown">-</div>
+                    <div class="metric-sub">Filtered insurance records</div>
                 </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
+                <div class="metric-card">
+                    <div class="metric-label">Total Premium</div>
+                    <div class="metric-value" id="premiumTotal">-</div>
+                    <div class="metric-sub">Amount due across visible members</div>
                 </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
+                <div class="metric-card">
+                    <div class="metric-label">Paid Members</div>
+                    <div class="metric-value" id="paidMembers">-</div>
+                    <div class="metric-sub">Members marked as paid</div>
                 </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
+                <div class="metric-card">
+                    <div class="metric-label">Unpaid Members</div>
+                    <div class="metric-value" id="unpaidMembers">-</div>
+                    <div class="metric-sub">Members still pending payment</div>
                 </div>
             </div>
-            <div class="d-flex">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="White">
-                    <label>
-                        <input type="radio" name="setting-theme" value="white">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
+
+            <div class="ibox">
+                <div class="ibox-head">
+                    <div class="ibox-title">Filters & Actions</div>
+                    <div class="ibox-tools">
+                        <button class="btn btn-outline-primary btn-sm" id="csvExportBtn">
+                            <i class="fa fa-file-text-o"></i> CSV Export
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="pdfExportBtn">
+                            <i class="fa fa-file-pdf-o"></i> PDF Print
+                        </button>
+                    </div>
                 </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
+                <div class="ibox-body">
+                    <div class="filters-grid">
+                        <div class="form-group mb-0">
+                            <label for="payment_period">Payment Period</label>
+                            <select id="payment_period" class="form-control">
+                                <option value="">-- All --</option>
+                                <option value="2020">2020</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="memberStatus">Member Status</label>
+                            <select id="memberStatus" class="form-control">
+                                <option value="">-- All --</option>
+                                <option value="ACTIVE" selected>Active</option>
+                                <option value="INACTIVE">Inactive</option>
+                                <option value="SUSPENDED">Suspended</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="paymentStatus">Payment Status</label>
+                            <select id="paymentStatus" class="form-control">
+                                <option value="">-- All --</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Not Paid">Not Paid</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label>&nbsp;</label>
+                            <div style="display:flex; gap:10px;">
+                                <button id="filterBtn" class="btn btn-primary btn-sm btn-block">
+                                    <i class="fa fa-filter"></i> Apply
+                                </button>
+                                <button id="clearBtn" class="btn btn-secondary btn-sm btn-block">
+                                    <i class="fa fa-undo"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
+            </div>
+
+            <div class="ibox">
+                <div class="ibox-head">
+                    <div class="ibox-title">Insurance Cover Report</div>
                 </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
+                <div class="ibox-body">
+                    <div class="table-responsive">
+                        <table id="insuranceTable" class="table table-striped table-bordered table-hover" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Member ID</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Phone</th>
+                                    <th>Date Joined</th>
+                                    <th>Status</th>
+                                    <th>Total Amount</th>
+                                    <th>Last Payment Date</th>
+                                    <th>Last Payment Period</th>
+                                    <th>Payment Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="page-footer">
+            2026 &copy; Agali Awamu SACCO - All rights reserved.
+        </div>
     </div>
-    <!-- END THEME CONFIG PANEL-->
-    <!-- BEGIN PAGA BACKDROPS-->
-    <div class="sidenav-backdrop backdrop"></div>
-    <div class="preloader-backdrop">
-        <div class="page-preloader">Loading</div>
-    </div>
-    <!-- END PAGA BACKDROPS-->
-    <!-- CORE PLUGINS-->
-    <script src="./assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js" type="text/javascript"></script>
-    <!-- DataTables Buttons -->
-    <script src="./assets/vendors/DataTables/Buttons-1.7.1/js/dataTables.buttons.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/DataTables/Buttons-1.7.1/js/buttons.flash.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/DataTables/JSZip-2.5.0/jszip.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL PLUGINS-->
-    <script src="./assets/vendors/DataTables/datatables.min.js" type="text/javascript"></script>
-    <!-- CORE SCRIPTS-->
-    <script src="assets/js/app.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL SCRIPTS-->
-   
+
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="/assets/vendors/DataTables/datatables.min.js"></script>
+    <script src="/assets/js/app.min.js"></script>
     <script>
-        $(document).ready(function () {
-            const table = $('#paymentStatusTable').DataTable({
+        function formatCurrency(amount) {
+            return 'UGX ' + Number(amount || 0).toLocaleString('en-UG', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatDate(value) {
+            return value ? new Date(value).toLocaleDateString('en-GB') : 'N/A';
+        }
+
+        function getFilterPayload() {
+            return {
+                payment_period: $('#payment_period').val(),
+                memberStatus: $('#memberStatus').val(),
+                paymentStatus: $('#paymentStatus').val()
+            };
+        }
+
+        async function fetchAllInsuranceRows() {
+            const response = await $.ajax({
+                url: '/Insurance_cover/payment-status',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    ...getFilterPayload(),
+                    start: 0,
+                    length: 10000,
+                    draw: 1
+                })
+            });
+
+            return Array.isArray(response.data) ? response.data : [];
+        }
+
+        function updateSummaryCards(rows) {
+            const totals = rows.reduce(function(acc, row) {
+                const status = String(row.Payment_Status || '').trim().toLowerCase();
+                acc.count += 1;
+                acc.amount += Number(row.Total_Amount || 0);
+                if (status === 'paid') {
+                    acc.paid += 1;
+                } else if (status === 'not paid') {
+                    acc.unpaid += 1;
+                }
+                return acc;
+            }, { count: 0, amount: 0, paid: 0, unpaid: 0 });
+
+            $('#membersShown').text(totals.count);
+            $('#premiumTotal').text(formatCurrency(totals.amount));
+            $('#paidMembers').text(totals.paid);
+            $('#unpaidMembers').text(totals.unpaid);
+        }
+
+        function exportInsuranceCsv(rows) {
+            if (!rows.length) {
+                alert('No insurance rows available for export.');
+                return;
+            }
+
+            const headers = [
+                'Member ID',
+                'First Name',
+                'Last Name',
+                'Phone',
+                'Date Joined',
+                'Status',
+                'Total Amount',
+                'Last Payment Date',
+                'Last Payment Period',
+                'Payment Status'
+            ];
+
+            const csvRows = rows.map(function(row) {
+                return [
+                    row.member_id,
+                    row.First_name,
+                    row.Last_Name,
+                    row.tel_no,
+                    formatDate(row.Date_Joined),
+                    row.Status,
+                    Number(row.Total_Amount || 0),
+                    formatDate(row.last_payment_date),
+                    row.last_payment_period || '',
+                    row.Payment_Status || ''
+                ].map(function(value) {
+                    const safeValue = String(value ?? '').replace(/"/g, '""');
+                    return '"' + safeValue + '"';
+                }).join(',');
+            });
+
+            const csvContent = [headers.join(','), ...csvRows].join('\n');
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'insurance-cover-status-report.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        function printInsurancePdf(rows) {
+            if (!rows.length) {
+                alert('No insurance rows available for printing.');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank', 'width=1200,height=800');
+            if (!printWindow) {
+                alert('Please allow popups to print the report.');
+                return;
+            }
+
+            const summaryCardsHtml = document.querySelector('.summary-grid').innerHTML;
+            const rowsHtml = rows.map(function(row) {
+                const paymentStatus = String(row.Payment_Status || '').trim().toLowerCase() === 'paid' ? 'Paid' : 'Not Paid';
+                return `
+                    <tr>
+                        <td>${escapeHtml(row.member_id)}</td>
+                        <td>${escapeHtml(row.First_name)}</td>
+                        <td>${escapeHtml(row.Last_Name)}</td>
+                        <td>${escapeHtml(row.tel_no)}</td>
+                        <td>${escapeHtml(formatDate(row.Date_Joined))}</td>
+                        <td>${escapeHtml(row.Status || '')}</td>
+                        <td style="text-align:right;">${escapeHtml(formatCurrency(row.Total_Amount))}</td>
+                        <td>${escapeHtml(formatDate(row.last_payment_date))}</td>
+                        <td>${escapeHtml(row.last_payment_period || '')}</td>
+                        <td>${escapeHtml(paymentStatus)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Insurance Cover Status Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 24px; color: #1a1f2e; }
+                        h1 { margin: 0 0 6px; font-size: 24px; }
+                        .meta { color: #4a5568; margin-bottom: 18px; font-size: 13px; }
+                        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+                        .metric-card { border: 1px solid #dfe6ee; border-radius: 8px; padding: 12px; }
+                        .metric-label { font-size: 11px; text-transform: uppercase; color: #718096; font-weight: 700; margin-bottom: 8px; }
+                        .metric-value { font-size: 16px; font-weight: 700; }
+                        .metric-sub { font-size: 11px; color: #718096; margin-top: 6px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 12px; }
+                        th, td { border: 1px solid #dfe6ee; padding: 7px 8px; text-align: left; }
+                        th { background: #f7fafc; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Insurance Cover Status Report</h1>
+                    <div class="meta">Generated from current filters</div>
+                    <div class="grid">${summaryCardsHtml}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Member ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Phone</th>
+                                <th>Date Joined</th>
+                                <th>Status</th>
+                                <th>Total Amount</th>
+                                <th>Last Payment Date</th>
+                                <th>Last Payment Period</th>
+                                <th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(function() { printWindow.print(); }, 400);
+        }
+
+        $(document).ready(function() {
+            const table = $('#insuranceTable').DataTable({
                 processing: true,
                 serverSide: true,
-                dom: 'Bfrtip',
-                buttons: [
-                    'copy',
-                    'csv',
-                    'excel',
-                    'pdf',
-                    'print'
-                ],
                 searching: false,
+                pageLength: 25,
+                order: [[0, 'asc']],
                 ajax: {
                     url: '/Insurance_cover/payment-status',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: function (d) {
+                    data: function(d) {
                         return JSON.stringify({
                             ...d,
-                            payment_period: $('#payment_period').val(),
-                            memberStatus: $('#memberStatus').val(),
-                            paymentStatus: $('#paymentStatus').val()
+                            ...getFilterPayload()
                         });
                     },
-                    error: function(xhr, error, thrown) {
+                    dataSrc: function(json) {
+                        updateSummaryCards(Array.isArray(json.data) ? json.data : []);
+                        return json.data;
+                    },
+                    error: function(xhr) {
                         alert('Error: ' + (xhr.responseJSON?.error || 'Could not load data.'));
                     }
                 },
                 columns: [
-                    { data: 'member_id' },
-                    { data: 'First_name' },
-                    { data: 'Last_Name' },
-                    { data: 'tel_no' },
-                    { 
+                    { data: 'member_id', width: '8%' },
+                    { data: 'First_name', width: '12%' },
+                    { data: 'Last_Name', width: '12%' },
+                    { data: 'tel_no', width: '11%' },
+                    {
                         data: 'Date_Joined',
-                        render: function (data) {
-                            return data ? new Date(data).toLocaleDateString('en-GB') : '';
+                        width: '10%',
+                        render: function(data) {
+                            return escapeHtml(formatDate(data));
                         }
                     },
-                    { 
+                    {
                         data: 'Status',
-                        render: function (data) {
-                            const color = data === 'Active' ? 'green' : 'red';
-                            const statusClass = data === 'Active' ? 'is-good' : 'is-bad';
-                            return `<span class="status-label ${statusClass}" style="color:${color};">${data}</span>`;
+                        width: '9%',
+                        render: function(data) {
+                            const normalized = String(data || '').trim().toLowerCase();
+                            const statusClass = normalized === 'active' ? 'active' : normalized;
+                            return '<span class="member-status ' + escapeHtml(statusClass) + '">' + escapeHtml(data || '') + '</span>';
                         }
                     },
-                    { 
+                    {
                         data: 'Total_Amount',
-                        render: function (data) {
-                            const amount = parseInt(data, 10) || 0;
-                            return `UGX ${amount.toLocaleString()}`;
+                        width: '11%',
+                        render: function(data) {
+                            return '<strong style="color:' + 'var(--insurance-primary)' + ';">' + escapeHtml(formatCurrency(data)) + '</strong>';
                         }
                     },
-                    { 
+                    {
                         data: 'last_payment_date',
-                        render: function (data) {
-                            return data ? new Date(data).toLocaleDateString('en-GB') : 'N/A';
+                        width: '11%',
+                        render: function(data) {
+                            return escapeHtml(formatDate(data));
                         }
                     },
-                    { data: 'last_payment_period' },
-                    { 
+                    { data: 'last_payment_period', width: '8%' },
+                    {
                         data: 'Payment_Status',
-                        render: function (data) {
-                            const color = data === 'Paid' ? 'green' : 'red';
-                            const icon = data === 'Paid' ? '&check;' : '&times;';
-                            const statusClass = data === 'Paid' ? 'is-good' : 'is-bad';
-                            return `<span class="status-label ${statusClass}" style="color:${color};">${icon} ${data}</span>`;
+                        width: '10%',
+                        render: function(data) {
+                            const isPaid = String(data || '').trim().toLowerCase() === 'paid';
+                            const statusClass = isPaid ? 'paid' : 'unpaid';
+                            const icon = isPaid ? 'fa-check-circle' : 'fa-times-circle';
+                            return '<span class="status-pill ' + statusClass + '"><i class="fa ' + icon + '"></i>' + escapeHtml(data || '') + '</span>';
                         }
                     }
-                ]
+                ],
+                dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>rt<"row"<"col-sm-6"i><"col-sm-6"p>>',
+                scrollX: true,
+                autoWidth: false
             });
 
-            // Reload table when filter button clicked
-            $('#filterBtn').on('click', function () {
+            $('#filterBtn').on('click', function() {
                 table.ajax.reload();
+                fetchAllInsuranceRows().then(updateSummaryCards).catch(function() {});
             });
+
+            $('#clearBtn').on('click', function() {
+                $('#payment_period').val('2026');
+                $('#memberStatus').val('ACTIVE');
+                $('#paymentStatus').val('');
+                table.ajax.reload();
+                fetchAllInsuranceRows().then(updateSummaryCards).catch(function() {});
+            });
+
+            $('#csvExportBtn').on('click', async function() {
+                const rows = await fetchAllInsuranceRows();
+                updateSummaryCards(rows);
+                exportInsuranceCsv(rows);
+            });
+
+            $('#pdfExportBtn').on('click', async function() {
+                const rows = await fetchAllInsuranceRows();
+                updateSummaryCards(rows);
+                printInsurancePdf(rows);
+            });
+
+            fetchAllInsuranceRows().then(updateSummaryCards).catch(function() {});
         });
     </script>
 </body>
-
 </html>
