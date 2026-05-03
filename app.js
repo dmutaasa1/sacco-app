@@ -3635,12 +3635,10 @@ function isNotificationHidden(notification, notificationState) {
     return createdAt <= readAllAt;
 }
 
-app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
-    const limit = Math.min(parseInt(req.query.limit) || 12, 50);
+async function buildNotificationsForRequest(req, limit) {
     const notifications = [];
     const isMember = req.session && req.session.user && req.session.user.role === 'member';
     const memberId = req.session && req.session.user ? req.session.user.member_id : null;
-    const notificationState = getNotificationState(req);
 
     if (isMember && memberId) {
         try {
@@ -3733,11 +3731,7 @@ app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
             return new Date(b.created_at) - new Date(a.created_at);
         });
 
-        return res.json({
-            notifications: notifications.filter(function(notification) {
-                return !isNotificationHidden(notification, notificationState);
-            }).slice(0, limit)
-        });
+        return notifications.slice(0, limit);
     }
 
     /* 1. Interest calculation — from loan_daily_interest (always exists) */
@@ -3890,10 +3884,48 @@ app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
         return new Date(b.created_at) - new Date(a.created_at);
     });
 
-    res.json({
-        notifications: notifications.filter(function(notification) {
-            return !isNotificationHidden(notification, notificationState);
-        }).slice(0, limit)
+    return notifications.slice(0, limit);
+}
+
+app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit) || 12, 50);
+    const notificationState = getNotificationState(req);
+    const notifications = (await buildNotificationsForRequest(req, limit)).filter(function(notification) {
+        return !isNotificationHidden(notification, notificationState);
+    });
+
+    const wantsJson = req.xhr ||
+        req.get('X-Requested-With') === 'XMLHttpRequest' ||
+        ((req.get('accept') || '').includes('application/json') && !(req.get('accept') || '').includes('text/html'));
+
+    if (wantsJson) {
+        return res.json({ notifications: notifications });
+    }
+
+    let photoBase64 = null;
+    const isMember = req.session && req.session.user && req.session.user.role === 'member';
+    const memberId = req.session && req.session.user ? req.session.user.member_id : null;
+
+    if (isMember && memberId) {
+        try {
+            const [photoRows] = await db.execute(
+                'SELECT Passport_Photo FROM members_mst WHERE id = ? LIMIT 1',
+                [memberId]
+            );
+
+            const photoBuffer = photoRows && photoRows[0] ? photoRows[0].Passport_Photo : null;
+            if (photoBuffer) {
+                photoBase64 = Buffer.from(photoBuffer).toString('base64');
+            }
+        } catch (e) { /* skip */ }
+    }
+
+    res.render('notifications', {
+        notifications,
+        currentPage: 'notifications',
+        user: req.session.user,
+        isMember,
+        photoBase64
     });
 }));
 

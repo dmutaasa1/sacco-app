@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Agali Awamu SACCO</title>
+    <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --notif-primary: #00b894;
+            --notif-primary-dark: #0f9f7f;
+            --notif-soft: #f0fdf9;
+            --notif-border: #d9f3ea;
+            --notif-text: #1a1f2e;
+            --notif-muted: #718096;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+
+        .page-wrapper {
+            margin-left: 220px !important;
+            margin-top: 60px;
+            width: calc(100% - 220px) !important;
+            max-width: 100%;
+            transition: margin-left .22s ease, width .22s ease;
+        }
+        body.sidebar-collapsed .page-wrapper {
+            margin-left: 60px !important;
+            width: calc(100% - 60px) !important;
+        }
+        @media (max-width: 991px) {
+            .page-wrapper {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            .page-heading { padding: 12px 14px 0; }
+            .page-content { padding: 12px 14px 24px; }
+        }
+
+        .page-heading { padding: 14px 22px 0; }
+        .page-heading h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--notif-text);
+            margin: 0;
+        }
+        .page-subtitle {
+            margin-top: 4px;
+            color: var(--notif-muted);
+            font-size: .78rem;
+        }
+        .page-content { padding: 12px 22px 24px; }
+        .page-footer {
+            padding: 12px 22px;
+            font-size: .72rem;
+            color: #a0aec0;
+            text-align: center;
+            border-top: 1px solid #eaeef2;
+            background: #fff;
+        }
+
+        .hero-strip {
+            background: linear-gradient(135deg, var(--notif-primary) 0%, #0984e3 100%);
+            border-radius: 10px;
+            color: #fff;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 12px 30px rgba(0, 184, 148, 0.16);
+        }
+        .hero-strip .title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .hero-strip .meta {
+            font-size: .78rem;
+            opacity: .92;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 767px) {
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+        .metric-card {
+            background: #fff;
+            border: 1px solid var(--notif-border);
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 1px 6px rgba(26,31,46,.06);
+        }
+        .metric-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--notif-muted);
+            margin-bottom: 10px;
+        }
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--notif-text);
+        }
+        .metric-sub {
+            margin-top: 6px;
+            font-size: .72rem;
+            color: var(--notif-muted);
+        }
+
+        .ibox {
+            margin-bottom: 14px !important;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 6px rgba(26,31,46,.06);
+            border: 1px solid #eaeef2;
+        }
+        .ibox-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #eaeef2;
+            background: #fff;
+            flex-wrap: wrap;
+        }
+        .ibox-title {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--notif-muted);
+        }
+        .ibox-body { padding: 14px; background: #fff; }
+
+        .btn {
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 6px;
+        }
+        .btn-primary {
+            background: var(--notif-primary);
+            border: none;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--notif-primary-dark);
+            color: #fff;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .notification-card {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px;
+            border: 1px solid #eaeef2;
+            border-radius: 10px;
+            background: #fff;
+        }
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            flex-shrink: 0;
+        }
+        .notification-icon.overdue { background: rgba(229,62,62,.1); color: #e53e3e; }
+        .notification-icon.loan { background: rgba(159,122,234,.1); color: #9f7aea; }
+        .notification-icon.repayment { background: rgba(72,187,120,.1); color: #48bb78; }
+        .notification-icon.transaction { background: rgba(237,137,54,.1); color: #ed8936; }
+        .notification-icon.member { background: rgba(66,153,225,.1); color: #4299e1; }
+        .notification-icon.interest { background: rgba(0,184,148,.1); color: #00b894; }
+        .notification-icon.system { background: rgba(160,174,192,.12); color: #718096; }
+
+        .notification-body { min-width: 0; flex: 1; }
+        .notification-title {
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--notif-text);
+            margin-bottom: 4px;
+        }
+        .notification-message {
+            font-size: .75rem;
+            color: #4a5568;
+            line-height: 1.45;
+        }
+        .notification-meta {
+            margin-top: 7px;
+            font-size: .68rem;
+            color: var(--notif-muted);
+        }
+        .empty-state {
+            padding: 28px 16px;
+            text-align: center;
+            color: var(--notif-muted);
+            font-size: .8rem;
+        }
+    </style>
+</head>
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <% if (isMember) { %>
+            <%- include('partials/member_header') %>
+            <%- include('partials/member_sidebar') %>
+        <% } else { %>
+            <%- include('partials/header') %>
+            <%- include('partials/sidebar') %>
+        <% } %>
+
+        <div class="page-heading">
+            <h3><i class="fa fa-bell-o" style="color: var(--notif-primary); margin-right: 8px;"></i>Notifications</h3>
+            <div class="page-subtitle">A full view of the latest unread alerts and activity updates for your account.</div>
+        </div>
+
+        <div class="page-content">
+            <div class="hero-strip">
+                <div class="title">Notification center</div>
+                <div class="meta">Track overdue items, transactions, loan updates, and system notices in one place.</div>
+            </div>
+
+            <%
+                const items = notifications || [];
+                const overdueCount = items.filter(n => n.type === 'overdue').length;
+                const loanCount = items.filter(n => n.type === 'loan' || n.type === 'repayment').length;
+                const transactionCount = items.filter(n => n.type === 'transaction').length;
+            %>
+
+            <div class="summary-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Unread Notifications</div>
+                    <div class="metric-value"><%= items.length %></div>
+                    <div class="metric-sub">Notifications not yet marked as read</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Overdue Alerts</div>
+                    <div class="metric-value"><%= overdueCount %></div>
+                    <div class="metric-sub">Items needing attention soonest</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Loan & Transactions</div>
+                    <div class="metric-value"><%= loanCount + transactionCount %></div>
+                    <div class="metric-sub">Recent money movement updates</div>
+                </div>
+            </div>
+
+            <div class="ibox">
+                <div class="ibox-head">
+                    <div class="ibox-title">All Notifications</div>
+                    <button class="btn btn-primary" id="markAllReadPage" type="button">
+                        <i class="fa fa-check-circle"></i> Mark All Read
+                    </button>
+                </div>
+                <div class="ibox-body">
+                    <% if (items.length) { %>
+                        <div class="notification-list">
+                            <% items.forEach(function(n) { %>
+                                <div class="notification-card">
+                                    <div class="notification-icon <%= n.type || 'system' %>">
+                                        <i class="fa
+                                            <%= n.type === 'overdue' ? 'fa-exclamation-circle'
+                                            : n.type === 'loan' ? 'fa-money'
+                                            : n.type === 'repayment' ? 'fa-check-circle'
+                                            : n.type === 'transaction' ? 'fa-exchange'
+                                            : n.type === 'member' ? 'fa-user-plus'
+                                            : n.type === 'interest' ? 'fa-calculator'
+                                            : 'fa-info-circle' %>"></i>
+                                    </div>
+                                    <div class="notification-body">
+                                        <div class="notification-title"><%= n.title || 'Notification' %></div>
+                                        <div class="notification-message"><%= n.message || '' %></div>
+                                        <div class="notification-meta">
+                                            <%= n.created_at ? new Date(n.created_at).toLocaleString('en-GB') : 'Recent' %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fa fa-bell-slash" style="font-size: 1.2rem; display:block; margin-bottom:8px;"></i>
+                            No unread notifications right now.
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            2026 &copy; Agali Awamu SACCO - All rights reserved.
+        </div>
+    </div>
+
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/assets/js/app.min.js"></script>
+    <script>
+        document.getElementById('markAllReadPage')?.addEventListener('click', async function () {
+            try {
+                await fetch('/notifications/read-all', { method: 'POST' });
+                window.location.reload();
+            } catch (err) {
+                alert('Could not mark notifications as read.');
+            }
+        });
+    </script>
+</body>
+</html>
