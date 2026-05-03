@@ -3,35 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/assets/vendors/DataTables/datatables.min.css" rel="stylesheet" />
     <link href="/assets/css/main.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-        /* ════════════════════════════════════════
-           PAGE LAYOUT — align content with sidebar
-        ════════════════════════════════════════ */
+        :root {
+            --users-primary: #0ea5e9;
+            --users-primary-dark: #0369a1;
+            --users-soft: #f0f9ff;
+            --users-border: #dbeafe;
+            --users-text: #1a1f2e;
+            --users-muted: #718096;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
+
         .page-wrapper {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            width: 100%;
-        }
-        .page-wrapper .content-wrapper {
             margin-left: 220px !important;
-            transition: margin-left .22s ease !important;
-            flex: 1;
-            width: auto;
+            margin-top: 60px;
+            width: calc(100% - 220px) !important;
+            max-width: 100%;
+            transition: margin-left .22s ease, width .22s ease;
         }
-        body.sidebar-collapsed .page-wrapper .content-wrapper {
+        body.sidebar-collapsed .page-wrapper {
             margin-left: 60px !important;
+            width: calc(100% - 60px) !important;
         }
         @media (max-width: 991px) {
-            .page-wrapper .content-wrapper {
+            .page-wrapper {
                 margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100%;
             }
+            .page-heading { padding: 12px 14px 0; }
+            .page-content { padding: 12px 14px 24px; }
+        }
+
+        .page-heading { padding: 14px 22px 0; }
+        .page-heading h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--users-text);
+            margin: 0;
+        }
+        .page-subtitle {
+            margin-top: 4px;
+            color: var(--users-muted);
+            font-size: .78rem;
+        }
+        .page-content { padding: 12px 22px 24px; }
+        .page-footer {
+            padding: 12px 22px;
+            font-size: .72rem;
+            color: #a0aec0;
+            text-align: center;
+            border-top: 1px solid #eaeef2;
+            background: #fff;
+        }
+
+        .hero-strip {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+            border-radius: 10px;
+            color: #fff;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 12px 30px rgba(14, 165, 233, 0.16);
+        }
+        .hero-strip .title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .hero-strip .meta {
+            font-size: .78rem;
+            opacity: .92;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 767px) {
+            .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 575px) {
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+
+        .metric-card {
+            background: #fff;
+            border: 1px solid var(--users-border);
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 104px;
+            box-shadow: 0 1px 6px rgba(26,31,46,.06);
+            position: relative;
+        }
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 4px;
+            border-radius: 10px 0 0 10px;
+            background: linear-gradient(180deg, var(--users-primary), var(--users-primary-dark));
+        }
+        .metric-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--users-muted);
+            margin-bottom: 10px;
+        }
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--users-text);
+            line-height: 1.35;
+        }
+        .metric-sub {
+            margin-top: 6px;
+            font-size: .72rem;
+            color: var(--users-muted);
+        }
+
+        .ibox {
+            margin-bottom: 14px !important;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 6px rgba(26,31,46,.06);
+            border: 1px solid #eaeef2;
+        }
+        .ibox-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #eaeef2;
+            background: #fff;
+            flex-wrap: wrap;
+        }
+        .ibox-title {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--users-muted);
+        }
+        .ibox-body { padding: 14px; background: #fff; }
+
+        .top-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: .75rem;
+            font-weight: 600;
+            background: var(--users-soft);
+            color: var(--users-primary-dark);
+            border: 1px solid var(--users-border);
+            text-decoration: none;
+        }
+        .top-link:hover {
+            text-decoration: none;
+            color: var(--users-primary-dark);
+            background: #e0f2fe;
+        }
+
+        .btn {
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .btn-sm { padding: 5px 12px; font-size: .7rem; }
+        .btn-primary { background: var(--users-primary); border: none; color: #fff; }
+        .btn-primary:hover { background: var(--users-primary-dark); color: #fff; }
+        .btn-secondary { background: #edf2f7; border: none; color: #2d3748; }
+        .btn-secondary:hover { background: #e2e8f0; color: #1a202c; }
+        .btn-warning { color: #fff; }
+
+        .table-responsive { overflow-x: auto; }
+        #usersTable {
+            width: 100% !important;
+            font-size: .75rem;
+        }
+        #usersTable thead th {
+            padding: 7px 8px;
+            font-size: .72rem;
+            font-weight: 700;
+            background: #f7fafc;
+            border-bottom: 2px solid #eaeef2;
+            color: var(--users-text);
+            white-space: nowrap;
+        }
+        #usersTable tbody td {
+            padding: 8px;
+            vertical-align: middle;
+            border-color: #eaeef2;
+        }
+        #usersTable tbody tr:hover { background: #f7fafc; }
+
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: .68rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .user-badge.role-admin {
+            background: #fff1f2;
+            color: #be123c;
+        }
+        .user-badge.role-member {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+        .user-badge.status-active {
+            background: #ecfdf5;
+            color: #047857;
+        }
+        .user-badge.status-inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .action-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: none;
+        }
+        .action-btn.btn-primary {
+            box-shadow: 0 6px 16px rgba(14, 165, 233, 0.18);
+        }
+
+        .dataTables_wrapper { font-size: .75rem; }
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: .75rem;
+        }
+        .dataTables_wrapper .dataTables_filter input:focus,
+        .dataTables_wrapper .dataTables_length select:focus {
+            outline: none;
+            border-color: var(--users-primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+        }
+        .dataTables_wrapper .pagination .page-link {
+            font-size: .75rem;
+            padding: .4rem .6rem;
+            color: var(--users-primary);
+        }
+        .dataTables_wrapper .pagination .page-item.active .page-link {
+            background: var(--users-primary);
+            border-color: var(--users-primary);
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: 1px solid #eaeef2;
+            box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18);
+        }
+        .modal-header,
+        .modal-footer {
+            border-color: #f0f4f8;
+        }
+        .modal-title {
+            font-size: .95rem;
+            font-weight: 700;
+            color: var(--users-text);
+        }
+        .form-control {
+            font-size: .75rem;
+            min-height: 38px;
+            border-radius: 6px;
+            border: 1px solid #d9e2ec;
+        }
+        .form-control:focus {
+            border-color: var(--users-primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
         }
     </style>
 </head>
@@ -40,28 +314,65 @@
     <div class="page-wrapper">
         <%- include('partials/header') %>
         <%- include('partials/sidebar') %>
-        
-        <div class="content-wrapper">
-            <div class="page-heading">
-                <h1 class="page-title">User Management</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
-                    <li class="breadcrumb-item">User Management</li>
-                </ol>
+
+        <div class="page-heading">
+            <div>
+                <h3><i class="fa fa-user-secret" style="color:var(--users-primary); margin-right: 8px;"></i>User Management</h3>
+                <div class="page-subtitle">Manage system access, roles, account status, and password maintenance for SACCO users.</div>
             </div>
-            
-            <div class="page-content fade-in-up">
-                <div class="ibox">
-                    <div class="ibox-head">
-                        <div class="ibox-title">System Users</div>
-                        <div class="ibox-tools">
-                            <a href="/users/add" class="btn btn-primary btn-sm">
-                                <i class="fa fa-plus"></i> Add New User
-                            </a>
-                        </div>
+            <a href="/users/add" class="top-link">
+                <i class="fa fa-plus-circle"></i> New User
+            </a>
+        </div>
+
+        <div class="page-content">
+            <div class="hero-strip">
+                <div class="title">System user overview</div>
+                <div class="meta">Review active accounts, reset access when needed, and keep admin and member user records tidy.</div>
+            </div>
+
+            <%
+                const totalUsers = (users || []).length;
+                const activeUsers = (users || []).filter(u => String(u.status || '').toLowerCase() === 'active').length;
+                const adminUsers = (users || []).filter(u => String(u.role || '').toLowerCase() === 'admin').length;
+                const memberUsers = (users || []).filter(u => String(u.role || '').toLowerCase() === 'member').length;
+            %>
+
+            <div class="summary-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Total Users</div>
+                    <div class="metric-value"><%= totalUsers %></div>
+                    <div class="metric-sub">All registered system accounts</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Active Users</div>
+                    <div class="metric-value"><%= activeUsers %></div>
+                    <div class="metric-sub">Accounts currently enabled</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Administrators</div>
+                    <div class="metric-value"><%= adminUsers %></div>
+                    <div class="metric-sub">Users with admin permissions</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Member Users</div>
+                    <div class="metric-value"><%= memberUsers %></div>
+                    <div class="metric-sub">Accounts linked to SACCO members</div>
+                </div>
+            </div>
+
+            <div class="ibox">
+                <div class="ibox-head">
+                    <div class="ibox-title">System Users</div>
+                    <div class="ibox-tools">
+                        <a href="/users/add" class="btn btn-primary btn-sm">
+                            <i class="fa fa-plus"></i> Add New User
+                        </a>
                     </div>
-                    <div class="ibox-body">
-                        <table class="table table-striped table-bordered table-hover" id="usersTable">
+                </div>
+                <div class="ibox-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover" id="usersTable" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -77,33 +388,37 @@
                             <tbody>
                                 <% users.forEach(function(u) { %>
                                     <tr>
-                                        <td><%= u.id %></td>
-                                        <td><%= u.username %></td>
+                                        <td><strong>#<%= u.id %></strong></td>
+                                        <td>@<%= u.username %></td>
                                         <td><%= u.first_name %> <%= u.last_name %></td>
                                         <td>
-                                            <span class="badge badge-<%= u.role === 'admin' ? 'danger' : 'info' %>">
+                                            <span class="user-badge <%= u.role === 'admin' ? 'role-admin' : 'role-member' %>">
+                                                <i class="fa <%= u.role === 'admin' ? 'fa-shield' : 'fa-user' %>"></i>
                                                 <%= u.role %>
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="badge badge-<%= u.status === 'active' ? 'success' : 'secondary' %>">
+                                            <span class="user-badge <%= String(u.status || '').toLowerCase() === 'active' ? 'status-active' : 'status-inactive' %>">
+                                                <i class="fa <%= String(u.status || '').toLowerCase() === 'active' ? 'fa-check-circle' : 'fa-times-circle' %>"></i>
                                                 <%= u.status %>
                                             </span>
                                         </td>
                                         <td><%= u.last_login || 'Never' %></td>
                                         <td><%= u.created_by_username || 'System' %></td>
                                         <td>
-                                            <a href="/users/<%= u.id %>/edit" class="btn btn-sm btn-primary" title="Edit">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <button class="btn btn-sm btn-warning changePasswordBtn" data-id="<%= u.id %>" title="Change Password">
-                                                <i class="fa fa-key"></i>
-                                            </button>
-                                            <% if (u.id !== user.id) { %>
-                                                <button class="btn btn-sm btn-danger deleteBtn" data-id="<%= u.id %>" title="Deactivate">
-                                                    <i class="fa fa-trash"></i>
+                                            <div class="action-group">
+                                                <a href="/users/<%= u.id %>/edit" class="btn btn-sm btn-primary action-btn" title="Edit">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-warning action-btn changePasswordBtn" data-id="<%= u.id %>" title="Change Password">
+                                                    <i class="fa fa-key"></i>
                                                 </button>
-                                            <% } %>
+                                                <% if (u.id !== user.id) { %>
+                                                    <button class="btn btn-sm btn-danger action-btn deleteBtn" data-id="<%= u.id %>" title="Deactivate">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                <% } %>
+                                            </div>
                                         </td>
                                     </tr>
                                 <% }); %>
@@ -112,14 +427,13 @@
                     </div>
                 </div>
             </div>
-            
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-            </footer>
+        </div>
+
+        <div class="page-footer">
+            2026 &copy; Agali Awamu SACCO - All rights reserved.
         </div>
     </div>
 
-    <!-- Change Password Modal -->
     <div class="modal fade" id="changePasswordModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -160,10 +474,11 @@
         $(document).ready(function() {
             $('#usersTable').DataTable({
                 pageLength: 25,
-                order: [[0, 'desc']]
+                order: [[0, 'desc']],
+                scrollX: true,
+                autoWidth: false
             });
 
-            // Change password
             $('.changePasswordBtn').on('click', function() {
                 const userId = $(this).data('id');
                 $('#userId').val(userId);
@@ -172,7 +487,7 @@
 
             $('#changePasswordForm').on('submit', async function(e) {
                 e.preventDefault();
-                
+
                 const userId = $('#userId').val();
                 const data = {
                     new_password: $('#new_password').val(),
@@ -192,7 +507,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            html: result.errors.map(e => `<p>• ${e}</p>`).join('')
+                            html: result.errors.map(function(err) { return `<p>- ${err}</p>`; }).join('')
                         });
                         return;
                     }
@@ -204,7 +519,6 @@
                         text: result.message
                     });
                     $('#changePasswordForm')[0].reset();
-
                 } catch (err) {
                     Swal.fire({
                         icon: 'error',
@@ -214,10 +528,9 @@
                 }
             });
 
-            // Delete user
             $('.deleteBtn').on('click', function() {
                 const userId = $(this).data('id');
-                
+
                 Swal.fire({
                     title: 'Deactivate User?',
                     text: 'This will deactivate the user account',
