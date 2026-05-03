@@ -3,267 +3,710 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Agali Awamu SACCO</title>
     <link href="/assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/assets/css/main.min.css" rel="stylesheet" />
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { font-family: 'DM Sans', sans-serif; background: #f7fafc; }
 
-<body class="fixed-navbar">
-    <div class="page-wrapper">
+        .page-wrapper {
+            margin-left: 220px;
+            margin-top: 60px;
+            min-height: calc(100vh - 60px);
+            width: calc(100% - 220px);
+            max-width: 100%;
+        }
+        body.sidebar-collapsed .page-wrapper {
+            margin-left: 60px;
+            width: calc(100% - 60px);
+        }
+        .dash-body { padding: 14px 22px 32px; }
+        @media (max-width: 991px) {
+            .page-wrapper { margin-left: 0; width: 100%; max-width: 100%; }
+            .dash-body { padding: 12px 14px 24px; }
+            .page-heading { padding: 12px 14px 0; }
+        }
+
+        .page-heading {
+            padding: 14px 22px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .page-heading h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1f2e;
+            margin: 0;
+        }
+        .page-heading .sub {
+            font-size: .72rem;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+        .top-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: .75rem;
+            font-weight: 600;
+            background: #eefbf7;
+            color: #00b894;
+            border: 1px solid #b7f0df;
+            text-decoration: none;
+        }
+        .top-link:hover {
+            text-decoration: none;
+            color: #00a37d;
+            background: #e4f8f1;
+        }
+
+        .ibox {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 6px rgba(26,31,46,.07);
+            border: 1px solid #eaeef2;
+            background: #fff;
+            margin-bottom: 14px;
+        }
+        .ibox-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-bottom: 1px solid #eaeef2;
+            background: #fff;
+        }
+        .ibox-title {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ibox-body { padding: 16px; }
+
+        .profile-layout { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+        .profile-left { width: 250px; flex-shrink: 0; }
+        .profile-right { flex: 1; min-width: 0; }
+        @media (max-width: 820px) {
+            .profile-left { width: 100%; }
+        }
+
+        .profile-avatar-wrap { text-align: center; padding: 26px 16px 16px; }
+        .profile-avatar {
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00b894, #0984e3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 auto 12px;
+            box-shadow: 0 4px 18px rgba(0,184,148,.26);
+        }
+        .profile-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1f2e;
+            margin-bottom: 2px;
+        }
+        .profile-id {
+            font-size: .72rem;
+            color: #a0aec0;
+            margin-bottom: 10px;
+        }
+        .profile-badges {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .profile-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: .66rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+        .badge-role { background: #eef6ff; color: #3182ce; border-color: #cfe5ff; }
+        .badge-active { background: #e6faf4; color: #00b894; border-color: #b2f5ea; }
+        .badge-inactive { background: #fff5f5; color: #e53e3e; border-color: #fed7d7; }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: #eaeef2;
+            border-top: 1px solid #eaeef2;
+        }
+        .qs-item { background: #fff; padding: 12px 8px; text-align: center; }
+        .qs-val { font-size: .9rem; font-weight: 700; color: #1a1f2e; }
+        .qs-lbl {
+            font-size: .6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #a0aec0;
+            margin-top: 3px;
+        }
+
+        .profile-links {
+            padding: 12px;
+            border-top: 1px solid #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            font-size: .75rem;
+            font-weight: 500;
+            color: #4a5568;
+            text-decoration: none;
+            transition: background .12s;
+        }
+        .profile-link:hover {
+            background: #f7fafc;
+            color: #1a1f2e;
+            text-decoration: none;
+        }
+        .profile-link i { width: 16px; text-align: center; color: #a0aec0; }
+
+        .profile-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid #eaeef2;
+            padding: 0 16px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .profile-tab-btn {
+            padding: 10px 16px;
+            font-size: .76rem;
+            font-weight: 600;
+            color: #718096;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            margin-bottom: -2px;
+            transition: color .15s, border-color .15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .profile-tab-btn.active {
+            color: #00b894;
+            border-bottom-color: #00b894;
+        }
+        .profile-tab-btn:hover:not(.active) { color: #1a1f2e; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        .detail-section { margin-bottom: 18px; }
+        .detail-section:last-child { margin-bottom: 0; }
+        .detail-section-title {
+            font-size: .62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: #a0aec0;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+        @media (max-width: 576px) {
+            .detail-grid { grid-template-columns: 1fr; }
+        }
+        .detail-label {
+            font-size: .62rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: #a0aec0;
+            margin-bottom: 2px;
+        }
+        .detail-value { font-size: .8rem; font-weight: 500; color: #1a1f2e; }
+        .detail-value.empty { color: #cbd5e0; font-style: italic; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label {
+            font-size: .68rem;
+            font-weight: 600;
+            color: #718096;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+        .form-control {
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            padding: 8px 10px;
+            font-size: .75rem;
+            color: #1a1f2e;
+            background: #f8fafc;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .form-control:focus {
+            border-color: #00b894;
+            box-shadow: 0 0 0 2px rgba(0,184,148,.1);
+            background: #fff;
+        }
+        .form-text { font-size: .62rem; color: #a0aec0; margin-top: 3px; }
+
+        .btn-save {
+            background: #00b894;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 7px 14px;
+            font-size: .72rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-save:hover { background: #00a37d; }
+        .btn-change-pwd {
+            background: #4299e1;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 7px 14px;
+            font-size: .72rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-change-pwd:hover { background: #3182ce; }
+        .btn-secondary-link {
+            background: #f0f4f8;
+            color: #718096;
+            border: none;
+            border-radius: 7px;
+            padding: 7px 14px;
+            font-size: .72rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-secondary-link:hover { background: #e2e8f0; color: #4a5568; text-decoration: none; }
+
+        .security-card {
+            background: #f8fbff;
+            border: 1px solid #e4eef8;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .security-title {
+            font-size: .78rem;
+            font-weight: 700;
+            color: #1a1f2e;
+            margin-bottom: 4px;
+        }
+        .security-copy {
+            font-size: .68rem;
+            color: #718096;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
 <%- include('partials/member_header') %>
-        <%- include('partials/member_sidebar') %>
-        
-        <div class="content-wrapper">
-            <div class="page-heading">
-                <h1 class="page-title">My Profile</h1>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/"><i class="la la-home font-20"></i></a></li>
-                    <li class="breadcrumb-item">Profile</li>
-                </ol>
-            </div>
-            
-            <div class="page-content fade-in-up">
-                <div class="row">
-                    <!-- Profile Information -->
-                    <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-body text-center">
-                                <div class="m-t-20">
-                                    <img class="img-circle" src="/assets/img/admin-avatar.png" style="width: 120px; height: 120px;" />
-                                </div>
-                                <h5 class="font-strong m-b-10 m-t-10"><%= userDetails.first_name %> <%= userDetails.last_name %></h5>
-                                <div class="m-b-20 text-muted">@<%= userDetails.username %></div>
-                                <div class="m-b-20">
-                                    <span class="badge badge-<%= userDetails.role === 'admin' ? 'danger' : 'info' %>">
-                                        <%= userDetails.role.toUpperCase() %>
-                                    </span>
-                                    <span class="badge badge-<%= userDetails.status === 'active' ? 'success' : 'secondary' %>">
-                                        <%= userDetails.status.toUpperCase() %>
-                                    </span>
-                                </div>
-                            </div>
+<%- include('partials/member_sidebar') %>
+
+<div class="page-wrapper">
+    <div class="page-heading">
+        <div>
+            <h3><i class="fa fa-user-circle-o" style="color:#00b894;margin-right:8px;"></i>My Profile</h3>
+            <div class="sub">Personal details, account access, and security settings</div>
+        </div>
+        <a href="/member/dashboard" class="top-link"><i class="fa fa-home"></i> Dashboard</a>
+    </div>
+
+    <div class="dash-body">
+        <div class="profile-layout">
+
+            <div class="profile-left">
+                <div class="ibox">
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar">
+                            <%= (userDetails.first_name || 'U').charAt(0).toUpperCase() %><%= (userDetails.last_name || '').charAt(0).toUpperCase() %>
                         </div>
-                        
-                        <div class="ibox">
-                            <div class="ibox-body">
-                                <h5 class="font-strong mb-4">Account Information</h5>
-                                <ul class="list-group list-group-full">
-                                    <li class="list-group-item">
-                                        <strong>User ID:</strong>
-                                        <span class="float-right"><%= userDetails.id %></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>Member Since:</strong>
-                                        <span class="float-right"><%= userDetails.created_at %></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>Last Login:</strong>
-                                        <span class="float-right"><%= userDetails.last_login || 'Never' %></span>
-                                    </li>
-                                </ul>
-                            </div>
+                        <div class="profile-name"><%= userDetails.first_name %> <%= userDetails.last_name %></div>
+                        <div class="profile-id">User ID: #<%= userDetails.id %></div>
+                        <div class="profile-badges">
+                            <span class="profile-badge badge-role">
+                                <i class="fa fa-id-badge"></i> <%= String(userDetails.role || '').toUpperCase() %>
+                            </span>
+                            <span class="profile-badge <%= String(userDetails.status || '').toLowerCase() === 'active' ? 'badge-active' : 'badge-inactive' %>">
+                                <i class="fa fa-<%= String(userDetails.status || '').toLowerCase() === 'active' ? 'check-circle' : 'times-circle' %>"></i>
+                                <%= String(userDetails.status || '').toUpperCase() %>
+                            </span>
                         </div>
                     </div>
-                    
-                    <!-- Edit Profile & Change Password -->
-                    <div class="col-lg-8">
-                        <!-- Edit Profile -->
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Edit Profile</div>
-                            </div>
-                            <div class="ibox-body">
-                                <form id="updateProfileForm">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>First Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="first_name" name="first_name" 
-                                                       value="<%= userDetails.first_name %>" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Last Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="last_name" name="last_name" 
-                                                       value="<%= userDetails.last_name %>" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Username <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="username" name="username" 
-                                               value="<%= userDetails.username %>" required>
-                                        <small class="form-text text-muted">Can contain letters, numbers, underscores, and hyphens. Minimum 3 characters.</small>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary" id="updateProfileBtn">
-                                        <i class="fa fa-save"></i> Update Profile
-                                    </button>
-                                </form>
-                            </div>
+
+                    <div class="quick-stats">
+                        <div class="qs-item">
+                            <div class="qs-val"><%= userDetails.id %></div>
+                            <div class="qs-lbl">Account ID</div>
                         </div>
-                        
-                        <!-- Change Password -->
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Change Password</div>
+                        <div class="qs-item">
+                            <div class="qs-val"><%= String(userDetails.role || '').toUpperCase() %></div>
+                            <div class="qs-lbl">Role</div>
+                        </div>
+                        <div class="qs-item">
+                            <div class="qs-val"><%= userDetails.created_at || '-' %></div>
+                            <div class="qs-lbl">Joined</div>
+                        </div>
+                        <div class="qs-item">
+                            <div class="qs-val"><%= userDetails.last_login || '-' %></div>
+                            <div class="qs-lbl">Last Login</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-links">
+                        <a href="/member/dashboard" class="profile-link"><i class="fa fa-home"></i> Dashboard</a>
+                        <a href="/member/account" class="profile-link"><i class="fa fa-user-o"></i> Profile Overview</a>
+                        <a href="/member/biodata" class="profile-link"><i class="fa fa-id-card-o"></i> Personal Details</a>
+                        <a href="/member/transactions" class="profile-link"><i class="fa fa-exchange"></i> Transactions</a>
+                        <a href="/logout" class="profile-link"><i class="fa fa-power-off"></i> Sign Out</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-right">
+                <div class="ibox">
+                    <div class="ibox-body" style="padding:0;">
+                        <div class="profile-tabs">
+                            <button class="profile-tab-btn active" onclick="switchTab('overview', this)">
+                                <i class="fa fa-bar-chart"></i> Overview
+                            </button>
+                            <button class="profile-tab-btn" onclick="switchTab('account', this)">
+                                <i class="fa fa-id-card"></i> Account
+                            </button>
+                            <button class="profile-tab-btn" onclick="switchTab('edit', this)">
+                                <i class="fa fa-pencil"></i> Edit Profile
+                            </button>
+                            <button class="profile-tab-btn" onclick="switchTab('security', this)">
+                                <i class="fa fa-lock"></i> Security
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane active" id="tab-overview">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <span class="ibox-title"><i class="fa fa-user"></i> Profile Summary</span>
+                        </div>
+                        <div class="ibox-body">
+                            <div class="detail-section">
+                                <div class="detail-section-title"><i class="fa fa-address-card-o"></i> Identity</div>
+                                <div class="detail-grid">
+                                    <div>
+                                        <div class="detail-label">First Name</div>
+                                        <div class="detail-value"><%= userDetails.first_name || '-' %></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Last Name</div>
+                                        <div class="detail-value"><%= userDetails.last_name || '-' %></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Username</div>
+                                        <div class="detail-value">@<%= userDetails.username || '-' %></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Role</div>
+                                        <div class="detail-value"><%= String(userDetails.role || '').toUpperCase() %></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="ibox-body">
-                                <form id="changePasswordForm">
-                                    <div class="form-group">
-                                        <label>Current Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+
+                            <div class="detail-section">
+                                <div class="detail-section-title"><i class="fa fa-shield"></i> Access</div>
+                                <div class="detail-grid">
+                                    <div>
+                                        <div class="detail-label">Account Status</div>
+                                        <div class="detail-value"><%= String(userDetails.status || '').toUpperCase() %></div>
                                     </div>
-                                    <div class="form-group">
-                                        <label>New Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="new_password" name="new_password" 
-                                               required minlength="6">
-                                        <small class="form-text text-muted">Minimum 6 characters</small>
+                                    <div>
+                                        <div class="detail-label">Account Created</div>
+                                        <div class="detail-value"><%= userDetails.created_at || '-' %></div>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Confirm New Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                    <div>
+                                        <div class="detail-label">Last Login</div>
+                                        <div class="detail-value <%= !userDetails.last_login ? 'empty' : '' %>"><%= userDetails.last_login || 'No login history' %></div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <button type="submit" class="btn btn-warning" id="changePasswordBtn" style="width: 100%;">
-                                                <i class="fa fa-key"></i> Change Password
-                                            </button>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <a href="/forgot-password" class="btn btn-outline-secondary" style="width: 100%;">
-                                                <i class="fa fa-question-circle"></i> Forgot Password?
-                                            </a>
-                                        </div>
+                                    <div>
+                                        <div class="detail-label">User ID</div>
+                                        <div class="detail-value"><%= userDetails.id %></div>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="tab-pane" id="tab-account">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <span class="ibox-title"><i class="fa fa-info-circle"></i> Account Details</span>
+                        </div>
+                        <div class="ibox-body">
+                            <div class="detail-section">
+                                <div class="detail-section-title"><i class="fa fa-user-circle"></i> User Record</div>
+                                <div class="detail-grid">
+                                    <div>
+                                        <div class="detail-label">Display Name</div>
+                                        <div class="detail-value"><%= userDetails.first_name %> <%= userDetails.last_name %></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">System Username</div>
+                                        <div class="detail-value">@<%= userDetails.username %></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Assigned Role</div>
+                                        <div class="detail-value"><%= String(userDetails.role || '').toUpperCase() %></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Status</div>
+                                        <div class="detail-value"><%= String(userDetails.status || '').toUpperCase() %></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Created On</div>
+                                        <div class="detail-value"><%= userDetails.created_at || '-' %></div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-label">Most Recent Login</div>
+                                        <div class="detail-value <%= !userDetails.last_login ? 'empty' : '' %>"><%= userDetails.last_login || 'Not available' %></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="tab-edit">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <span class="ibox-title"><i class="fa fa-pencil-square-o"></i> Edit Profile</span>
+                        </div>
+                        <div class="ibox-body">
+                            <form id="updateProfileForm">
+                                <div class="detail-grid" style="margin-bottom:0;">
+                                    <div class="form-group">
+                                        <label for="first_name">First Name</label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" value="<%= userDetails.first_name %>" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="last_name">Last Name</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" value="<%= userDetails.last_name %>" required>
+                                    </div>
+                                    <div class="form-group" style="grid-column: 1 / -1;">
+                                        <label for="username">Username</label>
+                                        <input type="text" class="form-control" id="username" name="username" value="<%= userDetails.username %>" required>
+                                        <div class="form-text">Letters, numbers, underscores, and hyphens only. Minimum 3 characters.</div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-save" id="updateProfileBtn">
+                                    <i class="fa fa-save" style="margin-right:4px;"></i>Update Profile
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="tab-security">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <span class="ibox-title"><i class="fa fa-lock"></i> Security</span>
+                        </div>
+                        <div class="ibox-body">
+                            <div class="security-card">
+                                <div class="security-title">Password protection</div>
+                                <p class="security-copy">Use a strong password and change it regularly to keep your account secure.</p>
+                            </div>
+
+                            <form id="changePasswordForm">
+                                <div class="form-group">
+                                    <label for="current_password">Current Password</label>
+                                    <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="new_password">New Password</label>
+                                    <input type="password" class="form-control" id="new_password" name="new_password" required minlength="6">
+                                    <div class="form-text">Minimum 6 characters.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm_password">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                </div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button type="submit" class="btn-change-pwd" id="changePasswordBtn">
+                                        <i class="fa fa-key" style="margin-right:4px;"></i>Change Password
+                                    </button>
+                                    <a href="/forgot_password" class="btn-secondary-link">
+                                        <i class="fa fa-question-circle" style="margin-right:4px;"></i>Forgot Password?
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>Fincas</b> - All rights reserved.</div>
-            </footer>
         </div>
     </div>
+</div>
 
-    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
-    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
-    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/assets/js/app.min.js"></script>
+<script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+<script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+<script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+<script src="/assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/assets/js/app.min.js"></script>
 
-    <script>
-        // Update Profile
-        $('#updateProfileForm').on('submit', async function(e) {
-            e.preventDefault();
+<script>
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.profile-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('tab-' + tabId).classList.add('active');
+    btn.classList.add('active');
+}
 
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
+$('#updateProfileForm').on('submit', async function(e) {
+    e.preventDefault();
 
-            $('#updateProfileBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
 
-            try {
-                const response = await fetch('/profile/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+    $('#updateProfileBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
 
-                const result = await response.json();
-
-                if (!response.ok) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Errors',
-                        html: result.errors.map(e => `<p>• ${e}</p>`).join('')
-                    });
-                    
-                    $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
-                    return;
-                }
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: result.message
-                }).then(() => {
-                    location.reload();
-                });
-
-            } catch (err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Could not update profile'
-                });
-                
-                $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
-            }
+    try {
+        const response = await fetch('/profile/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         });
 
-        // Change Password
-        $('#changePasswordForm').on('submit', async function(e) {
-            e.preventDefault();
+        const result = await response.json();
 
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
+        if (!response.ok) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Errors',
+                html: result.errors.map(function(err) { return '<p>- ' + err + '</p>'; }).join('')
+            });
 
-            // Validate passwords match
-            if (data.new_password !== data.confirm_password) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'New passwords do not match'
-                });
-                return;
-            }
+            $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
+            return;
+        }
 
-            $('#changePasswordBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Changing...');
-
-            try {
-                const response = await fetch('/profile/change-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        html: result.errors.map(e => `<p>• ${e}</p>`).join('')
-                    });
-                    
-                    $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
-                    return;
-                }
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: result.message
-                }).then(() => {
-                    $('#changePasswordForm')[0].reset();
-                    $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
-                });
-
-            } catch (err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Could not change password'
-                });
-                
-                $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
-            }
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: result.message
+        }).then(function() {
+            location.reload();
         });
-    </script>
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Could not update profile'
+        });
+
+        $('#updateProfileBtn').prop('disabled', false).html('<i class="fa fa-save"></i> Update Profile');
+    }
+});
+
+$('#changePasswordForm').on('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    if (data.new_password !== data.confirm_password) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: 'New passwords do not match'
+        });
+        return;
+    }
+
+    $('#changePasswordBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Changing...');
+
+    try {
+        const response = await fetch('/profile/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                html: result.errors.map(function(err) { return '<p>- ' + err + '</p>'; }).join('')
+            });
+
+            $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+            return;
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: result.message
+        }).then(function() {
+            $('#changePasswordForm')[0].reset();
+            $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+        });
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Could not change password'
+        });
+
+        $('#changePasswordBtn').prop('disabled', false).html('<i class="fa fa-key"></i> Change Password');
+    }
+});
+</script>
 </body>
 </html>

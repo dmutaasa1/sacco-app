@@ -3597,11 +3597,50 @@ app.get('/search', checkAuth, asyncHandler(async (req, res) => {
 
 
 /* ── GET /notifications ──────────────────────────────── */
+function getNotificationState(req) {
+    if (!req.session.notificationState) {
+        req.session.notificationState = {};
+    }
+
+    const userId = req.session && req.session.user ? req.session.user.id : 'guest';
+    const stateKey = String(userId);
+
+    if (!req.session.notificationState[stateKey]) {
+        req.session.notificationState[stateKey] = {
+            readIds: [],
+            readAllAt: null
+        };
+    }
+
+    return req.session.notificationState[stateKey];
+}
+
+function isNotificationHidden(notification, notificationState) {
+    const readIds = new Set(notificationState.readIds || []);
+    if (readIds.has(String(notification.id))) {
+        return true;
+    }
+
+    if (!notificationState.readAllAt) {
+        return false;
+    }
+
+    const createdAt = notification.created_at ? new Date(notification.created_at) : null;
+    const readAllAt = new Date(notificationState.readAllAt);
+
+    if (!createdAt || Number.isNaN(createdAt.getTime()) || Number.isNaN(readAllAt.getTime())) {
+        return false;
+    }
+
+    return createdAt <= readAllAt;
+}
+
 app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 12, 50);
     const notifications = [];
     const isMember = req.session && req.session.user && req.session.user.role === 'member';
     const memberId = req.session && req.session.user ? req.session.user.member_id : null;
+    const notificationState = getNotificationState(req);
 
     if (isMember && memberId) {
         try {
@@ -3694,7 +3733,11 @@ app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
             return new Date(b.created_at) - new Date(a.created_at);
         });
 
-        return res.json({ notifications: notifications.slice(0, limit) });
+        return res.json({
+            notifications: notifications.filter(function(notification) {
+                return !isNotificationHidden(notification, notificationState);
+            }).slice(0, limit)
+        });
     }
 
     /* 1. Interest calculation — from loan_daily_interest (always exists) */
@@ -3847,12 +3890,19 @@ app.get('/notifications', checkAuth, asyncHandler(async (req, res) => {
         return new Date(b.created_at) - new Date(a.created_at);
     });
 
-    res.json({ notifications: notifications.slice(0, limit) });
+    res.json({
+        notifications: notifications.filter(function(notification) {
+            return !isNotificationHidden(notification, notificationState);
+        }).slice(0, limit)
+    });
 }));
 
 
 /* ── POST /notifications/read-all ───────────────────── */
 app.post('/notifications/read-all', checkAuth, asyncHandler(async (req, res) => {
+    const notificationState = getNotificationState(req);
+    notificationState.readAllAt = new Date().toISOString();
+    notificationState.readIds = [];
     res.json({ ok: true });
 }));
 
@@ -3860,6 +3910,13 @@ app.post('/notifications/read-all', checkAuth, asyncHandler(async (req, res) => 
 /* ── POST /notifications/:id/read ───────────────────── */
 /* Must come AFTER /read-all so Express doesn't treat "read-all" as an :id */
 app.post('/notifications/:id/read', checkAuth, asyncHandler(async (req, res) => {
+    const notificationState = getNotificationState(req);
+    const notificationId = String(req.params.id || '');
+
+    if (notificationId && !(notificationState.readIds || []).includes(notificationId)) {
+        notificationState.readIds = (notificationState.readIds || []).concat(notificationId).slice(-200);
+    }
+
     res.json({ ok: true });
 }));
 

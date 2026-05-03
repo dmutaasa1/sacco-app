@@ -399,6 +399,21 @@ body.sidebar-open #mobileSidebarBackdrop {
         });
     }
 
+    if (notifList) {
+        notifList.addEventListener('click', function (e) {
+            var item = e.target.closest('.notif-item');
+            if (!item) return;
+
+            var id = item.getAttribute('data-id');
+            if (!id) return;
+
+            item.classList.remove('unread');
+            fetch('/notifications/' + encodeURIComponent(id) + '/read', { method: 'POST' })
+                .then(function () { fetchNotifications(); })
+                .catch(function () { fetchNotifications(); });
+        });
+    }
+
     if (usrBtn) {
         usrBtn.addEventListener('click', function (e) {
             e.stopPropagation();
