@@ -457,19 +457,22 @@ body.sidebar-collapsed .sb-sub { display: none !important; }
                 </ul>
             </li>
 
+            <li class="<%= isActive(['profile','settings']) %>">
+                <span class="sb-row" onclick="sbToggle(this)">
+                    <span class="sb-ico"><i class="fa fa-user-o"></i></span>
+                    <span class="sb-lbl">Profile</span>
+                    <span class="sb-arr"><i class="fa fa-chevron-right"></i></span>
+                    <span class="sb-tip">Profile</span>
+                </span>
+                <ul class="sb-sub <%= isActive(['profile','settings']) ? 'sb-open' : '' %>">
+                    <li><a href="/profile" class="<%= isSubActive('profile') %>">My Profile</a></li>
+                    <li><a href="/settings" class="<%= isSubActive('settings') %>">Settings</a></li>
+                </ul>
+            </li>
+
         </ul>
 
         <div id="sb-dock">
-            <a href="/profile" class="sb-dock-link">
-                <span class="sb-ico"><i class="fa fa-user-o"></i></span>
-                <span class="sb-lbl">My Profile</span>
-                <span class="sb-tip">Profile</span>
-            </a>
-            <a href="/settings" class="sb-dock-link">
-                <span class="sb-ico"><i class="fa fa-cog"></i></span>
-                <span class="sb-lbl">Settings</span>
-                <span class="sb-tip">Settings</span>
-            </a>
             <a href="/logout" class="sb-dock-link danger">
                 <span class="sb-ico"><i class="fa fa-power-off"></i></span>
                 <span class="sb-lbl">Sign Out</span>
