@@ -1666,6 +1666,13 @@ app.post('/members/:id/edit', checkAuth, upload.single('photo'), asyncHandler(as
 app.post('/memberadd', checkAuth, asyncHandler(async (req, res) => {
   const db = dbConfig;
   const errors = [];
+  const normalizeDate = (value) => {
+    if (!value) return '';
+    const parsed = moment(value, ['YYYY-MM-DD', 'YYYY/MM/DD', moment.ISO_8601], true);
+    return parsed.isValid() ? parsed.format('YYYY-MM-DD') : '';
+  };
+  const dateOfBirth = normalizeDate(req.body.date_of_birth);
+  const dateJoined = normalizeDate(req.body.date_joined);
 
   // Validate national ID uniqueness
   const [existing] = await db.execute('SELECT national_id FROM members_mst WHERE national_id = ?', [req.body.national_id]);
@@ -1679,30 +1686,29 @@ app.post('/memberadd', checkAuth, asyncHandler(async (req, res) => {
   if (!req.body.First_name) errors.push("First Name is required.");
   if (!req.body.Last_Name) errors.push("Last Name is required.");
   if (!req.body.tel_no) errors.push("Mobile Number is required.");
-  if (!req.body.date_of_birth) errors.push("Date of Birth is required.");
-  if (!req.body.date_joined) errors.push("Date Joined is required.");
+  if (!dateOfBirth) errors.push("Date of Birth is required.");
+  if (!dateJoined) errors.push("Date Joined is required.");
   if (!req.body.village_lc1) errors.push("Village is required.");
 
   if (errors.length > 0) {
     return res.status(400).json({ errors });
   }
 
-  // Insert member
-  await db.execute(`
-    INSERT INTO members_mst 
-    (First_name, Middle_Name, Last_Name, tel_no, sex, marital_status, date_of_birth, occupation,
-     place_of_birth, village_lc1, parish, sub_county, status, national_id, date_joined,
-     next_of_kin_First_name, next_of_kin_Last_name, next_of_kin_tel, next_of_kin_address,
-     Father_First_name, Father_Last_name, father_tel, father_status, father_village,
-     father_parish, father_subcounty, father_district, mother_First_name, mother_Last_name,
-     mother_tel, mother_status, mother_village, mother_parish, mother_subcounty,
-     mother_district, comments)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `, [
+  const [districtColumn] = await db.execute('SHOW COLUMNS FROM members_mst LIKE ?', ['district']);
+  const columns = [
+    'First_name', 'Middle_Name', 'Last_Name', 'tel_no', 'sex', 'marital_status', 'date_of_birth', 'occupation',
+    'place_of_birth', 'village_lc1', 'parish', 'sub_county', 'Status', 'national_id', 'Date_Joined',
+    'next_of_kin_First_name', 'next_of_kin_Last_name', 'next_of_kin_tel', 'next_of_kin_address',
+    'Father_First_name', 'Father_Last_name', 'father_tel', 'father_status', 'father_village',
+    'father_parish', 'father_subcounty', 'father_district', 'mother_First_name', 'mother_Last_name',
+    'mother_tel', 'mother_status', 'mother_village', 'mother_parish', 'mother_subcounty',
+    'mother_district', 'comments'
+  ];
+  const values = [
     req.body.First_name, req.body.Middle_Name, req.body.Last_Name, req.body.tel_no,
-    req.body.sex, req.body.marital_status, req.body.date_of_birth, req.body.occupation,
+    req.body.sex, req.body.marital_status, dateOfBirth, req.body.occupation,
     req.body.place_of_birth, req.body.village_lc1, req.body.parish, req.body.sub_county,
-    req.body.status, req.body.national_id, req.body.date_joined,
+    req.body.status, req.body.national_id, dateJoined,
     req.body.next_of_kin_First_name, req.body.next_of_kin_Last_name, req.body.next_of_kin_tel,
     req.body.next_of_kin_address, req.body.Father_First_name, req.body.Father_Last_name,
     req.body.father_tel, req.body.father_status, req.body.father_village, req.body.father_parish,
@@ -1710,7 +1716,19 @@ app.post('/memberadd', checkAuth, asyncHandler(async (req, res) => {
     req.body.mother_Last_name, req.body.mother_tel, req.body.mother_status,
     req.body.mother_village, req.body.mother_parish, req.body.mother_subcounty,
     req.body.mother_district, req.body.comments
-  ]);
+  ];
+
+  if (districtColumn.length > 0) {
+    columns.splice(12, 0, 'district');
+    values.splice(12, 0, req.body.district);
+  }
+
+  // Insert member
+  await db.execute(
+    `INSERT INTO members_mst (${columns.map(column => `\`${column}\``).join(', ')})
+     VALUES (${columns.map(() => '?').join(', ')})`,
+    values
+  );
 
   res.json({
     success: true,
@@ -1719,7 +1737,7 @@ app.post('/memberadd', checkAuth, asyncHandler(async (req, res) => {
       Last_Name: req.body.Last_Name,
       tel_no: req.body.tel_no,
       sex: req.body.sex,
-      date_of_birth: req.body.date_of_birth,
+      date_of_birth: dateOfBirth,
       occupation: req.body.occupation,
       status: req.body.status
     }
