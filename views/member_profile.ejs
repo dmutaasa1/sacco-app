@@ -405,6 +405,10 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; width:calc(100% - 60px)
                                         <div class="detail-value"><%= member.sub_county || '—' %></div>
                                     </div>
                                     <div class="detail-item">
+                                        <div class="detail-label">District</div>
+                                        <div class="detail-value <%= !member.district?'empty':'' %>"><%= member.district || 'Not provided' %></div>
+                                    </div>
+                                    <div class="detail-item">
                                         <div class="detail-label">Place of Birth</div>
                                         <div class="detail-value <%= !member.place_of_birth?'empty':'' %>"><%= member.place_of_birth || 'Not provided' %></div>
                                     </div>
