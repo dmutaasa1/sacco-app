@@ -448,7 +448,7 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
             members.forEach(function (m) {
                 var ini = initials(m.First_name, m.Last_Name);
                 var col = avatarColor(ini);
-                html += '<a class="hsr-item" href="/member_view/' + m.id + '">' +
+                html += '<a class="hsr-item" href="/members/' + m.id + '">' +
                     '<div class="hsr-avatar" style="background:' + col + '">' + ini + '</div>' +
                     '<div class="hsr-info">' +
                         '<div class="hsr-name">' + (m.First_name||'') + ' ' + (m.Last_Name||'') + '</div>' +
@@ -463,7 +463,7 @@ body.sidebar-collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
             dependants.forEach(function (d) {
                 var ini = initials(d.First_name, d.Last_Name);
                 var col = avatarColor(ini + 'dep');
-                html += '<a class="hsr-item" href="/dependant_view/' + d.id + '">' +
+                html += '<a class="hsr-item" href="/members/' + d.member_id + '?tab=dependants#dependant-' + d.id + '">' +
                     '<div class="hsr-avatar" style="background:' + col + '">' + ini + '</div>' +
                     '<div class="hsr-info">' +
                         '<div class="hsr-name">' + (d.First_name||'') + ' ' + (d.Last_Name||'') + '</div>' +
