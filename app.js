@@ -1403,7 +1403,7 @@ app.get('/members/:id', checkAuth, blockMemberAccess, asyncHandler(async (req, r
       DATE_FORMAT(a.date_of_birth, "%d-%b-%Y") AS date_of_birth,
       DATE_FORMAT(a.Date_Joined, "%d-%b-%Y") AS Date_Joined,
       COALESCE(t.total_savings_credit, 0) AS total_savings_credit,
-      COALESCE(t.total_insurance_cover, 0) AS total_Insuarance_cover,
+      COALESCE(t.total_insurance_cover, 0) AS total_Insurance_cover,
       COALESCE(t.total_membership_fee, 0) AS total_Membership_Fee,
       COALESCE(t.total_loan, 0) AS total_loan,
       COALESCE(d.dependants_count, 0) AS total_dependants
@@ -1412,7 +1412,7 @@ app.get('/members/:id', checkAuth, blockMemberAccess, asyncHandler(async (req, r
       SELECT 
         member_id,
         SUM(CASE WHEN Debit_Credit = 'Credit' AND transaction_type = 'Saving' THEN Amount ELSE 0 END) AS total_savings_credit,
-        SUM(CASE WHEN Debit_Credit = 'Credit' AND transaction_type = 'Insuarance Cover' THEN Amount ELSE 0 END) AS total_insurance_cover,
+        SUM(CASE WHEN Debit_Credit = 'Credit' AND transaction_type = 'Insurance Cover' THEN Amount ELSE 0 END) AS total_insurance_cover,
         SUM(CASE WHEN Debit_Credit = 'Credit' AND transaction_type = 'Membership Fee' THEN Amount ELSE 0 END) AS total_membership_fee,
         SUM(CASE WHEN Debit_Credit = 'Credit' AND transaction_type = 'Loan Disbursement' THEN Amount ELSE 0 END) -
         SUM(CASE WHEN Debit_Credit = 'Debit' AND transaction_type = 'Loan Repayment' THEN Amount ELSE 0 END) AS total_loan
@@ -1482,7 +1482,7 @@ app.get('/members/:id', checkAuth, blockMemberAccess, asyncHandler(async (req, r
       member_id,
       YEAR(CURDATE()) AS payment_year,      
       COALESCE(t.year_total_savings_credit, 0) AS total_savings_credit,
-      COALESCE(t.year_total_insurance_cover, 0) AS total_Insuarance_cover,
+      COALESCE(t.year_total_insurance_cover, 0) AS total_Insurance_cover,
       COALESCE(t.year_total_welfare_fee, 0) AS total_welfare_fee,
       COALESCE(t.year_total_loan_receieved, 0) AS year_total_loan_receieved,
       COALESCE(t.year_total_loan_repayment, 0) AS year_total_loan_repayment,
@@ -1494,7 +1494,7 @@ app.get('/members/:id', checkAuth, blockMemberAccess, asyncHandler(async (req, r
       SELECT 
         member_id,
         SUM(CASE WHEN Debit_Credit = 'Credit' AND payment_period = YEAR(CURDATE()) AND transaction_type = 'Saving' THEN Amount ELSE 0 END) AS year_total_savings_credit,
-        SUM(CASE WHEN Debit_Credit = 'Credit' AND payment_period = YEAR(CURDATE()) AND transaction_type = 'Insuarance Cover' THEN Amount ELSE 0 END) AS year_total_insurance_cover,
+        SUM(CASE WHEN Debit_Credit = 'Credit' AND payment_period = YEAR(CURDATE()) AND transaction_type = 'Insurance Cover' THEN Amount ELSE 0 END) AS year_total_insurance_cover,
         SUM(CASE WHEN Debit_Credit = 'Credit' AND payment_period = YEAR(CURDATE()) AND transaction_type = 'welfare Fee' THEN Amount ELSE 0 END) AS year_total_welfare_fee,
         SUM(CASE WHEN Debit_Credit = 'Credit' AND transaction_type = 'Loan Disbursement' THEN Amount ELSE 0 END) AS year_total_loan_receieved,
         SUM(CASE WHEN Debit_Credit = 'Debit' AND transaction_type = 'Loan Repayment' THEN Amount ELSE 0 END) AS year_total_loan_repayment
@@ -2096,7 +2096,7 @@ app.post('/welfare/payment-status', asyncHandler(async (req, res) => {
 }));
 
 app.post('/Insurance_cover/payment-status', asyncHandler(async (req, res) => {
-  await getPaymentStatus(req, res, 'Insuarance Cover');
+  await getPaymentStatus(req, res, 'Insurance Cover');
 }));
 
 // ==================== SAVINGS REPORT ====================
@@ -4172,7 +4172,7 @@ async function buildStatementData(db, start_date, end_date) {
     const insuranceFees = await q(`
         SELECT COALESCE(SUM(Amount), 0) AS v
         FROM transactions
-        WHERE transaction_type = 'Insuarance Cover'
+        WHERE transaction_type = 'Insurance Cover'
           AND tran_date BETWEEN ? AND ?
     `, [start_date, end_date]);
 
@@ -4183,7 +4183,7 @@ async function buildStatementData(db, start_date, end_date) {
         WHERE Debit_Credit = 'Credit'
           AND transaction_type NOT IN (
               'Saving','Savings Withdrawal','Loan Disbursement',
-              'Membership Fee','welfare Fee','Insuarance Cover',
+              'Membership Fee','welfare Fee','Insurance Cover',
               'Loan Processing Fee','Penalty Fees','Loan Repayment'
           )
           AND tran_date BETWEEN ? AND ?
@@ -5168,7 +5168,7 @@ app.get('/member/dashboard', checkMemberAuth, asyncHandler(async (req, res) => {
 
     const [annualRows] = await db.execute(`
         SELECT
-            COALESCE(SUM(CASE WHEN transaction_type='Insuarance Cover' THEN Amount ELSE 0 END),0) AS insurance,
+            COALESCE(SUM(CASE WHEN transaction_type='Insurance Cover' THEN Amount ELSE 0 END),0) AS insurance,
             COALESCE(SUM(CASE WHEN transaction_type='welfare Fee'       THEN Amount ELSE 0 END),0) AS welfare,
             COALESCE(SUM(CASE WHEN transaction_type='Membership Fee'    THEN Amount ELSE 0 END),0) AS membership
         FROM transactions WHERE member_id=? AND YEAR(tran_date)=YEAR(CURDATE())
@@ -5383,7 +5383,7 @@ app.get('/member/insurance', checkMemberAuth, asyncHandler(async (req, res) => {
     const [rows] = await db.execute(`
         SELECT DATE_FORMAT(tran_date,'%d-%b-%Y') AS tran_date,
                Amount, payment_period, description
-        FROM transactions WHERE member_id=? AND transaction_type='Insuarance Cover'
+        FROM transactions WHERE member_id=? AND transaction_type='Insurance Cover'
         ORDER BY tran_date DESC
     `, [memberId]);
     const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
@@ -5443,7 +5443,7 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
             DATE_FORMAT(a.Date_of_Birth, '%d-%b-%Y') AS Date_of_Birth,
             DATE_FORMAT(a.date_joined,   '%d-%b-%Y') AS date_joined,
             COALESCE(t.total_savings_credit,  0) AS total_savings_credit,
-            COALESCE(t.total_insurance_cover, 0) AS total_Insuarance_cover,
+            COALESCE(t.total_insurance_cover, 0) AS total_Insurance_cover,
             COALESCE(t.total_membership_fee,  0) AS total_Membership_Fee,
             COALESCE(t.total_loan,            0) AS total_loan,
             COALESCE(d.dependants_count,      0) AS total_dependants
@@ -5453,7 +5453,7 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
                 member_id,
                 SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Saving'
                          THEN Amount ELSE 0 END) AS total_savings_credit,
-                SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Insuarance Cover'
+                SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Insurance Cover'
                          THEN Amount ELSE 0 END) AS total_insurance_cover,
                 SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Membership Fee'
                          THEN Amount ELSE 0 END) AS total_membership_fee,
@@ -5514,7 +5514,7 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
             member_id,
             YEAR(CURDATE()) AS payment_year,
             COALESCE(t.year_total_savings_credit,   0) AS total_savings_credit,
-            COALESCE(t.year_total_insurance_cover,  0) AS total_Insuarance_cover,
+            COALESCE(t.year_total_insurance_cover,  0) AS total_Insurance_cover,
             COALESCE(t.year_total_welfare_fee,       0) AS total_welfare_fee,
             COALESCE(t.year_total_loan_receieved,    0) AS year_total_loan_receieved,
             COALESCE(t.year_total_loan_repayment,    0) AS year_total_loan_repayment,
@@ -5529,7 +5529,7 @@ app.get('/member/profile', checkMemberAuth, asyncHandler(async (req, res) => {
                 SUM(CASE WHEN Debit_Credit='Credit' AND payment_period=YEAR(CURDATE())
                          AND transaction_type='Saving'          THEN Amount ELSE 0 END) AS year_total_savings_credit,
                 SUM(CASE WHEN Debit_Credit='Credit' AND payment_period=YEAR(CURDATE())
-                         AND transaction_type='Insuarance Cover' THEN Amount ELSE 0 END) AS year_total_insurance_cover,
+                         AND transaction_type='Insurance Cover' THEN Amount ELSE 0 END) AS year_total_insurance_cover,
                 SUM(CASE WHEN Debit_Credit='Credit' AND payment_period=YEAR(CURDATE())
                          AND transaction_type='welfare Fee'      THEN Amount ELSE 0 END) AS year_total_welfare_fee,
                 SUM(CASE WHEN Debit_Credit='Credit'
@@ -5614,7 +5614,7 @@ app.get('/member/biodata', checkMemberAuth, asyncHandler(async (req, res) => {
             DATE_FORMAT(a.Date_of_Birth, '%d-%b-%Y') AS Date_of_Birth,
             DATE_FORMAT(a.date_joined,   '%d-%b-%Y') AS date_joined,
             COALESCE(t.total_savings_credit,  0) AS total_savings_credit,
-            COALESCE(t.total_insurance_cover, 0) AS total_Insuarance_cover,
+            COALESCE(t.total_insurance_cover, 0) AS total_Insurance_cover,
             COALESCE(t.total_membership_fee,  0) AS total_Membership_Fee,
             COALESCE(t.total_loan,            0) AS total_loan,
             COALESCE(d.dependants_count,      0) AS total_dependants
@@ -5624,7 +5624,7 @@ app.get('/member/biodata', checkMemberAuth, asyncHandler(async (req, res) => {
                 member_id,
                 SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Saving'
                          THEN Amount ELSE 0 END) AS total_savings_credit,
-                SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Insuarance Cover'
+                SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Insurance Cover'
                          THEN Amount ELSE 0 END) AS total_insurance_cover,
                 SUM(CASE WHEN Debit_Credit='Credit' AND transaction_type='Membership Fee'
                          THEN Amount ELSE 0 END) AS total_membership_fee,
@@ -5696,7 +5696,7 @@ app.get('/member/biodata', checkMemberAuth, asyncHandler(async (req, res) => {
             a.id AS member_id,
             YEAR(CURDATE()) AS payment_year,
             COALESCE(t.year_total_savings_credit,  0) AS total_savings_credit,
-            COALESCE(t.year_total_insurance_cover, 0) AS total_Insuarance_cover,
+            COALESCE(t.year_total_insurance_cover, 0) AS total_Insurance_cover,
             COALESCE(t.year_total_welfare_fee,      0) AS total_welfare_fee,
             COALESCE(t.year_total_loan_received,    0) AS year_total_loan_receieved,
             COALESCE(t.year_total_loan_repayment,   0) AS year_total_loan_repayment,
@@ -5714,7 +5714,7 @@ app.get('/member/biodata', checkMemberAuth, asyncHandler(async (req, res) => {
                          AND transaction_type='Saving'
                          THEN Amount ELSE 0 END) AS year_total_savings_credit,
                 SUM(CASE WHEN Debit_Credit='Credit' AND YEAR(tran_date)=YEAR(CURDATE())
-                         AND transaction_type='Insuarance Cover'
+                         AND transaction_type='Insurance Cover'
                          THEN Amount ELSE 0 END) AS year_total_insurance_cover,
                 SUM(CASE WHEN Debit_Credit='Credit' AND YEAR(tran_date)=YEAR(CURDATE())
                          AND transaction_type='welfare Fee'
@@ -5733,7 +5733,7 @@ app.get('/member/biodata', checkMemberAuth, asyncHandler(async (req, res) => {
 
     const finance = finances[0] || {
         total_savings_credit:          0,
-        total_Insuarance_cover:        0,
+        total_Insurance_cover:        0,
         total_welfare_fee:             0,
         year_total_loan_receieved:     0,
         year_total_loan_repayment:     0,

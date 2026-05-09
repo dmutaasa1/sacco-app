@@ -161,7 +161,7 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; width:calc(100% - 60px)
                             <option value="Loan Repayment">Loan Repayment</option>
                             <option value="Membership Fee">Membership Fee</option>
                             <option value="welfare Fee">Welfare Fee</option>
-                            <option value="Insuarance Cover">Insurance Cover</option>
+                            <option value="Insurance Cover">Insurance Cover</option>
                             <option value="Loan Processing Fee">Processing Fee</option>
                         </select>
                     </div>
@@ -205,7 +205,7 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; width:calc(100% - 60px)
                         else if (t.transaction_type==='Savings Withdrawal') typeClass='type-withdrawal';
                         else if (t.transaction_type==='Loan Disbursement') typeClass='type-loan';
                         else if (t.transaction_type==='Loan Repayment') typeClass='type-repayment';
-                        else if (t.transaction_type==='Membership Fee'||t.transaction_type==='welfare Fee'||t.transaction_type==='Insuarance Cover'||t.transaction_type==='Loan Processing Fee') typeClass='type-fee';
+                        else if (t.transaction_type==='Membership Fee'||t.transaction_type==='welfare Fee'||t.transaction_type==='Insurance Cover'||t.transaction_type==='Loan Processing Fee') typeClass='type-fee';
                         %>
                         <tr
                             data-type="<%= t.transaction_type.toLowerCase() %>"
