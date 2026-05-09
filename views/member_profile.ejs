@@ -129,8 +129,13 @@ body.sidebar-collapsed .page-wrapper { margin-left:60px; width:calc(100% - 60px)
 </head>
 <body>
 
-<%- include('partials/member_header') %>
-<%- include('partials/member_sidebar') %>
+<% if (isAdminView) { %>
+  <%- include('partials/header') %>
+  <%- include('partials/sidebar') %>
+<% } else { %>
+  <%- include('partials/member_header') %>
+  <%- include('partials/member_sidebar') %>
+<% } %>
 
 <div class="page-wrapper">
     <div class="page-heading">

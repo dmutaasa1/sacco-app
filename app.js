@@ -1376,7 +1376,7 @@ app.post('/transactions/filter', asyncHandler(async (req, res) => {
 // ==================== MEMBER ROUTES ====================
 
 // GET: Members listing
-app.get('/members', checkAuth, asyncHandler(async (req, res) => {
+app.get('/members', checkAuth, blockMemberAccess, asyncHandler(async (req, res) => {
   const db = dbConfig;
 
   const [rows] = await db.execute(`
@@ -1393,7 +1393,7 @@ app.get('/members', checkAuth, asyncHandler(async (req, res) => {
 }));
 
 // GET: Member profile
-app.get('/members/:id', checkAuth, asyncHandler(async (req, res) => {
+app.get('/members/:id', checkAuth, blockMemberAccess, asyncHandler(async (req, res) => {
   const memberId = req.params.id;
   const db = dbConfig;
 
@@ -1515,12 +1515,13 @@ app.get('/members/:id', checkAuth, asyncHandler(async (req, res) => {
     dependants,
     photoBase64,
     currentPage: 'members',
-    user: req.session.user
+    user: req.session.user,
+    isAdminView: true
   });
 }));
 
 // GET: Edit member form
-app.get('/members/:id/edit', checkAuth, asyncHandler(async (req, res) => {
+app.get('/members/:id/edit', checkAuth, blockMemberAccess, asyncHandler(async (req, res) => {
   const { id } = req.params;
   const db = dbConfig;
 
