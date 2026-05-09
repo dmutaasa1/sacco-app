@@ -429,8 +429,8 @@ body.sidebar-collapsed .page-wrapper {
                                 <label for="father_status">Status</label>
                                 <select id="father_status" name="father_status" class="form-select">
                                     <option value="">Select Status</option>
-                                    <option value="Alive" <%= (member.father_status || '').trim() === 'Alive' ? 'selected' : '' %>>ALIVE</option>
-                                    <option value="Deceased" <%= (member.father_status || '').trim() === 'Deceased' ? 'selected' : '' %>>DECEASED</option>
+                                    <option value="ALIVE" <%= (member.father_status || '').trim() === 'ALIVE' ? 'selected' : '' %>>ALIVE</option>
+                                    <option value="DECEASED" <%= (member.father_status || '').trim() === 'DECEASED' ? 'selected' : '' %>>DECEASED</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -473,8 +473,8 @@ body.sidebar-collapsed .page-wrapper {
                                 <label for="mother_status">Status</label>
                                 <select id="mother_status" name="mother_status" class="form-select">
                                     <option value="">Select Status</option>
-                                    <option value="Alive" <%= (member.mother_status || '').trim() === 'Alive' ? 'selected' : '' %>>ALIVE</option>
-                                    <option value="Deceased" <%= (member.mother_status || '').trim() === 'Deceased' ? 'selected' : '' %>>DECEASED</option>
+                                    <option value="ALIVE" <%= (member.mother_status || '').trim() === 'ALIVE' ? 'selected' : '' %>>ALIVE</option>
+                                    <option value="DECEASED" <%= (member.mother_status || '').trim() === 'DECEASED' ? 'selected' : '' %>>DECEASED</option>
                                 </select>
                             </div>
                             <div class="form-group">
