@@ -5178,7 +5178,7 @@ app.get('/member/dashboard', checkMemberAuth, asyncHandler(async (req, res) => {
     const membershipPaid = parseFloat(annualRows[0].membership);
     const insurancePct   = Math.min(Math.round((insurancePaid  / 60000)  * 100), 100);
     const welfarePct     = Math.min(Math.round((welfarePaid    / 240000) * 100), 100);
-    const membershipPct  = Math.min(Math.round((membershipPaid / 50000)  * 100), 100);
+    const membershipPct  = Math.min(Math.round((membershipPaid / 10000)  * 100), 100);
 
     const [loanRows] = await db.execute(`
         SELECT id, loan_amount, balance, accumulated_interest,
@@ -5425,7 +5425,7 @@ app.get('/member/membership', checkMemberAuth, asyncHandler(async (req, res) => 
     const total = rows.reduce((s,r) => s + parseFloat(r.Amount), 0);
     res.render('member_membership', {
         currentPage:'member_membership', user:req.session.user,
-        transactions:rows, total, pct: Math.min(Math.round((total/50000)*100),100)
+        transactions:rows, total, pct: Math.min(Math.round((total/10000)*100),100)
     });
 }));
 
