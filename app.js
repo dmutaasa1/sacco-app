@@ -2067,9 +2067,120 @@ app.post('/dependants/:id/edit', checkAuth, asyncHandler(async (req, res) => {
 // ==================== PAYMENT STATUS ROUTES ====================
 
 // Helper function for payment status queries
-async function getPaymentStatus(req, res, transactionType) {
+async function getPaymentStatus(req, res, transactionType, options = {}) {
   const { payment_period, payment_month, memberStatus, paymentStatus, start, length, draw } = req.body;
   const db = dbConfig;
+  const annualTarget = Number(options.annualTarget || 0);
+  const monthlyTarget = Number(options.monthlyTarget || 0);
+
+  if (annualTarget > 0) {
+    const monthNum = Number(payment_month || 0);
+    let baseQuery = `
+        SELECT
+          mm.id AS member_id,
+          mm.Date_Joined,
+          mm.First_name,
+          mm.Last_Name,
+          mm.tel_no,
+          mm.Status,
+          COALESCE(SUM(t.Amount), 0) AS Total_Amount,
+          COALESCE(SUM(CASE WHEN ? > 0 AND MONTH(t.tran_date) = ? THEN t.Amount ELSE 0 END), 0) AS Monthly_Amount,
+          GREATEST(? - COALESCE(SUM(t.Amount), 0), 0) AS Annual_Balance,
+          CASE
+            WHEN ? > 0 THEN GREATEST(? - COALESCE(SUM(CASE WHEN MONTH(t.tran_date) = ? THEN t.Amount ELSE 0 END), 0), 0)
+            ELSE 0
+          END AS Monthly_Balance,
+          MAX(t.created_at) AS last_payment_date,
+          MAX(t.payment_period) AS last_payment_period,
+          CASE
+            WHEN COALESCE(SUM(t.Amount), 0) = 0 THEN 'Not Paid'
+            WHEN COALESCE(SUM(t.Amount), 0) >= ? THEN 'Paid'
+            ELSE 'Partially Paid'
+          END AS Payment_Status
+        FROM members_mst mm
+        LEFT OUTER JOIN transactions t
+          ON mm.id = t.member_id
+          AND t.transaction_type = ?
+    `;
+
+    const params = [
+      monthNum,
+      monthNum,
+      annualTarget,
+      monthNum,
+      monthlyTarget,
+      monthNum,
+      annualTarget,
+      transactionType
+    ];
+
+    if (payment_period) {
+      baseQuery += ` AND t.payment_period = ?`;
+      params.push(payment_period);
+    }
+
+    baseQuery += ` WHERE mm.status = ?`;
+    params.push(memberStatus || 'ACTIVE');
+
+    baseQuery += `
+        GROUP BY mm.id, mm.Date_Joined, mm.First_name, mm.Last_Name, mm.tel_no, mm.Status
+    `;
+
+    let filteredQuery = `SELECT * FROM (${baseQuery}) AS member_payments`;
+    const filteredParams = [...params];
+
+    if (paymentStatus) {
+      filteredQuery += ` WHERE Payment_Status = ?`;
+      filteredParams.push(paymentStatus);
+    }
+
+    const [[summary]] = await db.execute(`
+      SELECT
+        COUNT(*) AS membersLoaded,
+        COALESCE(SUM(Total_Amount), 0) AS totalCollected,
+        COALESCE(SUM(Monthly_Amount), 0) AS monthlyCollected,
+        COALESCE(SUM(Annual_Balance), 0) AS annualBalance,
+        COALESCE(SUM(Monthly_Balance), 0) AS monthlyBalance,
+        SUM(CASE WHEN Payment_Status = 'Paid' THEN 1 ELSE 0 END) AS paidCount,
+        SUM(CASE WHEN Payment_Status = 'Partially Paid' THEN 1 ELSE 0 END) AS partialCount,
+        SUM(CASE WHEN Payment_Status = 'Not Paid' THEN 1 ELSE 0 END) AS pendingCount
+      FROM (${filteredQuery}) AS filtered_member_payments
+    `, filteredParams);
+
+    let query = filteredQuery;
+    query += ` ORDER BY member_id`;
+
+    const startNum = parseInt(start) || 0;
+    const lengthNum = parseInt(length) || 10;
+    query += ` LIMIT ${startNum}, ${lengthNum}`;
+
+    const [rows] = await db.execute(query, filteredParams);
+
+    rows.forEach(r => {
+      Object.keys(r).forEach(k => {
+        if (r[k] === null) r[k] = '';
+      });
+    });
+
+    const total = Number(summary.membersLoaded) || 0;
+
+    return res.json({
+      draw: Number(draw) || 0,
+      recordsTotal: total,
+      recordsFiltered: total,
+      summary: {
+        membersLoaded: total,
+        totalCollected: Number(summary.totalCollected) || 0,
+        monthlyCollected: Number(summary.monthlyCollected) || 0,
+        annualBalance: Number(summary.annualBalance) || 0,
+        monthlyBalance: Number(summary.monthlyBalance) || 0,
+        paidCount: Number(summary.paidCount) || 0,
+        partialCount: Number(summary.partialCount) || 0,
+        pendingCount: Number(summary.pendingCount) || 0
+      },
+      data: rows
+    });
+  }
 
   let baseQuery = `
       SELECT
@@ -2164,7 +2275,10 @@ app.post('/membership_fee/payment-status', asyncHandler(async (req, res) => {
 }));
 
 app.post('/welfare/payment-status', asyncHandler(async (req, res) => {
-  await getPaymentStatus(req, res, 'welfare Fee');
+  await getPaymentStatus(req, res, 'welfare Fee', {
+    annualTarget: 240000,
+    monthlyTarget: 20000
+  });
 }));
 
 app.post('/Insurance_cover/payment-status', asyncHandler(async (req, res) => {
