@@ -1397,8 +1397,23 @@ app.post('/transactions/filter', asyncHandler(async (req, res) => {
     params.push(payment_period);
   }
   if (transaction_type) {
+    const transactionTypeAliases = {
+      saving: 'Saving',
+      savings: 'Saving',
+      'insurance fee': 'Insurance Cover',
+      'insurance cover': 'Insurance Cover',
+      'wellfare fee': 'welfare Fee',
+      'welfare fee': 'welfare Fee',
+      'membership fee': 'Membership Fee',
+      'loan disbursments': 'Loan Disbursement',
+      'loan disbursements': 'Loan Disbursement',
+      'loan disbursement': 'Loan Disbursement',
+      'penalty interest': 'Penalty Fees',
+      'penalty fees': 'Penalty Fees'
+    };
+    const normalizedType = transactionTypeAliases[String(transaction_type).trim().toLowerCase()] || transaction_type;
     query += ` AND t.transaction_type = ?`;
-    params.push(transaction_type);
+    params.push(normalizedType);
   }
 
   const startNum = parseInt(start) || 0;
