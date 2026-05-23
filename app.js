@@ -36,6 +36,9 @@ installOpenpyxl();
 const app = express();
 app.set('trust proxy', 1); 
 
+const SESSION_TIMEOUT_MS = 15 * 60 * 1000;
+const SESSION_WARNING_MS = 2 * 60 * 1000;
+
 // Middleware Configuration
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
@@ -53,8 +56,8 @@ const sessionStore = new MySQLStore({
   password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQLDATABASE,  
   clearExpired: true,
-  checkExpirationInterval: 3000, 
-  expiration: 300000, 
+  checkExpirationInterval: 60 * 1000,
+  expiration: SESSION_TIMEOUT_MS,
 });
 
 app.use(session({
@@ -67,9 +70,26 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production', // true on Railway (HTTPS)
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 900000 // 1 day
+    maxAge: SESSION_TIMEOUT_MS
   }
 }));
+
+app.use((req, res, next) => {
+  const expiresAt = req.session && req.session.cookie && req.session.cookie.expires
+    ? new Date(req.session.cookie.expires).getTime()
+    : Date.now() + SESSION_TIMEOUT_MS;
+
+  res.locals.sessionConfig = {
+    enabled: !!(req.session && req.session.user),
+    timeoutMs: SESSION_TIMEOUT_MS,
+    warningMs: SESSION_WARNING_MS,
+    expiresAt,
+    loginUrl: '/login',
+    logoutUrl: '/logout'
+  };
+
+  next();
+});
 
 
 app.set('trust proxy', 1);
@@ -990,6 +1010,36 @@ app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) console.error(err);
     res.redirect('/login');
+  });
+});
+
+app.get('/session-status', (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({
+      authenticated: false,
+      loginUrl: '/login'
+    });
+  }
+
+  req.session.lastActivityAt = Date.now();
+  req.session.cookie.maxAge = SESSION_TIMEOUT_MS;
+
+  const expiresAt = req.session.cookie && req.session.cookie.expires
+    ? new Date(req.session.cookie.expires).getTime()
+    : Date.now() + SESSION_TIMEOUT_MS;
+
+  req.session.save((err) => {
+    if (err) {
+      console.error('Session refresh error:', err);
+      return res.status(500).json({ authenticated: false, loginUrl: '/login' });
+    }
+
+    res.json({
+      authenticated: true,
+      expiresAt,
+      timeoutMs: SESSION_TIMEOUT_MS,
+      warningMs: SESSION_WARNING_MS
+    });
   });
 });
 

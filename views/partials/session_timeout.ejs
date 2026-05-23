@@ -1,0 +1,197 @@
+<% if (typeof sessionConfig !== 'undefined' && sessionConfig && sessionConfig.enabled) { %>
+<style>
+.session-timeout-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 22, 35, .48);
+}
+.session-timeout-overlay.visible { display: flex; }
+.session-timeout-dialog {
+    width: min(420px, 100%);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 22px 60px rgba(15, 22, 35, .28);
+    font-family: 'DM Sans', Arial, sans-serif;
+    overflow: hidden;
+}
+.session-timeout-body { padding: 22px 24px 18px; }
+.session-timeout-title {
+    margin: 0 0 8px;
+    color: #1a1f2e;
+    font-size: 1rem;
+    font-weight: 700;
+}
+.session-timeout-text {
+    margin: 0;
+    color: #4a5568;
+    font-size: .84rem;
+    line-height: 1.5;
+}
+.session-timeout-count {
+    display: inline-flex;
+    min-width: 58px;
+    justify-content: center;
+    margin-top: 14px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #fff5f5;
+    color: #c53030;
+    font-size: .86rem;
+    font-weight: 700;
+}
+.session-timeout-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 18px;
+    border-top: 1px solid #edf2f7;
+    background: #f8fafc;
+}
+.session-timeout-btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: .78rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.session-timeout-btn.secondary {
+    background: transparent;
+    color: #4a5568;
+}
+.session-timeout-btn.primary {
+    background: #00b894;
+    color: #fff;
+}
+</style>
+
+<div class="session-timeout-overlay" id="sessionTimeoutOverlay" role="dialog" aria-modal="true" aria-labelledby="sessionTimeoutTitle">
+    <div class="session-timeout-dialog">
+        <div class="session-timeout-body">
+            <h2 class="session-timeout-title" id="sessionTimeoutTitle">Session expiring soon</h2>
+            <p class="session-timeout-text">Your session is about to expire. Continue working to stay signed in.</p>
+            <div class="session-timeout-count" id="sessionTimeoutCount">--:--</div>
+        </div>
+        <div class="session-timeout-actions">
+            <button class="session-timeout-btn secondary" type="button" id="sessionTimeoutLogout">Sign out</button>
+            <button class="session-timeout-btn primary" type="button" id="sessionTimeoutStay">Stay signed in</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var config = <%- JSON.stringify(sessionConfig) %>;
+    var overlay = document.getElementById('sessionTimeoutOverlay');
+    var count = document.getElementById('sessionTimeoutCount');
+    var stayBtn = document.getElementById('sessionTimeoutStay');
+    var logoutBtn = document.getElementById('sessionTimeoutLogout');
+    var tickTimer = null;
+    var activityTimer = null;
+    var lastRefreshAt = Date.now();
+    var refreshInFlight = false;
+    var warned = false;
+    var ACTIVE_REFRESH_INTERVAL_MS = 60 * 1000;
+    var ACTIVITY_DEBOUNCE_MS = 1500;
+
+    function formatRemaining(ms) {
+        var seconds = Math.max(0, Math.ceil(ms / 1000));
+        var minutes = Math.floor(seconds / 60);
+        var remainder = seconds % 60;
+        return minutes + ':' + String(remainder).padStart(2, '0');
+    }
+
+    function showWarning(remaining) {
+        warned = true;
+        if (count) count.textContent = formatRemaining(remaining);
+        if (overlay) overlay.classList.add('visible');
+    }
+
+    function hideWarning() {
+        if (overlay) overlay.classList.remove('visible');
+    }
+
+    function goToLogin() {
+        window.location.href = config.logoutUrl || '/logout';
+    }
+
+    function tick() {
+        var remaining = config.expiresAt - Date.now();
+
+        if (remaining <= 0) {
+            goToLogin();
+            return;
+        }
+
+        if (remaining <= config.warningMs) {
+            showWarning(remaining);
+        }
+
+        if (warned && count) {
+            count.textContent = formatRemaining(remaining);
+        }
+    }
+
+    function refreshSession() {
+        if (refreshInFlight) return;
+        refreshInFlight = true;
+
+        fetch('/session-status', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+        })
+        .then(function (response) {
+            if (!response.ok) throw new Error('expired');
+            return response.json();
+        })
+        .then(function (data) {
+            config.expiresAt = data.expiresAt || (Date.now() + config.timeoutMs);
+            config.warningMs = data.warningMs || config.warningMs;
+            lastRefreshAt = Date.now();
+            warned = false;
+            hideWarning();
+            tick();
+        })
+        .catch(function () {
+            goToLogin();
+        })
+        .finally(function () {
+            refreshInFlight = false;
+        });
+    }
+
+    function refreshFromActivity() {
+        var now = Date.now();
+        var remaining = config.expiresAt - now;
+
+        if (remaining <= config.warningMs || now - lastRefreshAt >= ACTIVE_REFRESH_INTERVAL_MS) {
+            refreshSession();
+        }
+    }
+
+    function handleActivity() {
+        if (activityTimer) clearTimeout(activityTimer);
+        activityTimer = setTimeout(refreshFromActivity, ACTIVITY_DEBOUNCE_MS);
+    }
+
+    if (stayBtn) stayBtn.addEventListener('click', refreshSession);
+    if (logoutBtn) logoutBtn.addEventListener('click', goToLogin);
+
+    ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'].forEach(function (eventName) {
+        document.addEventListener(eventName, handleActivity, { passive: true });
+    });
+
+    tick();
+    tickTimer = setInterval(tick, 1000);
+    window.addEventListener('beforeunload', function () {
+        if (tickTimer) clearInterval(tickTimer);
+        if (activityTimer) clearTimeout(activityTimer);
+    });
+}());
+</script>
+<% } %>
