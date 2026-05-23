@@ -87,7 +87,7 @@
 
         .filters-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 12px;
             align-items: end;
         }
@@ -171,6 +171,24 @@
                             </select>
                         </div>
                         <div class="form-group mb-0">
+                            <label>Payment Month</label>
+                            <select id="payment_month" class="form-control">
+                                <option value="">-- All Months --</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
                             <label>Member Status</label>
                             <select id="memberStatus" class="form-control">
                                 <option value="ACTIVE" selected>Active</option>
@@ -238,6 +256,7 @@
         function getFilterPayload() {
             return {
                 payment_period: $('#payment_period').val(),
+                payment_month: $('#payment_month').val(),
                 memberStatus: $('#memberStatus').val(),
                 paymentStatus: $('#paymentStatus').val()
             };
@@ -347,21 +366,19 @@
             printWindow.print();
         }
 
-        function updateSummaryCards(data) {
-            let total = 0;
-            let paid = 0;
-            let pending = 0;
-            
-            data.forEach(r => {
-                total += parseFloat(r.Total_Amount || 0);
-                if (r.Payment_Status === 'Paid') paid++;
-                else pending++;
-            });
+        function updateSummaryCards(summary) {
+            summary = summary || {};
+            const totalCollected = Number(summary.totalCollected || 0);
 
-            $('#membersCount').text(data.length);
-            $('#totalFees').text('UGX ' + total.toLocaleString());
-            $('#paidCount').text(paid);
-            $('#pendingCount').text(pending);
+            $('#membersCount').text(Number(summary.membersLoaded || 0).toLocaleString());
+            $('#totalFees').text('UGX ' + totalCollected.toLocaleString());
+            $('#paidCount').text(Number(summary.paidCount || 0).toLocaleString());
+            $('#pendingCount').text(Number(summary.pendingCount || 0).toLocaleString());
+
+            const monthText = $('#payment_month option:selected').text();
+            $('.metric-card').eq(1).find('.metric-sub').text(
+                $('#payment_month').val() ? 'Collected in ' + monthText : 'Membership fees received'
+            );
         }
 
         $(document).ready(function () {
@@ -378,12 +395,13 @@
                         return JSON.stringify({
                             ...d,
                             payment_period: $('#payment_period').val(),
+                            payment_month: $('#payment_month').val(),
                             memberStatus: $('#memberStatus').val(),
                             paymentStatus: $('#paymentStatus').val()
                         });
                     },
                     dataSrc: function (json) {
-                        updateSummaryCards(json.data);
+                        updateSummaryCards(json.summary);
                         return json.data;
                     },
                     error: function(xhr, error, thrown) {

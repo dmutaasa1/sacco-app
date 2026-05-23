@@ -2068,11 +2068,10 @@ app.post('/dependants/:id/edit', checkAuth, asyncHandler(async (req, res) => {
 
 // Helper function for payment status queries
 async function getPaymentStatus(req, res, transactionType) {
-  const { payment_period, memberStatus, paymentStatus, start, length, draw } = req.body;
+  const { payment_period, payment_month, memberStatus, paymentStatus, start, length, draw } = req.body;
   const db = dbConfig;
 
-  let query = `
-    SELECT SQL_CALC_FOUND_ROWS * FROM (
+  let baseQuery = `
       SELECT
         mm.id AS member_id,
         mm.Date_Joined,
@@ -2096,30 +2095,47 @@ async function getPaymentStatus(req, res, transactionType) {
   const params = [transactionType];
 
   if (payment_period) {
-    query += ` AND t.payment_period = ?`;
+    baseQuery += ` AND t.payment_period = ?`;
     params.push(payment_period);
   }
 
-  query += ` WHERE mm.status = ?`;
-  params.push(memberStatus || 'ACTIVE');
-
-  query += `
-      GROUP BY mm.id, mm.Date_Joined, mm.First_name, mm.Last_Name, mm.tel_no, mm.Status
-    ) AS member_payments
-  `;
-
-  if (paymentStatus) {
-    query += ` WHERE Payment_Status = ?`;
-    params.push(paymentStatus);
+  if (payment_month) {
+    baseQuery += ` AND MONTH(t.tran_date) = ?`;
+    params.push(Number(payment_month));
   }
 
+  baseQuery += ` WHERE mm.status = ?`;
+  params.push(memberStatus || 'ACTIVE');
+
+  baseQuery += `
+      GROUP BY mm.id, mm.Date_Joined, mm.First_name, mm.Last_Name, mm.tel_no, mm.Status
+  `;
+
+  let filteredQuery = `SELECT * FROM (${baseQuery}) AS member_payments`;
+  const filteredParams = [...params];
+
+  if (paymentStatus) {
+    filteredQuery += ` WHERE Payment_Status = ?`;
+    filteredParams.push(paymentStatus);
+  }
+
+  const [[summary]] = await db.execute(`
+    SELECT
+      COUNT(*) AS membersLoaded,
+      COALESCE(SUM(Total_Amount), 0) AS totalCollected,
+      SUM(CASE WHEN Payment_Status = 'Paid' THEN 1 ELSE 0 END) AS paidCount,
+      SUM(CASE WHEN Payment_Status = 'Not Paid' THEN 1 ELSE 0 END) AS pendingCount
+    FROM (${filteredQuery}) AS filtered_member_payments
+  `, filteredParams);
+
+  let query = filteredQuery;
   query += ` ORDER BY member_id`;
 
   const startNum = parseInt(start) || 0;
   const lengthNum = parseInt(length) || 10;
   query += ` LIMIT ${startNum}, ${lengthNum}`;
 
-  const [rows] = await db.execute(query, params);
+  const [rows] = await db.execute(query, filteredParams);
 
   rows.forEach(r => {
     Object.keys(r).forEach(k => {
@@ -2127,12 +2143,18 @@ async function getPaymentStatus(req, res, transactionType) {
     });
   });
 
-  const [[{ total }]] = await db.query('SELECT FOUND_ROWS() AS total');
+  const total = Number(summary.membersLoaded) || 0;
 
   res.json({
     draw: Number(draw) || 0,
     recordsTotal: total,
     recordsFiltered: total,
+    summary: {
+      membersLoaded: total,
+      totalCollected: Number(summary.totalCollected) || 0,
+      paidCount: Number(summary.paidCount) || 0,
+      pendingCount: Number(summary.pendingCount) || 0
+    },
     data: rows
   });
 }
