@@ -193,7 +193,7 @@
 
         .filters-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 12px;
             align-items: end;
         }
@@ -262,6 +262,10 @@
             background: #fff1f2;
             color: var(--insurance-danger);
         }
+        .status-pill.partial {
+            background: #f0fdfa;
+            color: var(--insurance-primary);
+        }
         .member-status {
             font-weight: 700;
         }
@@ -311,19 +315,19 @@
                     <div class="metric-sub">Filtered insurance records</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Total Premium</div>
+                    <div class="metric-label">Total Collected</div>
                     <div class="metric-value" id="premiumTotal">-</div>
-                    <div class="metric-sub">Amount due across visible members</div>
+                    <div class="metric-sub">Annual insurance payments</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Paid Members</div>
-                    <div class="metric-value" id="paidMembers">-</div>
-                    <div class="metric-sub">Members marked as paid</div>
+                    <div class="metric-label">Monthly Balance</div>
+                    <div class="metric-value" id="monthlyBalance">-</div>
+                    <div class="metric-sub">Select a month to calculate</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Unpaid Members</div>
-                    <div class="metric-value" id="unpaidMembers">-</div>
-                    <div class="metric-sub">Members still pending payment</div>
+                    <div class="metric-label">Payment Status</div>
+                    <div class="metric-value" id="statusCounts">-</div>
+                    <div class="metric-sub">Paid / Partial / Unpaid</div>
                 </div>
             </div>
 
@@ -372,7 +376,26 @@
                             <select id="paymentStatus" class="form-control">
                                 <option value="">-- All --</option>
                                 <option value="Paid">Paid</option>
+                                <option value="Partially Paid">Partially Paid</option>
                                 <option value="Not Paid">Not Paid</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="payment_month">Payment Month</label>
+                            <select id="payment_month" class="form-control">
+                                <option value="">-- All --</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
                             </select>
                         </div>
                         <div class="form-group mb-0">
@@ -405,9 +428,9 @@
                                     <th>Phone</th>
                                     <th>Date Joined</th>
                                     <th>Status</th>
-                                    <th>Total Amount</th>
+                                    <th>Annual Paid</th>
+                                    <th>Annual Balance</th>
                                     <th>Last Payment Date</th>
-                                    <th>Last Payment Period</th>
                                     <th>Payment Status</th>
                                 </tr>
                             </thead>
@@ -453,13 +476,14 @@
         function getFilterPayload() {
             return {
                 payment_period: $('#payment_period').val(),
+                payment_month: $('#payment_month').val(),
                 memberStatus: $('#memberStatus').val(),
                 paymentStatus: $('#paymentStatus').val()
             };
         }
 
-        async function fetchAllInsuranceRows() {
-            const response = await $.ajax({
+        async function fetchAllInsuranceReport() {
+            return $.ajax({
                 url: '/Insurance_cover/payment-status',
                 type: 'POST',
                 contentType: 'application/json',
@@ -470,27 +494,23 @@
                     draw: 1
                 })
             });
-
-            return Array.isArray(response.data) ? response.data : [];
         }
 
-        function updateSummaryCards(rows) {
-            const totals = rows.reduce(function(acc, row) {
-                const status = String(row.Payment_Status || '').trim().toLowerCase();
-                acc.count += 1;
-                acc.amount += Number(row.Total_Amount || 0);
-                if (status === 'paid') {
-                    acc.paid += 1;
-                } else if (status === 'not paid') {
-                    acc.unpaid += 1;
-                }
-                return acc;
-            }, { count: 0, amount: 0, paid: 0, unpaid: 0 });
+        function updateSummaryCards(summary) {
+            summary = summary || {};
+            const monthSelected = !!$('#payment_month').val();
+            const monthText = $('#payment_month option:selected').text();
+            const paid = Number(summary.paidCount || 0);
+            const partial = Number(summary.partialCount || 0);
+            const pending = Number(summary.pendingCount || 0);
 
-            $('#membersShown').text(totals.count);
-            $('#premiumTotal').text(formatCurrency(totals.amount));
-            $('#paidMembers').text(totals.paid);
-            $('#unpaidMembers').text(totals.unpaid);
+            $('#membersShown').text(Number(summary.membersLoaded || 0).toLocaleString());
+            $('#premiumTotal').text(formatCurrency(summary.totalCollected || 0));
+            $('#monthlyBalance').text(monthSelected ? formatCurrency(summary.monthlyBalance || 0) : 'N/A');
+            $('#statusCounts').text(paid + ' / ' + partial + ' / ' + pending);
+            $('#monthlyBalance').closest('.metric-card').find('.metric-sub').text(
+                monthSelected ? 'Outstanding for ' + monthText : 'Select a month to calculate'
+            );
         }
 
         function exportInsuranceCsv(rows) {
@@ -506,9 +526,9 @@
                 'Phone',
                 'Date Joined',
                 'Status',
-                'Total Amount',
+                'Annual Paid',
+                'Annual Balance',
                 'Last Payment Date',
-                'Last Payment Period',
                 'Payment Status'
             ];
 
@@ -521,8 +541,8 @@
                     formatDate(row.Date_Joined),
                     row.Status,
                     Number(row.Total_Amount || 0),
+                    Number(row.Annual_Balance || 0),
                     formatDate(row.last_payment_date),
-                    row.last_payment_period || '',
                     row.Payment_Status || ''
                 ].map(function(value) {
                     const safeValue = String(value ?? '').replace(/"/g, '""');
@@ -555,7 +575,7 @@
 
             const summaryCardsHtml = document.querySelector('.summary-grid').innerHTML;
             const rowsHtml = rows.map(function(row) {
-                const paymentStatus = String(row.Payment_Status || '').trim().toLowerCase() === 'paid' ? 'Paid' : 'Not Paid';
+                const paymentStatus = row.Payment_Status || '';
                 return `
                     <tr>
                         <td>${escapeHtml(row.member_id)}</td>
@@ -565,8 +585,8 @@
                         <td>${escapeHtml(formatDate(row.Date_Joined))}</td>
                         <td>${escapeHtml(row.Status || '')}</td>
                         <td style="text-align:right;">${escapeHtml(formatCurrency(row.Total_Amount))}</td>
+                        <td style="text-align:right;">${escapeHtml(formatCurrency(row.Annual_Balance))}</td>
                         <td>${escapeHtml(formatDate(row.last_payment_date))}</td>
-                        <td>${escapeHtml(row.last_payment_period || '')}</td>
                         <td>${escapeHtml(paymentStatus)}</td>
                     </tr>
                 `;
@@ -605,9 +625,9 @@
                                 <th>Phone</th>
                                 <th>Date Joined</th>
                                 <th>Status</th>
-                                <th>Total Amount</th>
+                                <th>Annual Paid</th>
+                                <th>Annual Balance</th>
                                 <th>Last Payment Date</th>
-                                <th>Last Payment Period</th>
                                 <th>Payment Status</th>
                             </tr>
                         </thead>
@@ -640,7 +660,7 @@
                         });
                     },
                     dataSrc: function(json) {
-                        updateSummaryCards(Array.isArray(json.data) ? json.data : []);
+                        updateSummaryCards(json.summary);
                         return json.data;
                     },
                     error: function(xhr) {
@@ -676,20 +696,28 @@
                         }
                     },
                     {
+                        data: 'Annual_Balance',
+                        width: '11%',
+                        render: function(data) {
+                            return escapeHtml(formatCurrency(data));
+                        }
+                    },
+                    {
                         data: 'last_payment_date',
                         width: '11%',
                         render: function(data) {
                             return escapeHtml(formatDate(data));
                         }
                     },
-                    { data: 'last_payment_period', width: '8%' },
                     {
                         data: 'Payment_Status',
                         width: '10%',
                         render: function(data) {
-                            const isPaid = String(data || '').trim().toLowerCase() === 'paid';
-                            const statusClass = isPaid ? 'paid' : 'unpaid';
-                            const icon = isPaid ? 'fa-check-circle' : 'fa-times-circle';
+                            const normalized = String(data || '').trim().toLowerCase();
+                            const isPaid = normalized === 'paid';
+                            const isPartial = normalized === 'partially paid';
+                            const statusClass = isPaid ? 'paid' : (isPartial ? 'partial' : 'unpaid');
+                            const icon = isPaid ? 'fa-check-circle' : (isPartial ? 'fa-adjust' : 'fa-times-circle');
                             return '<span class="status-pill ' + statusClass + '"><i class="fa ' + icon + '"></i>' + escapeHtml(data || '') + '</span>';
                         }
                     }
@@ -701,30 +729,33 @@
 
             $('#filterBtn').on('click', function() {
                 table.ajax.reload();
-                fetchAllInsuranceRows().then(updateSummaryCards).catch(function() {});
             });
 
             $('#clearBtn').on('click', function() {
                 $('#payment_period').val('2026');
                 $('#memberStatus').val('ACTIVE');
                 $('#paymentStatus').val('');
+                $('#payment_month').val('');
                 table.ajax.reload();
-                fetchAllInsuranceRows().then(updateSummaryCards).catch(function() {});
             });
 
             $('#csvExportBtn').on('click', async function() {
-                const rows = await fetchAllInsuranceRows();
-                updateSummaryCards(rows);
+                const report = await fetchAllInsuranceReport();
+                const rows = Array.isArray(report.data) ? report.data : [];
+                updateSummaryCards(report.summary);
                 exportInsuranceCsv(rows);
             });
 
             $('#pdfExportBtn').on('click', async function() {
-                const rows = await fetchAllInsuranceRows();
-                updateSummaryCards(rows);
+                const report = await fetchAllInsuranceReport();
+                const rows = Array.isArray(report.data) ? report.data : [];
+                updateSummaryCards(report.summary);
                 printInsurancePdf(rows);
             });
 
-            fetchAllInsuranceRows().then(updateSummaryCards).catch(function() {});
+            fetchAllInsuranceReport().then(function(report) {
+                updateSummaryCards(report.summary);
+            }).catch(function() {});
         });
     </script>
 </body>

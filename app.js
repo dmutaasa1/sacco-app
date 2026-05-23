@@ -2282,7 +2282,10 @@ app.post('/welfare/payment-status', asyncHandler(async (req, res) => {
 }));
 
 app.post('/Insurance_cover/payment-status', asyncHandler(async (req, res) => {
-  await getPaymentStatus(req, res, 'Insurance Cover');
+  await getPaymentStatus(req, res, 'Insurance Cover', {
+    annualTarget: 60000,
+    monthlyTarget: 5000
+  });
 }));
 
 // ==================== SAVINGS REPORT ====================
