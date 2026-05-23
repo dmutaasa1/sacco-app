@@ -430,10 +430,7 @@
                                     <th>Status</th>
                                     <th>Annual Paid</th>
                                     <th>Annual Balance</th>
-                                    <th>Month Paid</th>
-                                    <th>Monthly Balance</th>
                                     <th>Last Payment Date</th>
-                                    <th>Last Payment Period</th>
                                     <th>Payment Status</th>
                                 </tr>
                             </thead>
@@ -536,10 +533,7 @@
                 'Status',
                 'Annual Paid',
                 'Annual Balance',
-                'Month Paid',
-                'Monthly Balance',
                 'Last Payment Date',
-                'Last Payment Period',
                 'Payment Status'
             ];
 
@@ -553,10 +547,7 @@
                     row.Status,
                     Number(row.Total_Amount || 0),
                     Number(row.Annual_Balance || 0),
-                    $('#payment_month').val() ? Number(row.Monthly_Amount || 0) : '',
-                    $('#payment_month').val() ? Number(row.Monthly_Balance || 0) : '',
                     formatDate(row.last_payment_date),
-                    row.last_payment_period || '',
                     row.Payment_Status || ''
                 ].map(function(value) {
                     const safeValue = String(value ?? '').replace(/"/g, '""');
@@ -600,10 +591,7 @@
                         <td>${escapeHtml(row.Status || '')}</td>
                         <td style="text-align:right;">${escapeHtml(formatCurrency(row.Total_Amount))}</td>
                         <td style="text-align:right;">${escapeHtml(formatCurrency(row.Annual_Balance))}</td>
-                        <td style="text-align:right;">${$('#payment_month').val() ? escapeHtml(formatCurrency(row.Monthly_Amount)) : 'N/A'}</td>
-                        <td style="text-align:right;">${$('#payment_month').val() ? escapeHtml(formatCurrency(row.Monthly_Balance)) : 'N/A'}</td>
                         <td>${escapeHtml(formatDate(row.last_payment_date))}</td>
-                        <td>${escapeHtml(row.last_payment_period || '')}</td>
                         <td>${escapeHtml(paymentStatus)}</td>
                     </tr>
                 `;
@@ -644,10 +632,7 @@
                                 <th>Status</th>
                                 <th>Annual Paid</th>
                                 <th>Annual Balance</th>
-                                <th>Month Paid</th>
-                                <th>Monthly Balance</th>
                                 <th>Last Payment Date</th>
-                                <th>Last Payment Period</th>
                                 <th>Payment Status</th>
                             </tr>
                         </thead>
@@ -723,27 +708,12 @@
                         }
                     },
                     {
-                        data: 'Monthly_Amount',
-                        width: '11%',
-                        render: function(data) {
-                            return $('#payment_month').val() ? escapeHtml(formatCurrency(data)) : 'N/A';
-                        }
-                    },
-                    {
-                        data: 'Monthly_Balance',
-                        width: '11%',
-                        render: function(data) {
-                            return $('#payment_month').val() ? escapeHtml(formatCurrency(data)) : 'N/A';
-                        }
-                    },
-                    {
                         data: 'last_payment_date',
                         width: '11%',
                         render: function(data) {
                             return escapeHtml(formatDate(data));
                         }
                     },
-                    { data: 'last_payment_period', width: '8%' },
                     {
                         data: 'Payment_Status',
                         width: '10%',
