@@ -322,10 +322,10 @@ body.sidebar-collapsed .page-wrapper {
                                 <label for="marital_status">Marital Status</label>
                                 <select id="marital_status" name="marital_status" class="form-select">
                                     <option value="">Select Status</option>
-                                    <option value="Single" <%= (member.marital_status || '').trim() === 'Single' ? 'selected' : '' %>>SINGLE</option>
-                                    <option value="Married" <%= (member.marital_status || '').trim() === 'Married' ? 'selected' : '' %>>MARRIED</option>
-                                    <option value="Divorced" <%= (member.marital_status || '').trim() === 'Divorced' ? 'selected' : '' %>>DIVORCED</option>
-                                    <option value="Widowed" <%= (member.marital_status || '').trim() === 'Widowed' ? 'selected' : '' %>>WIDOWED</option>
+                                    <option value="Single" <%= (member.marital_status || '').trim() === 'SINGLE' ? 'selected' : '' %>>SINGLE</option>
+                                    <option value="Married" <%= (member.marital_status || '').trim() === 'MARRIED' ? 'selected' : '' %>>MARRIED</option>
+                                    <option value="Divorced" <%= (member.marital_status || '').trim() === 'DIVORCED' ? 'selected' : '' %>>DIVORCED</option>
+                                    <option value="Widowed" <%= (member.marital_status || '').trim() === 'WIDOWED' ? 'selected' : '' %>>WIDOWED</option>
                                 </select>
                             </div>
                             <div class="form-group">
